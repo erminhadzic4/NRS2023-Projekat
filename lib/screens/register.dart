@@ -9,10 +9,13 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  final List _focusInput = List.generate(6, (index) => FocusNode());
+
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
       isDense: true,
-      contentPadding: const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+      contentPadding:
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -33,10 +36,10 @@ class _RegisterState extends State<Register> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: 80),
+                padding: EdgeInsets.only(top: 80, right: 200),
                 child: Text("Sign In",
                     style: TextStyle(
-                        color: Colors.black87,
+                        color: Colors.blueAccent,
                         fontSize: 45,
                         fontWeight: FontWeight.bold)),
               ),
@@ -49,8 +52,12 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          decoration: registerInputDecoration("Email", "Enter Email"),
+                          decoration:
+                              registerInputDecoration("Email", "Enter Email"),
                           onChanged: (String value) {},
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[0]);
+                          },
                         ),
                       ),
                       const SizedBox(
@@ -59,29 +66,31 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                            focusNode: _focusInput[0],
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.name,
+                            decoration:
+                                registerInputDecoration("Name", "Enter Name"),
+                            onChanged: (String value) {},
+                            onFieldSubmitted: (String value) {
+                              FocusScope.of(context)
+                                  .requestFocus(_focusInput[1]);
+                            }),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          focusNode: _focusInput[1],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
-                          decoration: registerInputDecoration("Name", "Enter Name"),
+                          decoration: registerInputDecoration(
+                              "Lat Name", "Enter Last Name"),
                           onChanged: (String value) {},
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.name,
-                          decoration: registerInputDecoration("Lat Name", "Enter Last Name"),
-                          onChanged: (String value) {},
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            } else if (value.length < 9) {
-                              return 'Your password needs to be longer than 9 characters';
-                            }
-                            return null;
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[2]);
                           },
                         ),
                       ),
@@ -91,17 +100,14 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          focusNode: _focusInput[2],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
-                          decoration: registerInputDecoration("Password", "Enter Password"),
+                          decoration: registerInputDecoration(
+                              "Password", "Enter Password"),
                           onChanged: (String value) {},
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            } else if (value.length < 9) {
-                              return 'Your password needs to be longer than 9 characters';
-                            }
-                            return null;
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[3]);
                           },
                         ),
                       ),
@@ -111,12 +117,14 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          focusNode: _focusInput[3],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
-                          decoration: registerInputDecoration("Re-enter Password", "Enter your password again"),
+                          decoration: registerInputDecoration(
+                              "Re-enter Password", "Enter your password again"),
                           onChanged: (String value) {},
-                          validator: (value) {
-                            return null;
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[4]);
                           },
                         ),
                       ),
@@ -126,11 +134,13 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          focusNode: _focusInput[4],
                           keyboardType: TextInputType.visiblePassword,
-                          decoration: registerInputDecoration("Address", "Enter Address"),
+                          decoration: registerInputDecoration(
+                              "Address", "Enter Address"),
                           onChanged: (String value) {},
-                          validator: (value) {
-                            return null;
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[5]);
                           },
                         ),
                       ),
@@ -140,6 +150,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: InternationalPhoneNumberInput(
+                            focusNode: _focusInput[5],
                             onInputChanged: (PhoneNumber value) {},
                           )),
                       const SizedBox(
@@ -155,6 +166,7 @@ class _RegisterState extends State<Register> {
                           color: Colors.blue,
                           child: const Text("Sign in",
                               style: TextStyle(
+                                fontSize: 20,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               )),
@@ -173,6 +185,7 @@ class _RegisterState extends State<Register> {
                           color: Colors.white,
                           child: const Text("Log In",
                               style: TextStyle(
+                                fontSize: 20,
                                 color: Colors.blue,
                                 fontWeight: FontWeight.bold,
                               )),
