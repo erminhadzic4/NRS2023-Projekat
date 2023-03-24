@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:nrs2023/screens/emailVaildation.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -205,7 +206,6 @@ class _RegisterState extends State<Register> {
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
-                          onPressed: () {},
                           color: Colors.blue,
                           child: const Text("Sign in",
                               style: TextStyle(
@@ -213,6 +213,12 @@ class _RegisterState extends State<Register> {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               )),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const EmailValidation()),
+                              );
+                            },
                         ),
                       ),
                       const SizedBox(
