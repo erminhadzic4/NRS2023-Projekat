@@ -211,6 +211,7 @@ class _RegisterState extends State<Register> {
                           child: InternationalPhoneNumberInput(
                             focusNode: _focusInput[5],
                             onInputChanged: (PhoneNumber value) {},
+                            autoValidateMode: AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Invalid phone number';
