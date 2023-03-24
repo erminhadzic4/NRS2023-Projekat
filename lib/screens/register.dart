@@ -20,7 +20,7 @@ class _RegisterState extends State<Register> {
     return InputDecoration(
       isDense: true,
       contentPadding:
-      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -58,7 +58,7 @@ class _RegisterState extends State<Register> {
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                          registerInputDecoration("Email", "Enter Email"),
+                              registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
@@ -83,7 +83,7 @@ class _RegisterState extends State<Register> {
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration:
-                          registerInputDecoration("Name", "Enter Name"),
+                              registerInputDecoration("Name", "Enter Name"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[1]);
                           },
