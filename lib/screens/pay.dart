@@ -13,14 +13,36 @@ class _PayState extends State<Pay> {
   late String _recipientAccount;
 
   void _submitForm() {
-    if (_formKey.currentState?.validate() != null) {
-      //implementirati nakon validacije
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Transaction complete'),
+          content: Text('Your transaction has been completed successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+        onTap: () {
+      // dismiss the keyboard when the user taps anywhere on the screen
+      FocusScope.of(context).unfocus();
+      // validate the form and show any validation errors
+      _formKey.currentState?.validate();
+    },
+    child: Scaffold(
       appBar: AppBar(
         title: Text('New Transaction'),
       ),
@@ -80,6 +102,7 @@ class _PayState extends State<Pay> {
                 child: Text('Submit'),
               ),
             ],
+            ),
           ),
         ),
       ),
