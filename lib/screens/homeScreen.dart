@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/transactions.dart';
 
@@ -41,7 +42,7 @@ class HomeScreen extends StatelessWidget {
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Register()),
+                MaterialPageRoute(builder: (context) => Pay()),
               );
               break;
             case 2:
