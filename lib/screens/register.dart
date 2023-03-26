@@ -223,6 +223,9 @@ class _RegisterState extends State<Register> {
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
+                         /* onPressed: () {
+                            if (_formkey.currentState!.validate()) {}
+                          },*/
                           color: Colors.blue,
                           child: const Text("Sign in",
                               style: TextStyle(
@@ -231,11 +234,15 @@ class _RegisterState extends State<Register> {
                                 fontWeight: FontWeight.bold,
                               )),
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => EmailValidation(valuesInput: Controllers,)),
-                              );
-                            },
+                              if (_formkey.currentState!.validate()) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>
+                                      EmailValidation(
+                                        valuesInput: Controllers,)),
+                                );
+                              }
+                            }
                         ),
                       ),
                       const SizedBox(
