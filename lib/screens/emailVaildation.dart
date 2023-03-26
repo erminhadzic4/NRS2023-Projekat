@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/numberValidation.dart';
 import 'package:flutter/gestures.dart';
+
+import 'numberValidation.dart';
 
 class EmailValidation extends StatefulWidget {
   const EmailValidation({Key? key, required this.valuesInput}) : super(key: key);
@@ -139,7 +142,12 @@ class _EmailValidationState extends State<EmailValidation>{
                                   elevation: 10,
                                   height: 50,
                                   minWidth: double.infinity,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => NumberValidation()),
+                                    );
+                                  },
                                   color: Colors.blue,
                                   child: const Text("Verify",
                                       style: TextStyle(

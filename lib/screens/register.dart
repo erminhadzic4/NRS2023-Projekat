@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 
-import 'confirm_number.dart';
+import 'numberValidation.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
