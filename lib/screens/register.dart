@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 
+import 'confirm_number.dart';
+
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
@@ -25,7 +27,6 @@ class _RegisterState extends State<Register> {
   }
 
   String? _pendingPassword;
-
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
@@ -61,7 +62,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Form(
-                  key:_formkey,
+                  key: _formkey,
                   child: Column(
                     children: [
                       Padding(
@@ -76,7 +77,9 @@ class _RegisterState extends State<Register> {
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || !value.contains("@")) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                !value.contains("@")) {
                               return 'Invalid address';
                             }
                             return null;
@@ -102,8 +105,11 @@ class _RegisterState extends State<Register> {
                             },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || value.contains(RegExp(r'[0-9]'))) {
-                              return 'Name cannot contain numeric characters';
+                            if (value == null || value.isEmpty) {
+                              return 'Name must contain at least one alphabetic character';
+                            } else if (value.contains(
+                                RegExp('[^a-zćčđšž]', caseSensitive: false))) {
+                              return 'Name cannot contain non-alphabetic characters';
                             }
                             return null;
                           },
@@ -120,15 +126,18 @@ class _RegisterState extends State<Register> {
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration: registerInputDecoration(
-                              "Lat Name", "Enter Last Name"),
+                              "Last Name", "Enter Last Name"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[2]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || value.contains(RegExp(r'[0-9]'))) {
-                              return 'Name cannot contain numeric characters';
+                            if (value == null || value.isEmpty) {
+                              return 'Name must contain at least one alphabetic character';
+                            } else if (value.contains(
+                                RegExp('[^a-zćčđšž]', caseSensitive: false))) {
+                              return 'Name cannot contain non-alphabetic characters';
                             }
                             return null;
                           },
@@ -156,7 +165,9 @@ class _RegisterState extends State<Register> {
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || value.length<10) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.length < 10) {
                               return 'Password must be longer than 10 characters';
                             }
                             return null;
@@ -181,7 +192,9 @@ class _RegisterState extends State<Register> {
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || value!=_pendingPassword) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value != _pendingPassword) {
                               return 'Passwords do not match';
                             }
                             return null;
@@ -203,6 +216,13 @@ class _RegisterState extends State<Register> {
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[5]);
                           },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Invalid address';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(
@@ -213,6 +233,13 @@ class _RegisterState extends State<Register> {
                           child: InternationalPhoneNumberInput(
                             focusNode: _focusInput[5],
                             onInputChanged: (PhoneNumber value) {},
+                            autoValidateMode: AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Invalid phone number';
+                              }
+                              return null;
+                            },
                           )),
                       const SizedBox(
                         height: 50,
@@ -223,9 +250,6 @@ class _RegisterState extends State<Register> {
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
-                         /* onPressed: () {
-                            if (_formkey.currentState!.validate()) {}
-                          },*/
                           color: Colors.blue,
                           child: const Text("Sign in",
                               style: TextStyle(

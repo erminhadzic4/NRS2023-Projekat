@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:nrs2023/screens/emailVaildation.dart';
-import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/homeScreen.dart';
 
-void main(){
-  runApp(MaterialApp(home: Register(), debugShowCheckedModeBanner: false,));
-  //runApp(MyApp());
-}
-/*
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  /*@override
+  @override
   Widget build(BuildContext context) {
-    return const Register();
-  }*/
-
-  /*@override
-  Widget build(BuildContext context) {
-    return const EmailValidation();
-  }*/
-
-}*/
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'My App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomeScreen(),
+    );
+  }
+}
