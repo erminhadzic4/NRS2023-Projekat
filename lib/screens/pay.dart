@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-
 class Pay extends StatefulWidget {
   @override
   _PayState createState() => _PayState();
-
 }
 
 class _PayState extends State<Pay> {
@@ -14,25 +12,9 @@ class _PayState extends State<Pay> {
   late String _recipientName;
   late String _recipientAccount;
 
-
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Transaction complete'),
-          content: Text('Your transaction has been completed successfully.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      _goToPaymentPage();
     }
   }
 
@@ -84,72 +66,72 @@ class _PayState extends State<Pay> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
-      // dismiss the keyboard when the user taps anywhere on the screen
-      FocusScope.of(context).unfocus();
-      // validate the form and show any validation errors
-      _formKey.currentState?.validate();
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text('New Transaction'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Transaction Amount'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == "") {
-                    return 'Please enter a transaction amount';
-                  }
-                  if (double.tryParse(value!) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _transactionAmount = value!;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Recipient Name'),
-                validator: (value) {
-                  if (value == "") {
-                    return 'Please enter recipient name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _recipientName = value!;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Recipient Account'),
-                validator: (value) {
-                  if (value == "") {
-                    return 'Please enter recipient account';
-                  }
-                  if (int.tryParse(value!) == null) {
-                    return 'Please enter a valid account number';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _recipientAccount = value!;
-                },
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: _goToPaymentPage,
-                child: Text('Submit'),
-              ),
-            ],
+      onTap: () {
+        // dismiss the keyboard when the user taps anywhere on the screen
+        FocusScope.of(context).unfocus();
+        // validate the form and show any validation errors
+        _formKey.currentState?.validate();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('New Transaction'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Transaction Amount'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == "") {
+                      return 'Please enter a transaction amount';
+                    }
+                    if (double.tryParse(value!) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _transactionAmount = value!;
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Recipient Name'),
+                  validator: (value) {
+                    if (value == "") {
+                      return 'Please enter recipient name';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _recipientName = value!;
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Recipient Account'),
+                  validator: (value) {
+                    if (value == "") {
+                      return 'Please enter recipient account';
+                    }
+                    if (int.tryParse(value!) == null) {
+                      return 'Please enter a valid account number';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _recipientAccount = value!;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: Text('Submit'),
+                ),
+              ],
             ),
           ),
         ),
@@ -157,7 +139,6 @@ class _PayState extends State<Pay> {
     );
   }
 }
-
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -168,11 +149,35 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientAccountController =
-  TextEditingController();
+      TextEditingController();
   String _selectedCurrency = "USD";
-  final List<String> _currencies = ['USD', 'AUD', 'BRL', 'CAD', 'CHF', 'CZK', 'DKK', 'EUR', 'GBP', 'HKD', 'HUF', 'ILS', 'JPY', 'MXN', 'NOK', 'NZD', 'PHP', 'PLN', 'RUB', 'SEK', 'SGD', 'THB', 'TWD'];
+  final List<String> _currencies = [
+    'USD',
+    'AUD',
+    'BRL',
+    'CAD',
+    'CHF',
+    'CZK',
+    'DKK',
+    'EUR',
+    'GBP',
+    'HKD',
+    'HUF',
+    'ILS',
+    'JPY',
+    'MXN',
+    'NOK',
+    'NZD',
+    'PHP',
+    'PLN',
+    'RUB',
+    'SEK',
+    'SGD',
+    'THB',
+    'TWD'
+  ];
 
   void _submitPaymentForm() {
     if (_formKey.currentState!.validate()) {
@@ -182,7 +187,19 @@ class _PaymentPageState extends State<PaymentPage> {
           content: Text('Recipient name or account details are required.'),
         ));
       } else {
-        //dodati
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Transaction complete'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('OK'),
+                    )
+                  ],
+                ));
       }
     }
   }
@@ -190,9 +207,10 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blue,
           title: Text('Payment'),
         ),
         body: Padding(
@@ -219,7 +237,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -234,9 +252,9 @@ class _PaymentPageState extends State<PaymentPage> {
                   },
                   items: _currencies
                       .map((currency) => DropdownMenuItem(
-                    value: currency,
-                    child: Text(currency),
-                  ))
+                            value: currency,
+                            child: Text(currency),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
