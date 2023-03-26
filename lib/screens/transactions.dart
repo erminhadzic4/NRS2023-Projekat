@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/transactionDetails.dart';
 
 class Transactions extends StatelessWidget {
   const Transactions({Key? key}) : super(key: key);
@@ -29,9 +30,12 @@ class Transaction {
   late String date;
   late String type;
   late double amount;
+  late String id;
+  late String currency;
+  late String details;
 
   // constructor
-  Transaction(this.date, this.type, this.amount);
+  Transaction(this.date, this.type, this.amount,this.currency,this.details,this.id);
 }
 
 class _HomePageState extends State<HomePage> {
@@ -61,7 +65,7 @@ class _HomePageState extends State<HomePage> {
     dummyList = List.generate(
       10,
       (index) =>
-          Transaction('Jan $index 2021', 'Deposit', 100.0 + (index * 10)),
+          Transaction('Jan $index 2021', 'Deposit', 100.0 + (index * 10), 'EUR','detail','12345'),
     );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -81,7 +85,7 @@ class _HomePageState extends State<HomePage> {
 
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
-      dummyList.add(Transaction('Jan $i 2021', 'Deposit', 100.0 + (i * 10)));
+      dummyList.add(Transaction('Jan $i 2021', 'Deposit', 100.0 + (i * 10), 'EUR','detail','12345'));
     }
     _currentMax = _currentMax + 10;
     setState(() {});
@@ -104,6 +108,20 @@ class _HomePageState extends State<HomePage> {
             title: Text(dummyList[index].date),
             subtitle: Text(dummyList[index].type),
             trailing: Text(dummyList[index].amount.toString()),
+            onTap: () {
+              Navigator.push(
+                context, MaterialPageRoute(
+                  builder: (context) => TransactionDetailsScreen(
+                    transactionId: dummyList[index].id, 
+                    transactionCurrency: dummyList[index].currency, 
+                    transactionType: dummyList[index].type, 
+                    transactionAmount: dummyList[index].amount, 
+                    transactionDate: dummyList[index].date, 
+                    transactionDetails: dummyList[index].details
+                  ),
+                ),
+              );
+           },
           );
         },
         itemCount: dummyList.length + 1,
