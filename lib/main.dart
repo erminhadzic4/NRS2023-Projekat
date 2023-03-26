@@ -3,10 +3,10 @@ import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:nrs2023/screens/register.dart';
 
 void main(){
-  runApp(MaterialApp(home: Register(),));
+  runApp(MaterialApp(home: Register(), debugShowCheckedModeBanner: false,));
   //runApp(MyApp());
 }
-
+/*
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
     return const Register();
   }*/
 
-  @override
+  /*@override
   Widget build(BuildContext context) {
     return const EmailValidation();
-  }
+  }*/
 
-}
+}*/
