@@ -26,42 +26,29 @@ class HomePage extends StatefulWidget {
 }
 
 class Transaction {
-  late String date;
-  late String type;
-  late double amount;
+  final String title;
+  final String description;
+  final double amount;
 
-  // constructor
-  Transaction(this.date, this.type, this.amount);
+  Transaction(
+      {required this.title, required this.description, required this.amount});
 }
 
 class _HomePageState extends State<HomePage> {
-  late List dummyList;
+  late List transactions;
   ScrollController _scrollController = ScrollController();
   int _currentMax = 10;
 
-/*
   @override
   void initState() {
     //TODO: implement initState
     super.initState();
-    dummyList = List.generate(10, (index) => "Item : ${index + 1}");
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _getMoreList();
-      }
-    });
-  }
-  */
-
-  @override
-  void initState() {
-    //TODO: implement initState
-    super.initState();
-    dummyList = List.generate(
+    transactions = List.generate(
       10,
-      (index) =>
-          Transaction('Jan $index 2021', 'Deposit', 100.0 + (index * 10)),
+      (index) => Transaction(
+          title: 'Transaction ${index + 1}',
+          description: 'Description ${index + 1}',
+          amount: 10.0 * (index + 1)),
     );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -71,17 +58,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  /*
-  List<Transaction> transactions = [
-    Transaction('Jan 1, 2021','Deposit',100.0),
-    Transaction('Jan 2, 2021','Withdrawal',50.0),
-    Transaction('Jan 3, 2021','Payment',25.0),
-  ];
-  */
-
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
-      dummyList.add(Transaction('Jan $i 2021', 'Deposit', 100.0 + (i * 10)));
+      transactions.add(Transaction(
+          title: 'Transaction ${i + 1}',
+          description: 'Description ${i + 1}',
+          amount: 10.0 * (i + 1)));
     }
     _currentMax = _currentMax + 10;
     setState(() {});
@@ -97,16 +79,57 @@ class _HomePageState extends State<HomePage> {
         controller: _scrollController,
         itemExtent: 80,
         itemBuilder: (context, index) {
-          if (index == dummyList.length) {
+          if (index == transactions.length) {
             return const CupertinoActivityIndicator();
           }
-          return ListTile(
-            title: Text(dummyList[index].date),
-            subtitle: Text(dummyList[index].type),
-            trailing: Text(dummyList[index].amount.toString()),
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      DetailsScreen(transaction: transactions[index]),
+                ),
+              );
+            },
+            child: Card(
+              child: ListTile(
+                title: Text(transactions[index].title),
+                subtitle: Text(transactions[index].description),
+                trailing: Text('${transactions[index].amount}'),
+              ),
+            ),
           );
         },
-        itemCount: dummyList.length + 1,
+        itemCount: transactions.length + 1,
+      ),
+    );
+  }
+}
+
+class DetailsScreen extends StatelessWidget {
+  final Transaction transaction;
+
+  DetailsScreen({required this.transaction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(transaction.title),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Description:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(transaction.description),
+            SizedBox(height: 16.0),
+            Text('Amount:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('${transaction.amount}'),
+          ],
+        ),
       ),
     );
   }
