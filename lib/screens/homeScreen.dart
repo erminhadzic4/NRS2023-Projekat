@@ -42,7 +42,7 @@ class HomeScreen extends StatelessWidget {
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Pay()),
+                MaterialPageRoute(builder: (context) => PaymentPage()),
               );
               break;
             case 2:
