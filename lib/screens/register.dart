@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:nrs2023/screens/emailVaildation.dart';
 
 import 'confirm_number.dart';
 
@@ -13,6 +14,17 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final List _focusInput = List.generate(6, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
+  // Create a text controller and use it to retrieve the current value
+  // of the TextField.
+  final List Controllers = List.generate(6, (index) => TextEditingController());
+  final myController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
+  }
 
   String? _pendingPassword;
 
@@ -56,6 +68,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          controller: Controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                               registerInputDecoration("Email", "Enter Email"),
@@ -79,14 +92,17 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: _focusInput[0],
-                          textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.name,
-                          decoration:
-                              registerInputDecoration("Name", "Enter Name"),
-                          onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(_focusInput[1]);
-                          },
+                            focusNode: _focusInput[0],
+                            controller: Controllers[1],
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.name,
+                            decoration:
+                                registerInputDecoration("Name", "Enter Name"),
+
+                            onFieldSubmitted: (String value) {
+                              FocusScope.of(context)
+                                  .requestFocus(_focusInput[1]);
+                            },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -106,6 +122,7 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[1],
+                          controller: Controllers[2],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration: registerInputDecoration(
@@ -133,6 +150,7 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[2],
+                          controller: Controllers[3],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
@@ -163,6 +181,7 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[3],
+                          controller: Controllers[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
@@ -189,6 +208,7 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[4],
+                          controller: Controllers[5],
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Address", "Enter Address"),
@@ -230,9 +250,6 @@ class _RegisterState extends State<Register> {
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
-                          onPressed: () {
-                            if (_formkey.currentState!.validate()) {}
-                          },
                           color: Colors.blue,
                           child: const Text("Sign in",
                               style: TextStyle(
@@ -240,6 +257,16 @@ class _RegisterState extends State<Register> {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               )),
+                            onPressed: () {
+                              if (_formkey.currentState!.validate()) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>
+                                      EmailValidation(
+                                        valuesInput: Controllers,)),
+                                );
+                              }
+                            }
                         ),
                       ),
                       const SizedBox(
