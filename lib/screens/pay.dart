@@ -120,7 +120,10 @@ class _PaymentPageState extends State<PaymentPage> {
                 Text('Amount'),
                 TextFormField(
                   controller: _amountController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
                   validator: (value) {
                     if (_amountController.text.isNotEmpty &&
                         double.tryParse(_amountController.text) == 0.0) {
