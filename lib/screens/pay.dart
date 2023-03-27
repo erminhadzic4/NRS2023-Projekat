@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
  
 class PaymentPage extends StatefulWidget {
   @override
   _PaymentPageState createState() => _PaymentPageState();
+}
+
+class _AccountNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String value = newValue.text.replaceAll('-', '');
+    String formattedValue = '';
+    for (int i = 0; i < value.length; i++) {
+      formattedValue += value[i];
+      if ((i + 1) % 4 == 0 && i != value.length - 1 ) {
+        formattedValue += '-';
+      }
+    }
+    return TextEditingValue(
+      text: formattedValue,
+      selection: TextSelection.collapsed(offset: formattedValue.length),
+    );
+  }
 }
 
 class _PaymentPageState extends State<PaymentPage> {
@@ -109,6 +129,9 @@ class _PaymentPageState extends State<PaymentPage> {
                         null) {
                       return 'Amount should be a valid number.';
                     }
+                    else if (double.parse(_amountController.text) > 100000) {
+                      return 'Amount cannot be greater than 100 000';
+                    }
                     return null;
                   },
                   decoration: InputDecoration(
@@ -125,6 +148,8 @@ class _PaymentPageState extends State<PaymentPage> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Recipient name is required';
+                    } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
+                      return 'Recipient name can only contain letters and spaces';
                     }
                     return null;
                   },
@@ -136,9 +161,18 @@ class _PaymentPageState extends State<PaymentPage> {
                 Text('Recipient Account'),
                 TextFormField(
                   controller: _recipientAccountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
+                    _AccountNumberFormatter(),
+                    LengthLimitingTextInputFormatter(19),
+
+                  ],
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Recipient account details are required';
+                    } else if (value.replaceAll('-', '').length != 16) {
+                      return 'Recipient account number must be 16 digits';
                     }
                     return null;
                   },
@@ -161,3 +195,6 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 }
+
+
+
