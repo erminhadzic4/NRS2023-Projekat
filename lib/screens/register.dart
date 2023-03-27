@@ -14,25 +14,21 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final List _focusInput = List.generate(6, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
-  // Create a text controller and use it to retrieve the current value
-  // of the TextField.
+
   final List Controllers = List.generate(6, (index) => TextEditingController());
   final myController = TextEditingController();
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     myController.dispose();
     super.dispose();
   }
-
-  String? _pendingPassword;
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
       isDense: true,
       contentPadding:
-          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -46,19 +42,19 @@ class _RegisterState extends State<Register> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Sign in"),
+          centerTitle: true,
+          leading: BackButton(
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 80, right: 200),
-                child: Text("Sign In",
-                    style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontSize: 45,
-                        fontWeight: FontWeight.bold)),
-              ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Form(
@@ -71,7 +67,7 @@ class _RegisterState extends State<Register> {
                           controller: Controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                              registerInputDecoration("Email", "Enter Email"),
+                          registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
@@ -92,17 +88,17 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                            focusNode: _focusInput[0],
-                            controller: Controllers[1],
-                            textCapitalization: TextCapitalization.words,
-                            keyboardType: TextInputType.name,
-                            decoration:
-                                registerInputDecoration("Name", "Enter Name"),
+                          focusNode: _focusInput[0],
+                          controller: Controllers[1],
+                          textCapitalization: TextCapitalization.words,
+                          keyboardType: TextInputType.name,
+                          decoration:
+                          registerInputDecoration("Name", "Enter Name"),
 
-                            onFieldSubmitted: (String value) {
-                              FocusScope.of(context)
-                                  .requestFocus(_focusInput[1]);
-                            },
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context)
+                                .requestFocus(_focusInput[1]);
+                          },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -156,9 +152,7 @@ class _RegisterState extends State<Register> {
                           decoration: registerInputDecoration(
                               "Password", "Enter Password"),
                           onChanged: (String value) {
-                            setState(() {
-                              _pendingPassword = value;
-                            });
+
                           },
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[3]);
@@ -194,7 +188,7 @@ class _RegisterState extends State<Register> {
                           validator: (value) {
                             if (value == null ||
                                 value.isEmpty ||
-                                value != _pendingPassword) {
+                                value != Controllers[3].text) {
                               return 'Passwords do not match';
                             }
                             return null;
@@ -242,21 +236,21 @@ class _RegisterState extends State<Register> {
                             },
                           )),
                       const SizedBox(
-                        height: 50,
+                        height: 90,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
                         child: MaterialButton(
-                          elevation: 10,
-                          height: 50,
-                          minWidth: double.infinity,
-                          color: Colors.blue,
-                          child: const Text("Sign in",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              )),
+                            elevation: 10,
+                            height: 50,
+                            minWidth: double.infinity,
+                            color: Colors.blue,
+                            child: const Text("Sign in",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
                                 Navigator.push(
@@ -278,7 +272,9 @@ class _RegisterState extends State<Register> {
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
-                          onPressed: () {},
+                          onPressed: () {
+                            print(Controllers[3].text);
+                          },
                           color: Colors.white,
                           child: const Text("Log In",
                               style: TextStyle(
