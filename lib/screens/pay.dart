@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
- 
+
 class PaymentPage extends StatefulWidget {
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -14,7 +14,7 @@ class _AccountNumberFormatter extends TextInputFormatter {
     String formattedValue = '';
     for (int i = 0; i < value.length; i++) {
       formattedValue += value[i];
-      if ((i + 1) % 4 == 0 && i != value.length - 1 ) {
+      if ((i + 1) % 4 == 0 && i != value.length - 1) {
         formattedValue += '-';
       }
     }
@@ -90,9 +90,11 @@ class _PaymentPageState extends State<PaymentPage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: Text('Payment'),
-        ),
+            backgroundColor: Colors.blue,
+            title: Text('Payment'),
+            leading: BackButton(
+              onPressed: () => Navigator.of(context).pop(),
+            )),
         body: Padding(
           padding: EdgeInsets.all(16),
           child: Form(
@@ -122,7 +124,8 @@ class _PaymentPageState extends State<PaymentPage> {
                   controller: _amountController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}')),
                   ],
                   validator: (value) {
                     if (_amountController.text.isNotEmpty &&
@@ -131,8 +134,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     } else if (double.tryParse(_amountController.text) ==
                         null) {
                       return 'Amount should be a valid number.';
-                    }
-                    else if (double.parse(_amountController.text) > 100000) {
+                    } else if (double.parse(_amountController.text) > 100000) {
                       return 'Amount cannot be greater than 100 000';
                     }
                     return null;
@@ -169,7 +171,6 @@ class _PaymentPageState extends State<PaymentPage> {
                     FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
                     _AccountNumberFormatter(),
                     LengthLimitingTextInputFormatter(19),
-
                   ],
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -198,6 +199,3 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 }
-
-
-
