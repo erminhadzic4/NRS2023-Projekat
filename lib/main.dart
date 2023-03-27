@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/numberValidation.dart';
-import 'package:nrs2023/screens/homeScreen.dart';
+import 'package:nrs2023/screens/home.dart';
 
 void main() => runApp(MyApp());
 

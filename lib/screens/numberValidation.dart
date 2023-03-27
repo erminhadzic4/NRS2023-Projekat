@@ -1,20 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nrs2023/screens/homeScreen.dart';
+import 'package:nrs2023/screens/home.dart';
 
 class NumberValidation extends StatefulWidget {
   const NumberValidation({Key? key}) : super(key: key);
 
   @override
-  State<NumberValidation> createState() =>
-      _NumberValidationState();
+  State<NumberValidation> createState() => _NumberValidationState();
 }
 
-class _NumberValidationState
-    extends State<NumberValidation> {
+class _NumberValidationState extends State<NumberValidation> {
   String _confirmationCode = '';
   bool logged = false;
-
 
   void _onCodeChanged(String value) {
     setState(() {
@@ -98,14 +95,13 @@ class _NumberValidationState
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     InputDecoration registerInputDecoration(String labelText, String hintText) {
       return InputDecoration(
         isDense: true,
         contentPadding:
-        const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+            const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
         filled: true,
         fillColor: Colors.white,
         labelText: labelText,
@@ -113,6 +109,7 @@ class _NumberValidationState
         border: const OutlineInputBorder(),
       );
     }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -149,13 +146,12 @@ class _NumberValidationState
                 padding: EdgeInsets.only(top: 10),
                 child: SizedBox(
                   width: 350,
-                  child: Text('We just sent a confirmation code to your number!',// + myController.text,
+                  child: Text(
+                      'We just sent a confirmation code to your number!', // + myController.text,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 18)),
+                      style: TextStyle(color: Colors.black87, fontSize: 18)),
                 ),
               ),
               Padding(
@@ -171,12 +167,14 @@ class _NumberValidationState
                           },
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                          registerInputDecoration("Pin", "Enter Pin"),
-                          onFieldSubmitted: (String value) {
-                          },
+                              registerInputDecoration("Pin", "Enter Pin"),
+                          onFieldSubmitted: (String value) {},
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value == null || value.isEmpty || value.length < 6 || value.contains(RegExp(r'[A-Za-z]'))) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.length < 6 ||
+                                value.contains(RegExp(r'[A-Za-z]'))) {
                               return 'Invalid pin';
                             }
                             return null;
@@ -194,9 +192,12 @@ class _NumberValidationState
                                 children: [
                                   TextSpan(
                                     text: 'Resend code',
-                                    style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+                                    style: const TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        color: Colors.blue),
                                     mouseCursor: SystemMouseCursors.click,
-                                    recognizer: TapGestureRecognizer()..onTap = () => {},
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => {},
                                   ),
                                 ],
                               ),
@@ -208,16 +209,14 @@ class _NumberValidationState
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
                         child: MaterialButton(
-
                           elevation: 10,
                           height: 50,
                           minWidth: double.infinity,
                           onPressed: () {
-                              _onConfirmPressed();
+                            _onConfirmPressed();
                           },
                           color: Colors.blue,
                           child: const Text("Verify",
-
                               style: TextStyle(
                                 fontSize: 20,
                                 color: Colors.white,
@@ -236,4 +235,3 @@ class _NumberValidationState
     );
   }
 }
-
