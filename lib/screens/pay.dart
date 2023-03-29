@@ -6,7 +6,7 @@ class PaymentPage extends StatefulWidget {
 
   final String recipientName;
   final String recipientAccount;
-  final double amount;
+  final String amount;
   final String currency;
 
   const PaymentPage({Key? key,
@@ -73,7 +73,7 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
-    _amountController.text = widget.amount.toStringAsFixed(2);
+    _amountController.text = widget.amount;
     _selectedCurrency = widget.currency;
     _recipientNameController.text = widget.recipientName;
     _recipientAccountController.text = widget.recipientAccount;

@@ -112,7 +112,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                     builder: (context) => PaymentPage(
                         recipientName: recipientName,
                         recipientAccount: recipientAccount,
-                        amount: transactionAmount,
+                        amount: transactionAmount.toString(),
                         currency: transactionCurrency,
                     ),
                   )
