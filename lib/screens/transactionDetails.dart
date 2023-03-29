@@ -103,7 +103,24 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
-
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                        recipientName: recipientName,
+                        recipientAccount: recipientAccount,
+                        amount: transactionAmount,
+                        currency: transactionCurrency,
+                    ),
+                  )
+                );
+              },
+              child: Text('Use as Template'),
+            ),
+          ),
         ],
       ),
     );
