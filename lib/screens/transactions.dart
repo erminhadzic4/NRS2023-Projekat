@@ -11,10 +11,12 @@ class Transaction {
   late String id;
   late String currency;
   late String details;
+  late String recipientN;
+  late String recipientAcc;
 
   // constructor
   Transaction(
-      this.date, this.type, this.amount, this.currency, this.details, this.id);
+      this.date, this.type, this.amount, this.currency, this.details, this.id, this.recipientN, this.recipientAcc);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
@@ -24,6 +26,9 @@ class Transaction {
       json['id'],
       json['currency'],
       json['details'],
+      json['recipientN'],
+      json['recipientAcc'],
+
     );
   }
 }
@@ -64,8 +69,8 @@ class InitalState extends State<Transactions> {
     super.initState();
     transactions = List.generate(
       10,
-      (index) => Transaction('Jan ${index + 1} 2021', 'Deposit',
-          100.0 + (index * 10), 'EUR', 'detail', '12345'),
+      (index) => Transaction('Jan ${index + 1} 2021', 'Transfer',
+          100.0 + (index * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'),
     );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -77,8 +82,8 @@ class InitalState extends State<Transactions> {
 
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
-      transactions.add(Transaction('Jan ${i + 1} 2021', 'Deposit',
-          100.0 + (i * 10), 'EUR', 'detail', '12345'));
+      transactions.add(Transaction('Jan ${i + 1} 2021', 'Transfer',
+          100.0 + (i * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'));
     }
     _currentMax = _currentMax + 10;
     setState(() {});
@@ -196,7 +201,10 @@ class InitalState extends State<Transactions> {
                       transactionType: transactions[index].type,
                       transactionAmount: transactions[index].amount,
                       transactionDate: transactions[index].date,
-                      transactionDetails: transactions[index].details),
+                      transactionDetails: transactions[index].details,
+                      recipientName: transactions[index].recipientN,
+                      recipientAccount: transactions[index].recipientAcc
+                  ),
                 ),
               );
             },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/pay.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final String transactionId;
@@ -8,6 +8,8 @@ class TransactionDetailsScreen extends StatelessWidget {
   final double transactionAmount;
   final String transactionDate;
   final String transactionDetails;
+  final String recipientName;
+  final String recipientAccount;
 
   TransactionDetailsScreen({
     required this.transactionId,
@@ -16,6 +18,9 @@ class TransactionDetailsScreen extends StatelessWidget {
     required this.transactionAmount,
     required this.transactionDate,
     required this.transactionDetails,
+    required this.recipientName,
+    required this.recipientAccount,
+
   });
 
   @override
@@ -98,6 +103,24 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                        recipientName: recipientName,
+                        recipientAccount: recipientAccount,
+                        amount: transactionAmount.toString(),
+                        currency: transactionCurrency,
+                    ),
+                  )
+                );
+              },
+              child: Text('Use as Template'),
+            ),
+          ),
         ],
       ),
     );
