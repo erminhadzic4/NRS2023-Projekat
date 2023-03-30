@@ -122,6 +122,10 @@ class _PaymentPageState extends State<PaymentPage> {
                   actions: [
                     TextButton(
                       onPressed: () {
+                        if(widget.recipientAccount!='') {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                        }
                         Navigator.pop(context);
                       },
                       child: Text('OK'),
