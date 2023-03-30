@@ -38,7 +38,6 @@ class Transactions extends StatefulWidget {
   InitalState createState() => InitalState();
 }
 
-
 class InitalState extends State<Transactions> {
   late List<Transaction> transactions;
   ScrollController _scrollController = ScrollController();
@@ -91,7 +90,6 @@ class InitalState extends State<Transactions> {
   }
 //KOD za dummy podatke
 
-
 //KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
     if (_isLoading) {
@@ -114,12 +112,73 @@ class InitalState extends State<Transactions> {
   }
 //KOD za podatke sa servera
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Transactions"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Sort by"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        title: Text("Amount (ascending)"),
+                        onTap: () {
+                          // Sort transactions by amount (ascending)
+                          setState(() {
+                            transactions
+                                .sort((a, b) => a.amount.compareTo(b.amount));
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Amount (descending)"),
+                        onTap: () {
+                          // Sort transactions by amount (descending)
+                          setState(() {
+                            transactions
+                                .sort((a, b) => b.amount.compareTo(a.amount));
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Date (ascending)"),
+                        onTap: () {
+                          // Sort transactions by date (ascending)
+                          setState(() {
+                            transactions
+                                .sort((a, b) => a.date.compareTo(b.date));
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Date (descending)"),
+                        onTap: () {
+                          // Sort transactions by date (descending)
+                          setState(() {
+                            transactions
+                                .sort((a, b) => b.date.compareTo(a.date));
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         controller: _scrollController,
