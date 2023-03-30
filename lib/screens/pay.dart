@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nrs2023/screens/templates.dart';
 
 
 class PaymentPage extends StatefulWidget {
@@ -90,7 +91,34 @@ class _PaymentPageState extends State<PaymentPage> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Text('Transaction complete'),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Transaction Succesfull '),
+                      Icon(
+                        Icons.check_box,
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            "Recipient Name: ${_recipientNameController.text}"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Recipient Account: ${_recipientAccountController.text}")
+                      ],
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -109,6 +137,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
             backgroundColor: Colors.blue,
             title: Text('Payment'),
@@ -209,11 +238,28 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitPaymentForm,
-                    child: Text('Submit'),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _submitPaymentForm,
+                      child: Text('Submit'),
+                    ),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TemplatesPage()),
+                        );
+                      },
+                      child: Text("Templates"),
+                    )
+                  ],
                 ),
               ],
             ),
