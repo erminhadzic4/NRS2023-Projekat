@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nrs2023/screens/templates.dart';
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -213,11 +214,28 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitPaymentForm,
-                    child: Text('Submit'),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _submitPaymentForm,
+                      child: Text('Submit'),
+                    ),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TemplatesPage()),
+                        );
+                      },
+                      child: Text("Templates"),
+                    )
+                  ],
                 ),
               ],
             ),
