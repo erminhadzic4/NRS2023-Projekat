@@ -70,7 +70,34 @@ class _PaymentPageState extends State<PaymentPage> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Text('Transaction complete'),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Transaction Succesfull '),
+                      Icon(
+                        Icons.check_box,
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            "Recipient Name: ${_recipientNameController.text}"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Recipient Account: ${_recipientAccountController.text}")
+                      ],
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -89,6 +116,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
             backgroundColor: Colors.blue,
             title: Text('Payment'),
