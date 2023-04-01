@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 
 class Payment {
   TextEditingController Currency = TextEditingController();
@@ -134,23 +136,39 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         ),
                         TextFormField(
                           controller: _amountController,
-                          decoration: InputDecoration(labelText: 'Amount'),
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
                           validator: (value) {
-                            if (value != null && value.isNotEmpty) {
-                              if (double.tryParse(value) == null) {
-                                return 'Please enter a valid amount';
-                              }
+                            if (_amountController.text.isEmpty) {
+                              return 'Amount is required';
+                            } else if (double.tryParse(_amountController.text) ==
+                                null) {
+                              return 'Amount should be a valid number.';
+                            } else if (double.parse(_amountController.text) > 100000) {
+                              return 'Amount cannot be greater than 100 000!';
+                            } else if(double.parse(_amountController.text) == 0) {
+                              return 'Amount cannot be 0!';
                             }
                             return null;
                           },
+                          decoration: InputDecoration(
+                            suffixText: _selectedCurrency,
+                            suffixStyle:
+                            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            hintText: '0.00',
+                          ),
                         ),
                         TextFormField(
                           controller: _recipientNameController,
                           decoration: InputDecoration(labelText: 'Recipient name'),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter recipient name';
+                            if (value!.isEmpty) {
+                              return 'Recipient name is required';
+                            } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
+                              return 'Recipient name can only contain letters and spaces';
                             }
                             return null;
                           },
@@ -159,8 +177,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
                           controller: _recipientAccountController,
                           decoration: InputDecoration(labelText: 'Recipient account'),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter recipient account';
+                            if (value!.isEmpty) {
+                              return 'Recipient account details are required';
+                            } else if (value.replaceAll('-', '').length != 16) {
+                              return 'Recipient account number must be 16 digits';
                             }
                             return null;
                           },
