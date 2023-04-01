@@ -174,11 +174,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               fontSize: 18.0,
             ),
           ),
-          Expanded(
-            child: Container(),
-          ),
           Flexible(
             child: DropdownButtonFormField<String>(
+              isExpanded: true,
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
               ),
@@ -188,21 +186,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   _selectedCurrency = value!;
                 });
               },
+              alignment: Alignment.centerRight,
               items: _currencies
                   .map((currency) => DropdownMenuItem(
                         value: currency,
-                        child: Text(
-                          currency,
-                          style: const TextStyle(
-                            fontSize: 18.0,
+                        child: Center(
+                          child: Text(
+                            currency,
+                            style: const TextStyle(
+                              fontSize: 18.0,
+                            ),
                           ),
                         ),
                       ))
                   .toList(),
             ),
-          ),
-          Expanded(
-            child: Container(),
           ),
         ]),
         ElevatedButton(

@@ -191,7 +191,9 @@ class InitalState extends State<Transactions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: EasySearchBar(
-        title: const Text("All Transactions"),
+        title: FittedBox(
+          child: Text("All Transactions"),
+        ),
         onSearch: (value) => setState(() {
           searchValue = value;
           showntransactions.clear();
