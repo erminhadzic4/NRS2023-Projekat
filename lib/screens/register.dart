@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:http/http.dart' as http;
 
-
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
@@ -15,9 +14,9 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final List _focusInput = List.generate(7, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
-  bool validRegistration = false;
 
-  final List _controllers = List.generate(8, (index) => TextEditingController());
+  final List _controllers =
+      List.generate(8, (index) => TextEditingController());
   final myController = TextEditingController();
 
   void registerNewUser(
@@ -42,13 +41,48 @@ class _RegisterState extends State<Register> {
           "address": address,
           "phoneNumber": phoneNumber
         }));
-    if( res.statusCode == 200) {
-      setState(() {
-        validRegistration = true;
-      });
-    }
-    else {
-      validRegistration = false;
+    if (res.statusCode == 200 && context.mounted) {
+      Navigator.push(
+        //PRELAZAK
+        context,
+        MaterialPageRoute(
+            builder: (context) => EmailValidation(
+                  valuesInput: _controllers,
+                )),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Failure'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Username already exists',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -62,7 +96,7 @@ class _RegisterState extends State<Register> {
     return InputDecoration(
       isDense: true,
       contentPadding:
-      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -100,7 +134,7 @@ class _RegisterState extends State<Register> {
                           controller: _controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                          registerInputDecoration("Email", "Enter Email"),
+                              registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
@@ -126,7 +160,7 @@ class _RegisterState extends State<Register> {
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration:
-                          registerInputDecoration("Name", "Enter Name"),
+                              registerInputDecoration("Name", "Enter Name"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[1]);
                           },
@@ -189,10 +223,7 @@ class _RegisterState extends State<Register> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Name must contain at least one alphabetic character';
-                            } else if (value.contains(
-                                RegExp('[^a-zćčđšž]', caseSensitive: false))) {
-                              return 'Name cannot contain non-alphabetic characters';
+                              return "Username can't be empty";
                             }
                             return null;
                           },
@@ -286,7 +317,7 @@ class _RegisterState extends State<Register> {
                             countrySelectorScrollControlled: true,
                             onInputChanged: (PhoneNumber value) {},
                             autoValidateMode:
-                            AutovalidateMode.onUserInteraction,
+                                AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Invalid phone number';
@@ -312,21 +343,15 @@ class _RegisterState extends State<Register> {
                                 )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      EmailValidation(
-                                        valuesInput: _controllers,)),
-                                );
-                              }registerNewUser(
-                                  _controllers[1].text,
-                                  _controllers[2].text,
-                                  _controllers[0].text,
-                                  _controllers[3].text,  //username
-                                  _controllers[4].text,
-                                  _controllers[5].text,
-                                  "06${_controllers[6].text}"
-                              );
+                                registerNewUser(
+                                    _controllers[1].text,
+                                    _controllers[2].text,
+                                    _controllers[0].text,
+                                    _controllers[3].text, //username
+                                    _controllers[4].text,
+                                    _controllers[5].text,
+                                    "06${_controllers[6].text}");
+                              }
                             }),
                       ),
                     ],
