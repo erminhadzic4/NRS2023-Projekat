@@ -88,7 +88,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Templates'),
+        title: Text('Payment Templates'),
       ), body: ListView.builder(
       itemCount: templates.length,
       itemBuilder: (BuildContext context, int index) {
