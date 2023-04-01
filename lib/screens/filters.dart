@@ -82,7 +82,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 _currentRangeValues.start.toInt().toString() +
                     ' - ' +
                     _currentRangeValues.end.toInt().toString() +
-                    ' ' +
+                    '  ' +
                     _selectedCurrency,
                 style: const TextStyle(
                   fontSize: 16.0,
