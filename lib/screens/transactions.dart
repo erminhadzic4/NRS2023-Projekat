@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Transaction {
-  late String date;
+  late DateTime date;
   late String type;
   late double amount;
   late String id;
@@ -35,6 +35,23 @@ class Transaction {
 }
 
 class Transactions extends StatefulWidget {
+  late DateTime filterDateStart;
+  late DateTime filterDateEnd;
+  late String filterCurrency;
+  late double filterPriceRangeStart;
+  late double filterPriceRangeEnd;
+  late bool? filterDepositsTrue;
+  late bool? filterWithdrawalsTrue;
+
+  Transactions({
+    required this.filterDateStart,
+    required this.filterDateEnd,
+    required this.filterCurrency,
+    required this.filterPriceRangeStart,
+    required this.filterPriceRangeEnd,
+    required this.filterDepositsTrue,
+    required this.filterWithdrawalsTrue,
+  });
   @override
   InitalState createState() => InitalState();
 }
@@ -73,8 +90,8 @@ class InitalState extends State<Transactions> {
     transactions = List.generate(
       10,
       (index) => Transaction(
-          'Jan ${index + 1} 2021',
-          'Transfer',
+          DateTime.utc(2021, 1, index),
+          'Deposit',
           100.0 + (index * 10),
           'EUR',
           'detail',
@@ -95,13 +112,14 @@ class InitalState extends State<Transactions> {
     for (int i = 0; i < transactions.length; i++) {
       showntransactions.add(transactions[i]);
     }
+    _filtering();
   }
 
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
       transactions.add(Transaction(
-          'Jan ${i + 1} 2021',
-          'Transfer',
+          DateTime.utc(2021, 1, i),
+          'Deposit',
           100.0 + (i * 10),
           'EUR',
           'detail',
@@ -133,6 +151,44 @@ class InitalState extends State<Transactions> {
       _isLoading = false;
       _currentPage++;
     });
+  }
+
+  //Filtriranje
+  Future<void> _filtering() async {
+    showntransactions.clear();
+    for (int i = 0; i < transactions.length; i++) {
+      if (widget.filterWithdrawalsTrue == false &&
+          transactions[i].type == 'Withdrawal') {
+        print(widget.filterWithdrawalsTrue.toString());
+        print('1');
+        continue;
+      }
+      if (widget.filterDepositsTrue == false &&
+          transactions[i].type == 'Deposit') {
+        print(widget.filterDepositsTrue.toString());
+        print('2');
+        continue;
+      }
+      if (transactions[i].amount < widget.filterPriceRangeStart ||
+          transactions[i].amount > widget.filterPriceRangeEnd) {
+        print('3');
+        continue;
+      }
+      if (transactions[i].currency != widget.filterCurrency &&
+          widget.filterCurrency != 'All') {
+        print('4');
+        continue;
+      }
+      if (transactions[i].date.isBefore(widget.filterDateStart) == true ||
+          transactions[i].date.isAfter(widget.filterDateEnd) == true) {
+        print('5');
+        continue;
+      }
+      if (transactions[i].details.contains(searchValue)) {
+        print('X');
+        showntransactions.add(transactions[i]);
+      }
+    }
   }
 
 //KOD za podatke sa servera
@@ -228,7 +284,11 @@ class InitalState extends State<Transactions> {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(showntransactions[index].date),
+            title: Text(showntransactions[index].date.year.toString() +
+                '/' +
+                showntransactions[index].date.month.toString() +
+                '/' +
+                showntransactions[index].date.day.toString()),
             subtitle: Text(showntransactions[index].type),
             trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
@@ -240,7 +300,7 @@ class InitalState extends State<Transactions> {
                       transactionCurrency: showntransactions[index].currency,
                       transactionType: showntransactions[index].type,
                       transactionAmount: showntransactions[index].amount,
-                      transactionDate: showntransactions[index].date,
+                      transactionDate: showntransactions[index].date.toString(),
                       transactionDetails: showntransactions[index].details,
                       recipientName: showntransactions[index].recipientN,
                       recipientAccount: showntransactions[index].recipientAcc),

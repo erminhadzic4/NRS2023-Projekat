@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactions.dart';
 
-String _selectedCurrency = "USD";
+String _selectedCurrency = "All";
 final List<String> _currencies = [
+  'All',
   'USD',
   'AUD',
   'BRL',
@@ -52,7 +53,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   bool? _isCheckedWithdrawal = true;
   RangeValues _currentRangeValues = const RangeValues(0, 10000);
   DateTimeRange selectedDates =
-      DateTimeRange(start: DateTime.now(), end: DateTime.now());
+      DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now());
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -209,7 +210,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           onPressed: () async {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Transactions()),
+              MaterialPageRoute(
+                  builder: (context) => Transactions(
+                        filterDateStart: selectedDates.start,
+                        filterDateEnd: selectedDates.end,
+                        filterCurrency: _selectedCurrency,
+                        filterPriceRangeStart: _currentRangeValues.start,
+                        filterPriceRangeEnd: _currentRangeValues.end,
+                        filterDepositsTrue: _isCheckedDeposit,
+                        filterWithdrawalsTrue: _isCheckedWithdrawal,
+                      )),
             );
           },
         ),
