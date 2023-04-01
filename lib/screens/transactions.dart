@@ -160,32 +160,26 @@ class InitalState extends State<Transactions> {
       if (widget.filterWithdrawalsTrue == false &&
           transactions[i].type == 'Withdrawal') {
         print(widget.filterWithdrawalsTrue.toString());
-        print('1');
         continue;
       }
       if (widget.filterDepositsTrue == false &&
           transactions[i].type == 'Deposit') {
         print(widget.filterDepositsTrue.toString());
-        print('2');
         continue;
       }
       if (transactions[i].amount < widget.filterPriceRangeStart ||
           transactions[i].amount > widget.filterPriceRangeEnd) {
-        print('3');
         continue;
       }
       if (transactions[i].currency != widget.filterCurrency &&
           widget.filterCurrency != 'All') {
-        print('4');
         continue;
       }
       if (transactions[i].date.isBefore(widget.filterDateStart) == true ||
           transactions[i].date.isAfter(widget.filterDateEnd) == true) {
-        print('5');
         continue;
       }
       if (transactions[i].details.contains(searchValue)) {
-        print('X');
         showntransactions.add(transactions[i]);
       }
     }
