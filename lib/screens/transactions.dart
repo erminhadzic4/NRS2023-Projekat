@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
+import 'package:nrs2023/screens/filters.dart';
+import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,8 +17,8 @@ class Transaction {
   late String recipientAcc;
 
   // constructor
-  Transaction(
-      this.date, this.type, this.amount, this.currency, this.details, this.id, this.recipientN, this.recipientAcc);
+  Transaction(this.date, this.type, this.amount, this.currency, this.details,
+      this.id, this.recipientN, this.recipientAcc);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
@@ -28,7 +30,6 @@ class Transaction {
       json['details'],
       json['recipientN'],
       json['recipientAcc'],
-
     );
   }
 }
@@ -40,10 +41,12 @@ class Transactions extends StatefulWidget {
 
 class InitalState extends State<Transactions> {
   late List<Transaction> transactions;
+  final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
   int _currentMax = 10;
   int _currentPage = 1;
   bool _isLoading = false;
+  String searchValue = '';
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -69,21 +72,42 @@ class InitalState extends State<Transactions> {
     super.initState();
     transactions = List.generate(
       10,
-      (index) => Transaction('Jan ${index + 1} 2021', 'Transfer',
-          100.0 + (index * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'),
+      (index) => Transaction(
+          'Jan ${index + 1} 2021',
+          'Transfer',
+          100.0 + (index * 10),
+          'EUR',
+          'detail',
+          '12345',
+          'Enes',
+          '0987654321123456'),
     );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         _getMoreList();
+        showntransactions.clear();
+        for (int i = 0; i < transactions.length; i++) {
+          showntransactions.add(transactions[i]);
+        }
       }
     });
+    for (int i = 0; i < transactions.length; i++) {
+      showntransactions.add(transactions[i]);
+    }
   }
 
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
-      transactions.add(Transaction('Jan ${i + 1} 2021', 'Transfer',
-          100.0 + (i * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'));
+      transactions.add(Transaction(
+          'Jan ${i + 1} 2021',
+          'Transfer',
+          100.0 + (i * 10),
+          'EUR',
+          'detail',
+          '12345',
+          'Enes',
+          '0987654321123456'));
     }
     _currentMax = _currentMax + 10;
     setState(() {});
@@ -110,14 +134,30 @@ class InitalState extends State<Transactions> {
       _currentPage++;
     });
   }
-//KOD za podatke sa servera
 
+//KOD za podatke sa servera
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: EasySearchBar(
         title: const Text("All Transactions"),
-        actions: [
+        onSearch: (value) => setState(() {
+          searchValue = value;
+          showntransactions.clear();
+          for (int i = 0; i < transactions.length; i++) {
+            if (transactions[i].details.contains(searchValue)) {
+              showntransactions.add(transactions[i]);
+            }
+          }
+        }),
+        actions: <Widget>[
+          IconButton(
+              icon: const Icon(Icons.filter_alt_outlined),
+              tooltip: 'Filter Transactions',
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => FiltersScreen()));
+              }),
           IconButton(
             icon: Icon(Icons.sort),
             onPressed: () {
@@ -184,33 +224,32 @@ class InitalState extends State<Transactions> {
         controller: _scrollController,
         itemExtent: 85,
         itemBuilder: (context, index) {
-          if (index == transactions.length) {
+          if (index == showntransactions.length) {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(transactions[index].date),
-            subtitle: Text(transactions[index].type),
-            trailing: Text(transactions[index].amount.toString()),
+            title: Text(showntransactions[index].date),
+            subtitle: Text(showntransactions[index].type),
+            trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
-                      transactionId: transactions[index].id,
-                      transactionCurrency: transactions[index].currency,
-                      transactionType: transactions[index].type,
-                      transactionAmount: transactions[index].amount,
-                      transactionDate: transactions[index].date,
-                      transactionDetails: transactions[index].details,
-                      recipientName: transactions[index].recipientN,
-                      recipientAccount: transactions[index].recipientAcc
-                  ),
+                      transactionId: showntransactions[index].id,
+                      transactionCurrency: showntransactions[index].currency,
+                      transactionType: showntransactions[index].type,
+                      transactionAmount: showntransactions[index].amount,
+                      transactionDate: showntransactions[index].date,
+                      transactionDetails: showntransactions[index].details,
+                      recipientName: showntransactions[index].recipientN,
+                      recipientAccount: showntransactions[index].recipientAcc),
                 ),
               );
             },
           );
         },
-        itemCount: transactions.length + 1,
+        itemCount: showntransactions.length + 1,
       ),
     );
   }
