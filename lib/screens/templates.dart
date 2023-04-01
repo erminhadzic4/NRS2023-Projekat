@@ -30,7 +30,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
   TextEditingController();
   final TextEditingController _recipientAccountController =
   TextEditingController();
-  String? _selectedCurrency;
+  String? _selectedCurrency = "USD";
   final List<String> _currencies = [
     'USD',
     'AUD',
