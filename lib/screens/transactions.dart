@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Transaction {
-  late String date;
+  late DateTime date;
   late String type;
   late double amount;
   late String id;
@@ -69,7 +70,7 @@ class InitalState extends State<Transactions> {
     super.initState();
     transactions = List.generate(
       10,
-      (index) => Transaction('Jan ${index + 1} 2021', 'Transfer',
+      (index) => Transaction(DateTime(2021, 1, index + 1), 'Transfer',
           100.0 + (index * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'),
     );
     _scrollController.addListener(() {
@@ -82,7 +83,7 @@ class InitalState extends State<Transactions> {
 
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
-      transactions.add(Transaction('Jan ${i + 1} 2021', 'Transfer',
+      transactions.add(Transaction(DateTime(2021, 1, i + 1), 'Transfer',
           100.0 + (i * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'));
     }
     _currentMax = _currentMax + 10;
@@ -155,8 +156,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (ascending)
                           setState(() {
-                            transactions
-                                .sort((a, b) => a.date.compareTo(b.date));
+                            transactions.sort((a, b) => a.date.compareTo(b.date));
+
                           });
                           Navigator.pop(context);
                         },
@@ -188,7 +189,7 @@ class InitalState extends State<Transactions> {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(transactions[index].date),
+            title: Text(DateFormat.yMMMMd('en_US').format(transactions[index].date)),
             subtitle: Text(transactions[index].type),
             trailing: Text(transactions[index].amount.toString()),
             onTap: () {

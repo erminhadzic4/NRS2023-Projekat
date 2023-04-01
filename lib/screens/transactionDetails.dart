@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/pay.dart';
+import 'package:intl/intl.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final String transactionId;
   final String transactionCurrency;
   final String transactionType;
   final double transactionAmount;
-  final String transactionDate;
+  final DateTime transactionDate;
   final String transactionDetails;
   final String recipientName;
   final String recipientAccount;
@@ -52,6 +53,19 @@ class TransactionDetailsScreen extends StatelessWidget {
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
 
+          //Transaction Recipient name
+          ListTile(
+            title: Text(
+              'Recipient Name',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              recipientName,
+              style: TextStyle(fontSize: 16.0),
+            ),
+          ),
+          Divider(height: 1.0, color: Colors.grey[400]),
+
           //Transaction Type
           ListTile(
             title: Text(
@@ -85,7 +99,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              transactionDate,
+              DateFormat.yMMMMd('en_US').format(transactionDate),
               style: TextStyle(fontSize: 16.0),
             ),
           ),
