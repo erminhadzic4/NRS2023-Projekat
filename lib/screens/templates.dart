@@ -30,7 +30,32 @@ class _TemplatesPageState extends State<TemplatesPage> {
   TextEditingController();
   final TextEditingController _recipientAccountController =
   TextEditingController();
-
+  String? _selectedCurrency;
+  final List<String> _currencies = [
+    'USD',
+    'AUD',
+    'BRL',
+    'CAD',
+    'CHF',
+    'CZK',
+    'DKK',
+    'EUR',
+    'GBP',
+    'HKD',
+    'HUF',
+    'ILS',
+    'JPY',
+    'MXN',
+    'NOK',
+    'NZD',
+    'PHP',
+    'PLN',
+    'RUB',
+    'SEK',
+    'SGD',
+    'THB',
+    'TWD'
+  ];
   /*void _addTemplate() {
     if (_formKey.currentState!.validate()) {
       Payment template = Payment(
@@ -89,15 +114,23 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextFormField(
-                          controller: _currencyController,
-                          decoration: InputDecoration(labelText: 'Currency'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter currency';
-                            }
-                            return null;
+                        DropdownButtonFormField(
+                          value: _selectedCurrency,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCurrency = value;
+                            });
                           },
+                          items: _currencies.map((currency) {
+                            return DropdownMenuItem(
+                              value: currency,
+                              child: Text(currency),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelText: 'Currency',
+                            hintText: 'Select currency',
+                          ),
                         ),
                         TextFormField(
                           controller: _amountController,
