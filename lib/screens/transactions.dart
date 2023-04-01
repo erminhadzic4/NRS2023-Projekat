@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
+import 'package:nrs2023/screens/filters.dart';
+import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -33,13 +35,14 @@ class Transactions extends StatefulWidget {
   InitalState createState() => InitalState();
 }
 
-
 class InitalState extends State<Transactions> {
   late List<Transaction> transactions;
+  final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
   int _currentMax = 10;
   int _currentPage = 1;
   bool _isLoading = false;
+  String searchValue = '';
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -72,8 +75,15 @@ class InitalState extends State<Transactions> {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         _getMoreList();
+        showntransactions.clear();
+        for (int i = 0; i < transactions.length; i++) {
+          showntransactions.add(transactions[i]);
+        }
       }
     });
+    for (int i = 0; i < transactions.length; i++) {
+      showntransactions.add(transactions[i]);
+    }
   }
 
   _getMoreList() {
@@ -85,7 +95,6 @@ class InitalState extends State<Transactions> {
     setState(() {});
   }
 //KOD za dummy podatke
-
 
 //KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
@@ -107,43 +116,63 @@ class InitalState extends State<Transactions> {
       _currentPage++;
     });
   }
+
 //KOD za podatke sa servera
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: EasySearchBar(
         title: const Text("All Transactions"),
+        onSearch: (value) => setState(() {
+          searchValue = value;
+          showntransactions.clear();
+          for (int i = 0; i < transactions.length; i++) {
+            if (transactions[i].details.contains(searchValue)) {
+              showntransactions.add(transactions[i]);
+            }
+          }
+        }),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.filter_alt_outlined),
+            tooltip: 'Filter Transactions',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FiltersScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         controller: _scrollController,
         itemExtent: 85,
         itemBuilder: (context, index) {
-          if (index == transactions.length) {
+          if (index == showntransactions.length) {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(transactions[index].date),
-            subtitle: Text(transactions[index].type),
-            trailing: Text(transactions[index].amount.toString()),
+            title: Text(showntransactions[index].date),
+            subtitle: Text(showntransactions[index].type),
+            trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
-                      transactionId: transactions[index].id,
-                      transactionCurrency: transactions[index].currency,
-                      transactionType: transactions[index].type,
-                      transactionAmount: transactions[index].amount,
-                      transactionDate: transactions[index].date,
-                      transactionDetails: transactions[index].details),
+                      transactionId: showntransactions[index].id,
+                      transactionCurrency: showntransactions[index].currency,
+                      transactionType: showntransactions[index].type,
+                      transactionAmount: showntransactions[index].amount,
+                      transactionDate: showntransactions[index].date,
+                      transactionDetails: showntransactions[index].details),
                 ),
               );
             },
           );
         },
-        itemCount: transactions.length + 1,
+        itemCount: showntransactions.length + 1,
       ),
     );
   }
