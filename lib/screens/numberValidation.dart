@@ -1,22 +1,31 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/home.dart';
+import 'package:http/http.dart' as http;
 
 class NumberValidation extends StatefulWidget {
-  const NumberValidation({Key? key}) : super(key: key);
+  const NumberValidation({Key? key, required this.username}) : super(key: key);
+
+  final String username;
 
   @override
   State<NumberValidation> createState() => _NumberValidationState();
 }
 
 class _NumberValidationState extends State<NumberValidation> {
+  final TextEditingController _phoneController = TextEditingController();
   String _confirmationCode = '';
   bool logged = false;
+  bool codeSent = false;
 
   void _onCodeChanged(String value) {
     setState(() {
       _confirmationCode = value;
     });
+  }
+
+  void _onSendCodePressed() {
+    //sendCode(userName);
   }
 
   void _onConfirmPressed() {
@@ -97,6 +106,26 @@ class _NumberValidationState extends State<NumberValidation> {
 
   @override
   Widget build(BuildContext context) {
+    String userName = widget.username;
+    void Print() {
+      print(userName + _confirmationCode);
+    }
+
+    void sendCode(String username) async {
+      final res = await http.get(
+          Uri.parse("http://siprojekat.duckdns.org:5051/Register/phone?Username=$username"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          });
+      if( res.statusCode == 200) {
+        setState(() {
+          codeSent = true;
+        });
+      }
+      else {
+        codeSent = false;
+      }
+    }
     InputDecoration registerInputDecoration(String labelText, String hintText) {
       return InputDecoration(
         isDense: true,
@@ -173,7 +202,7 @@ class _NumberValidationState extends State<NumberValidation> {
                           validator: (value) {
                             if (value == null ||
                                 value.isEmpty ||
-                                value.length < 6 ||
+                                value.length < 4 ||
                                 value.contains(RegExp(r'[A-Za-z]'))) {
                               return 'Invalid pin';
                             }
@@ -206,24 +235,50 @@ class _NumberValidationState extends State<NumberValidation> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 100),
-                        child: MaterialButton(
-                          elevation: 10,
-                          height: 50,
-                          minWidth: double.infinity,
-                          onPressed: () {
-                            _onConfirmPressed();
-                          },
-                          color: Colors.blue,
-                          child: const Text("Verify",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              )),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: MaterialButton(
+                              elevation: 10,
+                              height: 50,
+                              minWidth: 120,
+                              onPressed: () {
+                                _onConfirmPressed();
+                              },
+                              color: Colors.blue,
+                              child: const Text("Verify",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: MaterialButton(
+                              elevation: 10,
+                              height: 50,
+                              minWidth: 120,
+                              onPressed: () {
+                                _onSendCodePressed();
+                                Print();
+                                sendCode(userName);
+                              },
+                              color: Colors.blue,
+                              child: const Text("Send code",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                            ),
+                          ),
+                        ],
                       ),
+
                     ],
                   ),
                 ),
