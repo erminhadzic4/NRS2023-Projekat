@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nrs2023/screens/templates.dart';
+
 
 class PaymentPage extends StatefulWidget {
+
+  final String recipientName;
+  final String recipientAccount;
+  final String amount;
+  final String currency;
+
+  const PaymentPage({Key? key,
+    required this.recipientName,
+    required this.recipientAccount,
+    required this.amount,
+    required this.currency,
+}): super(key: key);
+
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
@@ -28,10 +43,8 @@ class _AccountNumberFormatter extends TextInputFormatter {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _recipientNameController =
-      TextEditingController();
-  final TextEditingController _recipientAccountController =
-      TextEditingController();
+  final TextEditingController _recipientNameController = TextEditingController();
+  final TextEditingController _recipientAccountController = TextEditingController();
   String _selectedCurrency = "USD";
   final List<String> _currencies = [
     'USD',
@@ -58,6 +71,14 @@ class _PaymentPageState extends State<PaymentPage> {
     'THB',
     'TWD'
   ];
+  @override
+  void initState() {
+    super.initState();
+    _amountController.text = widget.amount;
+    _selectedCurrency = widget.currency;
+    _recipientNameController.text = widget.recipientName;
+    _recipientAccountController.text = widget.recipientAccount;
+  }
 
   void _submitPaymentForm() {
     if (_formKey.currentState!.validate()) {
@@ -70,10 +91,41 @@ class _PaymentPageState extends State<PaymentPage> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Text('Transaction complete'),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Transaction Succesfull '),
+                      Icon(
+                        Icons.check_box,
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            "Recipient Name: ${_recipientNameController.text}"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Recipient Account: ${_recipientAccountController.text}")
+                      ],
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () {
+                        if(widget.recipientAccount!='') {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                        }
                         Navigator.pop(context);
                       },
                       child: Text('OK'),
@@ -89,6 +141,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
             backgroundColor: Colors.blue,
             title: Text('Payment'),
@@ -104,6 +157,7 @@ class _PaymentPageState extends State<PaymentPage> {
               children: [
                 SizedBox(height: 16),
                 Text('Currency'),
+
                 DropdownButtonFormField<String>(
                   value: _selectedCurrency,
                   onChanged: (String? value) {
@@ -120,6 +174,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Amount'),
+
                 TextFormField(
                   controller: _amountController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -148,6 +203,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Recipient Name'),
+
                 TextFormField(
                   controller: _recipientNameController,
                   validator: (value) {
@@ -164,6 +220,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Recipient Account'),
+
                 TextFormField(
                   controller: _recipientAccountController,
                   keyboardType: TextInputType.number,
@@ -185,11 +242,28 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitPaymentForm,
-                    child: Text('Submit'),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _submitPaymentForm,
+                      child: Text('Submit'),
+                    ),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TemplatesPage()),
+                        );
+                      },
+                      child: Text("Templates"),
+                    )
+                  ],
                 ),
               ],
             ),
