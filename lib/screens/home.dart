@@ -42,13 +42,28 @@ class HomeScreen extends StatelessWidget {
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PaymentPage(recipientName: '', recipientAccount: '', amount: '', currency: 'USD',)),
+                MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                          recipientName: '',
+                          recipientAccount: '',
+                          amount: '',
+                          currency: 'USD',
+                        )),
               );
               break;
             case 2:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Transactions()),
+                MaterialPageRoute(
+                    builder: (context) => Transactions(
+                          filterDateStart: DateTime.utc(1900, 1, 1),
+                          filterDateEnd: DateTime.now(),
+                          filterCurrency: 'All',
+                          filterPriceRangeStart: 0,
+                          filterPriceRangeEnd: 10000,
+                          filterDepositsTrue: true,
+                          filterWithdrawalsTrue: true,
+                        )),
               );
               break;
           }

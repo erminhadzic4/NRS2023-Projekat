@@ -36,6 +36,23 @@ class Transaction {
 }
 
 class Transactions extends StatefulWidget {
+  late DateTime filterDateStart;
+  late DateTime filterDateEnd;
+  late String filterCurrency;
+  late double filterPriceRangeStart;
+  late double filterPriceRangeEnd;
+  late bool? filterDepositsTrue;
+  late bool? filterWithdrawalsTrue;
+
+  Transactions({
+    required this.filterDateStart,
+    required this.filterDateEnd,
+    required this.filterCurrency,
+    required this.filterPriceRangeStart,
+    required this.filterPriceRangeEnd,
+    required this.filterDepositsTrue,
+    required this.filterWithdrawalsTrue,
+  });
   @override
   InitalState createState() => InitalState();
 }
@@ -96,6 +113,7 @@ class InitalState extends State<Transactions> {
     for (int i = 0; i < transactions.length; i++) {
       showntransactions.add(transactions[i]);
     }
+    _filtering();
   }
 
   _getMoreList() {
@@ -134,6 +152,38 @@ class InitalState extends State<Transactions> {
       _isLoading = false;
       _currentPage++;
     });
+  }
+
+  //Filtriranje
+  Future<void> _filtering() async {
+    showntransactions.clear();
+    for (int i = 0; i < transactions.length; i++) {
+      if (widget.filterWithdrawalsTrue == false &&
+          transactions[i].type == 'Withdrawal') {
+        print(widget.filterWithdrawalsTrue.toString());
+        continue;
+      }
+      if (widget.filterDepositsTrue == false &&
+          transactions[i].type == 'Deposit') {
+        print(widget.filterDepositsTrue.toString());
+        continue;
+      }
+      if (transactions[i].amount < widget.filterPriceRangeStart ||
+          transactions[i].amount > widget.filterPriceRangeEnd) {
+        continue;
+      }
+      if (transactions[i].currency != widget.filterCurrency &&
+          widget.filterCurrency != 'All') {
+        continue;
+      }
+      if (transactions[i].date.isBefore(widget.filterDateStart) == true ||
+          transactions[i].date.isAfter(widget.filterDateEnd) == true) {
+        continue;
+      }
+      if (transactions[i].details.contains(searchValue)) {
+        showntransactions.add(transactions[i]);
+      }
+    }
   }
 
 //KOD za podatke sa servera
