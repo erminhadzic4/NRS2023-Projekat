@@ -5,6 +5,7 @@ import 'package:nrs2023/screens/filters.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Transaction {
   late DateTime date;
@@ -90,8 +91,8 @@ class InitalState extends State<Transactions> {
     transactions = List.generate(
       10,
       (index) => Transaction(
-          DateTime.utc(2021, 1, index),
-          'Deposit',
+          DateTime(2021, 1, index + 1),
+          'Transfer',
           100.0 + (index * 10),
           'EUR',
           'detail',
@@ -118,8 +119,8 @@ class InitalState extends State<Transactions> {
   _getMoreList() {
     for (int i = _currentMax; i < _currentMax + 10; i++) {
       transactions.add(Transaction(
-          DateTime.utc(2021, 1, i),
-          'Deposit',
+          DateTime(2021, 1, i + 1),
+          'Transfer',
           100.0 + (i * 10),
           'EUR',
           'detail',
@@ -278,13 +279,10 @@ class InitalState extends State<Transactions> {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(showntransactions[index].date.year.toString() +
-                '/' +
-                showntransactions[index].date.month.toString() +
-                '/' +
-                showntransactions[index].date.day.toString()),
-            subtitle: Text(showntransactions[index].type),
-            trailing: Text(showntransactions[index].amount.toString()),
+            title: Text(
+                DateFormat.yMMMMd('en_US').format(transactions[index].date)),
+            subtitle: Text(transactions[index].type),
+            trailing: Text(transactions[index].amount.toString()),
             onTap: () {
               Navigator.push(
                 context,
@@ -294,7 +292,7 @@ class InitalState extends State<Transactions> {
                       transactionCurrency: showntransactions[index].currency,
                       transactionType: showntransactions[index].type,
                       transactionAmount: showntransactions[index].amount,
-                      transactionDate: showntransactions[index].date.toString(),
+                      transactionDate: showntransactions[index].date,
                       transactionDetails: showntransactions[index].details,
                       recipientName: showntransactions[index].recipientN,
                       recipientAccount: showntransactions[index].recipientAcc),
