@@ -351,7 +351,6 @@ class _RegisterState extends State<Register> {
                                     _controllers[4].text,
                                     _controllers[5].text,
                                     "06${_controllers[6].text}");
-                                print(_controllers[6].text);
                               }
                             }),
                       ),
