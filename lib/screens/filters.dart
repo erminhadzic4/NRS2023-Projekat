@@ -51,7 +51,10 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   bool? _isCheckedDeposit = true;
   bool? _isCheckedWithdrawal = true;
-  RangeValues _currentRangeValues = const RangeValues(0, 10000);
+  TextEditingController _textEditingController1 =
+      TextEditingController(text: '0');
+  TextEditingController _textEditingController2 =
+      TextEditingController(text: '10000');
   DateTimeRange selectedDates =
       DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now());
   @override
@@ -67,28 +70,34 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ),
           ),
           Expanded(
-            child: Column(children: <Widget>[
-              RangeSlider(
-                min: 0,
-                max: 10000,
-                values: _currentRangeValues,
-                onChanged: (RangeValues values) {
-                  setState(() {
-                    _currentRangeValues = values;
-                  });
-                },
+            child: Center(
+              child: Row(
+                children: <Widget>[
+                  Flexible(
+                    child: TextField(
+                      controller: _textEditingController1,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    ' - ',
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Flexible(
+                    child: TextField(
+                      controller: _textEditingController2,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                _currentRangeValues.start.toInt().toString() +
-                    ' - ' +
-                    _currentRangeValues.end.toInt().toString() +
-                    '  ' +
-                    _selectedCurrency,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                ),
-              ),
-            ]),
+            ),
           ),
         ]),
         Row(children: <Widget>[
@@ -186,7 +195,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   _selectedCurrency = value!;
                 });
               },
-              alignment: Alignment.centerRight,
               items: _currencies
                   .map((currency) => DropdownMenuItem(
                         value: currency,
@@ -213,8 +221,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         filterDateStart: selectedDates.start,
                         filterDateEnd: selectedDates.end,
                         filterCurrency: _selectedCurrency,
-                        filterPriceRangeStart: _currentRangeValues.start,
-                        filterPriceRangeEnd: _currentRangeValues.end,
+                        filterPriceRangeStart:
+                            (double.parse(_textEditingController1.text)),
+                        filterPriceRangeEnd:
+                            (double.parse(_textEditingController2.text)),
                         filterDepositsTrue: _isCheckedDeposit,
                         filterWithdrawalsTrue: _isCheckedWithdrawal,
                       )),
