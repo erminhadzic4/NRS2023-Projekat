@@ -58,13 +58,15 @@ class Transactions extends StatefulWidget {
 }
 
 class InitalState extends State<Transactions> {
-  late List<Transaction> transactions;
+  final transactions = <Transaction>[];
   final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
-  int _currentMax = 10;
+  int shownTransactionsLimit = 10;
   int _currentPage = 1;
   bool _isLoading = false;
   String searchValue = '';
+  int shownTransactionsCounter = 0;
+  int cupertinoCounter = 1; // 1 znaci ON, 0 znaci OFF
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -83,31 +85,62 @@ class InitalState extends State<Transactions> {
   }
 */
 
-//KOD za dummy podatke
+//KOD za dummy podatke --- Mock baza sa 10000 transakcija
   @override
   void initState() {
-    //TODO: implement initState from Backend
+    // Mock baza sa 10000 transakcija
+    for (int i = 0; i < 10000; i++) {
+      final insertDate = DateTime(2020, 1, i + 1); // Datum raste za jedan dan
+      var insertCurrency; // Valuta - Moze biti EUR USD GBP ili CHF
+      var insertType; // Tip Transakcije - Moze biti Deposit ili Withdrawal
+      final insertAmount = (i + 1) * 100.0; // Iznos raste za 100
+      final insertId = i.toString(); // Id Transakcije raste za 1
+      var inesertRecipientN; // Ime primatelja, rotira 4 imena
+      var inesertRecipientAcc; // Racun primatelja, rotira 4 racuna
+      var insertDetails; // Detalji, rotira 4 detalja
+      if (i % 4 == 0) {
+        insertCurrency = 'EUR';
+        insertType = 'Withdrawal';
+        inesertRecipientN = 'Enes';
+        inesertRecipientAcc = '384324924923';
+        insertDetails = '$insertType for school';
+      }
+      if (i % 4 == 1) {
+        insertCurrency = 'USD';
+        insertType = 'Deposit';
+        inesertRecipientN = 'Amir';
+        inesertRecipientAcc = '884567324895';
+        insertDetails = '$insertType for taxes';
+      }
+      if (i % 4 == 2) {
+        insertCurrency = 'GBP';
+        insertType = 'Withdrawal';
+        inesertRecipientN = 'Nikola';
+        inesertRecipientAcc = '439682436329';
+        insertDetails = '$insertType for amazon';
+      }
+      if (i % 4 == 3) {
+        insertCurrency = 'CHF';
+        insertType = 'Deposit';
+        inesertRecipientN = 'Edin';
+        inesertRecipientAcc = '970456340532';
+        insertDetails = '$insertType for video games';
+      }
+      transactions.add(Transaction(
+          insertDate,
+          insertType,
+          insertAmount,
+          insertCurrency,
+          insertDetails,
+          insertId,
+          inesertRecipientN,
+          inesertRecipientAcc));
+    }
     super.initState();
-    transactions = List.generate(
-      10,
-      (index) => Transaction(
-          DateTime(2021, 1, index + 1),
-          'Transfer',
-          100.0 + (index * 10),
-          'EUR',
-          'detail',
-          '12345',
-          'Enes',
-          '0987654321123456'),
-    );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         _getMoreList();
-        showntransactions.clear();
-        for (int i = 0; i < transactions.length; i++) {
-          showntransactions.add(transactions[i]);
-        }
       }
     });
     for (int i = 0; i < transactions.length; i++) {
@@ -117,18 +150,8 @@ class InitalState extends State<Transactions> {
   }
 
   _getMoreList() {
-    for (int i = _currentMax; i < _currentMax + 10; i++) {
-      transactions.add(Transaction(
-          DateTime(2021, 1, i + 1),
-          'Transfer',
-          100.0 + (i * 10),
-          'EUR',
-          'detail',
-          '12345',
-          'Enes',
-          '0987654321123456'));
-    }
-    _currentMax = _currentMax + 10;
+    shownTransactionsLimit = shownTransactionsLimit + 10;
+    _filtering();
     setState(() {});
   }
 //KOD za dummy podatke
@@ -157,15 +180,14 @@ class InitalState extends State<Transactions> {
   //Filtriranje
   Future<void> _filtering() async {
     showntransactions.clear();
-    for (int i = 0; i < transactions.length; i++) {
+    int i;
+    for (i = 0; i < transactions.length; i++) {
       if (widget.filterWithdrawalsTrue == false &&
           transactions[i].type == 'Withdrawal') {
-        print(widget.filterWithdrawalsTrue.toString());
         continue;
       }
       if (widget.filterDepositsTrue == false &&
           transactions[i].type == 'Deposit') {
-        print(widget.filterDepositsTrue.toString());
         continue;
       }
       if (transactions[i].amount < widget.filterPriceRangeStart ||
@@ -182,8 +204,15 @@ class InitalState extends State<Transactions> {
       }
       if (transactions[i].details.contains(searchValue)) {
         showntransactions.add(transactions[i]);
+        if (shownTransactionsLimit == showntransactions.length) {
+          break;
+        }
       }
     }
+    if (i == transactions.length) {
+      cupertinoCounter = 0;
+    }
+    setState(() {});
   }
 
 //KOD za podatke sa servera
@@ -277,14 +306,14 @@ class InitalState extends State<Transactions> {
         controller: _scrollController,
         itemExtent: 85,
         itemBuilder: (context, index) {
-          if (index == showntransactions.length) {
+          if (index == showntransactions.length && cupertinoCounter == 1) {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(
-                DateFormat.yMMMMd('en_US').format(transactions[index].date)),
-            subtitle: Text(transactions[index].type),
-            trailing: Text(transactions[index].amount.toString()),
+            title: Text(DateFormat.yMMMMd('en_US')
+                .format(showntransactions[index].date)),
+            subtitle: Text(showntransactions[index].type),
+            trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
               Navigator.push(
                 context,
@@ -303,7 +332,7 @@ class InitalState extends State<Transactions> {
             },
           );
         },
-        itemCount: showntransactions.length + 1,
+        itemCount: showntransactions.length + cupertinoCounter,
       ),
     );
   }
