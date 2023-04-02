@@ -32,6 +32,7 @@ class _EmailValidationState extends State<EmailValidation>{
 
   @override
   Widget build(BuildContext context) {
+    String username = widget.valuesInput[3].text;
     String mail = widget.valuesInput[0].text;
     mail = mail.replaceAll(RegExp(r'(?<=.)[^@](?=[^@]*?@)|(?:(?<=@.)|(?!^)\\G(?=[^@]*$)).(?=.*[^@]\\.)'),'*');
     return MaterialApp(
@@ -145,7 +146,7 @@ class _EmailValidationState extends State<EmailValidation>{
                                   onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => NumberValidation()),
+                                      MaterialPageRoute(builder: (context) => NumberValidation(username: username)),
                                     );
                                   },
                                   color: Colors.blue,
