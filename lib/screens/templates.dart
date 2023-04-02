@@ -40,6 +40,9 @@ class _AccountNumberFormatter extends TextInputFormatter {
 }
 
 class _TemplatesPageState extends State<TemplatesPage> {
+
+
+
   List<Payment> templates = [];
 
   final _formKey = GlobalKey<FormState>();
@@ -47,9 +50,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
   final TextEditingController _currencyController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientAccountController =
-      TextEditingController();
+  TextEditingController();
   String? _selectedCurrency = "USD";
   final List<String> _currencies = [
     'USD',
@@ -97,9 +100,15 @@ class _TemplatesPageState extends State<TemplatesPage> {
         itemBuilder: (BuildContext context, int index) {
           if (templates.length != 0) {
             return ListTile(
-              title: Text(templates[index].RecipientName!.text.toString()),
-              subtitle: Text(templates[index].Amount?.text.toString() ?? 'N/A'),
-            );
+                title: Text(templates[index].RecipientName!.text.toString()),
+                subtitle:
+                Text(templates[index].Amount?.text.toString() ?? 'N/A'),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    deleteTemplate(index);
+                  },
+                ));
           }
         },
       ),
@@ -136,7 +145,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         TextFormField(
                           controller: _amountController,
                           keyboardType:
-                              TextInputType.numberWithOptions(decimal: true),
+                          TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'^\d+\.?\d{0,2}')),
@@ -145,7 +154,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                             if (_amountController.text.isEmpty) {
                               return 'Amount is required';
                             } else if (double.tryParse(
-                                    _amountController.text) ==
+                                _amountController.text) ==
                                 null) {
                               return 'Amount should be a valid number.';
                             } else if (double.parse(_amountController.text) >
@@ -167,7 +176,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         TextFormField(
                           controller: _recipientNameController,
                           decoration:
-                              InputDecoration(labelText: 'Recipient name'),
+                          InputDecoration(labelText: 'Recipient name'),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'Recipient name is required';
@@ -180,7 +189,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         TextFormField(
                           controller: _recipientAccountController,
                           decoration:
-                              InputDecoration(labelText: 'Recipient account'),
+                          InputDecoration(labelText: 'Recipient account'),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
                             _AccountNumberFormatter(),
@@ -229,4 +238,123 @@ class _TemplatesPageState extends State<TemplatesPage> {
       ),
     );
   }
+
+  void deleteTemplate(int index) {
+    setState(() {
+      templates.removeAt(index);
+    });
+  }
+  /*
+  void _updateTemplate(Payment oldTemplate, Payment newTemplate) {
+    final index = templates.indexOf(oldTemplate);
+    setState(() {
+      templates[index] = newTemplate;
+    });
+  }
+  void editTemplate(BuildContext context, Payment template) {
+    final _formKey = GlobalKey<FormState>();
+    final _amountController = TextEditingController();
+    final _recipientNameController = TextEditingController();
+    final _recipientAccountController = TextEditingController();
+    String _selectedCurrency = template.Currency.text;
+    _amountController.text = template.Amount?.value as String;
+    _recipientNameController.text = template.RecipientName?.value as String;
+    _recipientAccountController.text = template.RecipientAccount?.value as String;
+    final List<String> _currencies = ['USD', 'AUD', 'BRL', 'CAD', 'CHF', 'CZK', 'DKK', 'EUR', 'GBP', 'HKD', 'HUF', 'ILS', 'JPY', 'MXN', 'NOK', 'NZD', 'PHP', 'PLN', 'RUB', 'SEK', 'SGD', 'THB', 'TWD'];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit template'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  DropdownButtonFormField<String>(
+                    value: _selectedCurrency,
+                    items: _currencies
+                        .map((String code) =>
+                        DropdownMenuItem(value: code, child: Text(code)))
+                        .toList(),
+                    onChanged: (String? value) =>
+                        setState(() => _selectedCurrency = value!),
+                    decoration: InputDecoration(
+                      labelText: 'Currency',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a currency';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Amount',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _recipientNameController,
+                    decoration: InputDecoration(
+                      labelText: 'Recipient Name',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a recipient name';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _recipientAccountController,
+                    decoration: InputDecoration(
+                      labelText: 'Recipient Account',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a recipient account';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  final newTemplate = Payment(
+                    Amount: Amount(value: _amountController.text),
+                    Currency: Currency(text: _selectedCurrency),
+                    RecipientName: RecipientName(value: _recipientNameController.text),
+                    RecipientAccount: RecipientAccount(value: _recipientAccountController.text),
+                  );
+                  _updateTemplate(template, newTemplate);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  } */
 }
