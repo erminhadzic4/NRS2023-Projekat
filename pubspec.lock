@@ -88,7 +88,6 @@ packages:
     version: "2.0.1"
   flutter_signin_button:
     dependency: "direct main"
-    dependency: "direct dev"
     description:
       name: flutter_signin_button
       sha256: a063ecc5d5308377e103c9c3a89084abf15fca4440636233af6a13abacd5dcae
