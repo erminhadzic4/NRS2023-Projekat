@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
 
 class PaymentPage extends StatefulWidget {
+
+  const PaymentPage({Key? key,  required this.templateData, required String recipientName, required String recipientAccount, required String amount, required String currency}) : super(key: key);
+  final List templateData;
+
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
@@ -110,6 +114,13 @@ class _PaymentPageState extends State<PaymentPage> {
                 ));
       }
     }
+  }
+
+  @override
+  void initState() {
+    _amountController.text = widget.templateData[1];
+    _recipientNameController.text = widget.templateData[2];
+    _recipientAccountController.text = widget.templateData[3];
   }
 
   @override

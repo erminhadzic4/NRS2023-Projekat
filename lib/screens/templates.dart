@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
+import 'package:nrs2023/screens/pay.dart';
+
 
 class Payment {
   TextEditingController Currency = TextEditingController();
@@ -72,6 +74,22 @@ class _TemplatesPageState extends State<TemplatesPage> {
     'TWD'
   ];
 
+  void _sendTemplateData(index) {
+    var template = Payment(
+        Currency: templates[index].Currency,
+        Amount: templates[index].Amount,
+        RecipientName: templates[index].RecipientName,
+        RecipientAccount: templates[index].RecipientAccount);
+
+    List<String?> data = [template.Currency.text.toString(),template.Amount?.text.toString(), template.RecipientName?.text.toString(), template.RecipientAccount?.text.toString()];
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PaymentPage(templateData: data, recipientName: '', recipientAccount: '', amount: '', currency: '',)
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +107,12 @@ class _TemplatesPageState extends State<TemplatesPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.account_balance_wallet),
+                      onPressed: () {
+                        _sendTemplateData(index);
+                      },
+                    ),
                     IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: () {
