@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
 
-
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
       {Key? key,
@@ -14,6 +13,7 @@ class PaymentPage extends StatefulWidget {
       : super(key: key);
   final List templateData;
 
+  get recipientAccount => null;
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -41,8 +41,10 @@ class _AccountNumberFormatter extends TextInputFormatter {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _recipientNameController = TextEditingController();
-  final TextEditingController _recipientAccountController = TextEditingController();
+  final TextEditingController _recipientNameController =
+      TextEditingController();
+  final TextEditingController _recipientAccountController =
+      TextEditingController();
   String _selectedCurrency = "USD";
   final List<String> _currencies = [
     'USD',
@@ -69,14 +71,6 @@ class _PaymentPageState extends State<PaymentPage> {
     'THB',
     'TWD'
   ];
-  @override
-  void initState() {
-    super.initState();
-    _amountController.text = widget.amount;
-    _selectedCurrency = widget.currency;
-    _recipientNameController.text = widget.recipientName;
-    _recipientAccountController.text = widget.recipientAccount;
-  }
 
   void _submitPaymentForm() {
     if (_formKey.currentState!.validate()) {
@@ -120,11 +114,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        if(widget.recipientAccount!='') {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        }
-                        Navigator.pop(context);
+                        Navigator.of(context).pop();
                       },
                       child: Text('OK'),
                     )
@@ -162,7 +152,6 @@ class _PaymentPageState extends State<PaymentPage> {
               children: [
                 SizedBox(height: 16),
                 Text('Currency'),
-
                 DropdownButtonFormField<String>(
                   value: _selectedCurrency,
                   onChanged: (String? value) {
@@ -179,7 +168,6 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Amount'),
-
                 TextFormField(
                   controller: _amountController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -208,7 +196,6 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Recipient Name'),
-
                 TextFormField(
                   controller: _recipientNameController,
                   validator: (value) {
@@ -225,7 +212,6 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Text('Recipient Account'),
-
                 TextFormField(
                   controller: _recipientAccountController,
                   keyboardType: TextInputType.number,
