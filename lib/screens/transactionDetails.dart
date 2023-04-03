@@ -134,6 +134,12 @@ class TransactionDetailsScreen extends StatelessWidget {
                         recipientAccount: recipientAccount,
                         amount: transactionAmount.toString(),
                         currency: transactionCurrency,
+                        templateData: [
+                          transactionCurrency,
+                          transactionAmount.toString(),
+                          recipientName,
+                          recipientAccount
+                        ],
                       ),
                     ));
               },

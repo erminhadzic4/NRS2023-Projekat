@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/login.dart';
 import 'package:nrs2023/screens/transactions.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -10,11 +11,38 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Home Screen'),
       ),
-      body: Center(
-        child: Text(
-          'Welcome to the Home Screen!',
-          style: TextStyle(fontSize: 24.0),
-        ),
+      body:  Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Welcome to the Home Screen!',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 30),
+                child: MaterialButton(
+                  elevation: 10,
+                  height: 50,
+                  minWidth: double.infinity,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => logIn()),
+                    );
+                  },
+                  color: Colors.blue,
+                  child: const Text("Login",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      )),
+                ),
+              ),
+            ],
+          )
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
@@ -44,10 +72,12 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => PaymentPage(
+                          templateData: ["", "", "", ""],
                           recipientName: '',
                           recipientAccount: '',
                           amount: '',
-                          currency: 'USD',
+                          currency: '',
+
                         )),
               );
               break;
