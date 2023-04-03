@@ -87,6 +87,7 @@ packages:
     source: hosted
     version: "2.0.1"
   flutter_signin_button:
+    dependency: "direct main"
     dependency: "direct dev"
     description:
       name: flutter_signin_button
