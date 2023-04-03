@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
+import 'package:nrs2023/screens/filters.dart';
+import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Transaction {
-  late String date;
+  late DateTime date;
   late String type;
   late double amount;
   late String id;
@@ -15,8 +18,8 @@ class Transaction {
   late String recipientAcc;
 
   // constructor
-  Transaction(
-      this.date, this.type, this.amount, this.currency, this.details, this.id, this.recipientN, this.recipientAcc);
+  Transaction(this.date, this.type, this.amount, this.currency, this.details,
+      this.id, this.recipientN, this.recipientAcc);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
@@ -28,22 +31,42 @@ class Transaction {
       json['details'],
       json['recipientN'],
       json['recipientAcc'],
-
     );
   }
 }
 
 class Transactions extends StatefulWidget {
+  late DateTime filterDateStart;
+  late DateTime filterDateEnd;
+  late String filterCurrency;
+  late double filterPriceRangeStart;
+  late double filterPriceRangeEnd;
+  late bool? filterDepositsTrue;
+  late bool? filterWithdrawalsTrue;
+
+  Transactions({
+    required this.filterDateStart,
+    required this.filterDateEnd,
+    required this.filterCurrency,
+    required this.filterPriceRangeStart,
+    required this.filterPriceRangeEnd,
+    required this.filterDepositsTrue,
+    required this.filterWithdrawalsTrue,
+  });
   @override
   InitalState createState() => InitalState();
 }
 
 class InitalState extends State<Transactions> {
-  late List<Transaction> transactions;
+  final transactions = <Transaction>[];
+  final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
-  int _currentMax = 10;
+  int shownTransactionsLimit = 10;
   int _currentPage = 1;
   bool _isLoading = false;
+  String searchValue = '';
+  int shownTransactionsCounter = 0;
+  int cupertinoCounter = 1; // 1 znaci ON, 0 znaci OFF
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -63,32 +86,74 @@ class InitalState extends State<Transactions> {
 */
 
 //KOD za dummy podatke
-  @override
   void initState() {
-    //TODO: implement initState from Backend
+    // Mock baza sa 10000 transakcija
+    for (int i = 0; i < 10000; i++) {
+      final insertDate = DateTime(2020, 1, i + 1); // Datum raste za jedan dan
+      var insertCurrency; // Valuta - Moze biti EUR USD GBP ili CHF
+      var insertType; // Tip Transakcije - Moze biti Deposit ili Withdrawal
+      final insertAmount = (i + 1) * 10.0; // Iznos raste za 100
+      final insertId = i.toString(); // Id Transakcije raste za 1
+      var inesertRecipientN; // Ime primatelja, rotira 4 imena
+      var inesertRecipientAcc; // Racun primatelja, rotira 4 racuna
+      var insertDetails; // Detalji, rotira 4 detalja
+      if (i % 4 == 0) {
+        insertCurrency = 'EUR';
+        insertType = 'Withdrawal';
+        inesertRecipientN = 'Enes';
+        inesertRecipientAcc = '384324924923';
+        insertDetails = '$insertType for school';
+      }
+      if (i % 4 == 1) {
+        insertCurrency = 'USD';
+        insertType = 'Deposit';
+        inesertRecipientN = 'Amir';
+        inesertRecipientAcc = '884567324895';
+        insertDetails = '$insertType for taxes';
+      }
+      if (i % 4 == 2) {
+        insertCurrency = 'GBP';
+        insertType = 'Withdrawal';
+        inesertRecipientN = 'Nikola';
+        inesertRecipientAcc = '439682436329';
+        insertDetails = '$insertType for amazon';
+      }
+      if (i % 4 == 3) {
+        insertCurrency = 'CHF';
+        insertType = 'Deposit';
+        inesertRecipientN = 'Edin';
+        inesertRecipientAcc = '970456340532';
+        insertDetails = '$insertType for video games';
+      }
+      transactions.add(Transaction(
+          insertDate,
+          insertType,
+          insertAmount,
+          insertCurrency,
+          insertDetails,
+          insertId,
+          inesertRecipientN,
+          inesertRecipientAcc));
+    }
     super.initState();
-    transactions = List.generate(
-      10,
-      (index) => Transaction('Jan ${index + 1} 2021', 'Transfer',
-          100.0 + (index * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'),
-    );
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         _getMoreList();
       }
     });
+    for (int i = 0; i < transactions.length; i++) {
+      showntransactions.add(transactions[i]);
+    }
+    _filtering();
   }
 
+  //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
-    for (int i = _currentMax; i < _currentMax + 10; i++) {
-      transactions.add(Transaction('Jan ${i + 1} 2021', 'Transfer',
-          100.0 + (i * 10), 'EUR', 'detail', '12345', 'Enes', '0987654321123456'));
-    }
-    _currentMax = _currentMax + 10;
+    shownTransactionsLimit = shownTransactionsLimit + 10;
+    _filtering();
     setState(() {});
   }
-//KOD za dummy podatke
 
 //KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
@@ -110,14 +175,87 @@ class InitalState extends State<Transactions> {
       _currentPage++;
     });
   }
-//KOD za podatke sa servera
 
+  //Filtriranje
+  Future<void> _filtering() async {
+    showntransactions.clear();
+    int i;
+    for (i = 0; i < transactions.length; i++) {
+      if (widget.filterWithdrawalsTrue == false &&
+          transactions[i].type == 'Withdrawal') {
+        continue;
+      }
+      if (widget.filterDepositsTrue == false &&
+          transactions[i].type == 'Deposit') {
+        continue;
+      }
+      if (transactions[i].amount < widget.filterPriceRangeStart ||
+          transactions[i].amount > widget.filterPriceRangeEnd) {
+        continue;
+      }
+      if (transactions[i].currency != widget.filterCurrency &&
+          widget.filterCurrency != 'All') {
+        continue;
+      }
+      if (transactions[i].date.isBefore(widget.filterDateStart) == true ||
+          transactions[i].date.isAfter(widget.filterDateEnd) == true) {
+        continue;
+      }
+      if (transactions[i].details.contains(searchValue)) {
+        showntransactions.add(transactions[i]);
+        if (shownTransactionsLimit == showntransactions.length) {
+          break;
+        }
+      }
+    }
+    if (i == transactions.length) {
+      cupertinoCounter = 0;
+    }
+    setState(() {});
+  }
+
+//KOD za podatke sa servera
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("All Transactions"),
-        actions: [
+      appBar: EasySearchBar(
+        title: FittedBox(
+          child: Text("All Transactions"),
+        ),
+        onSearch: (value) => setState(() {
+          _filtering();
+          searchValue = value;
+          for (int i = 0; i < transactions.length; i++) {
+            if (transactions[i].details.contains(searchValue) == false) {
+              showntransactions.remove(transactions[i]);
+            }
+          }
+        }),
+        actions: <Widget>[
+          IconButton(
+              icon: const Icon(Icons.filter_alt_outlined),
+              tooltip: 'Filter Transactions',
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FiltersScreen(
+                              isCheckedDeposit: widget.filterDepositsTrue,
+                              isCheckedWithdrawal: widget.filterWithdrawalsTrue,
+                              textEditingController1: TextEditingController(
+                                  text: widget.filterPriceRangeStart
+                                      .toInt()
+                                      .toString()),
+                              textEditingController2: TextEditingController(
+                                  text: widget.filterPriceRangeEnd
+                                      .toInt()
+                                      .toString()),
+                              selectedDates: DateTimeRange(
+                                  start: widget.filterDateStart,
+                                  end: widget.filterDateEnd),
+                              selectedCurrency: widget.filterCurrency,
+                            )));
+              }),
           IconButton(
             icon: Icon(Icons.sort),
             onPressed: () {
@@ -184,33 +322,33 @@ class InitalState extends State<Transactions> {
         controller: _scrollController,
         itemExtent: 85,
         itemBuilder: (context, index) {
-          if (index == transactions.length) {
+          if (index == showntransactions.length && cupertinoCounter == 1) {
             return const CupertinoActivityIndicator();
           }
           return ListTile(
-            title: Text(transactions[index].date),
-            subtitle: Text(transactions[index].type),
-            trailing: Text(transactions[index].amount.toString()),
+            title: Text(DateFormat.yMMMMd('en_US')
+                .format(showntransactions[index].date)),
+            subtitle: Text(showntransactions[index].type),
+            trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
-                      transactionId: transactions[index].id,
-                      transactionCurrency: transactions[index].currency,
-                      transactionType: transactions[index].type,
-                      transactionAmount: transactions[index].amount,
-                      transactionDate: transactions[index].date,
-                      transactionDetails: transactions[index].details,
-                      recipientName: transactions[index].recipientN,
-                      recipientAccount: transactions[index].recipientAcc
-                  ),
+                      transactionId: showntransactions[index].id,
+                      transactionCurrency: showntransactions[index].currency,
+                      transactionType: showntransactions[index].type,
+                      transactionAmount: showntransactions[index].amount,
+                      transactionDate: showntransactions[index].date,
+                      transactionDetails: showntransactions[index].details,
+                      recipientName: showntransactions[index].recipientN,
+                      recipientAccount: showntransactions[index].recipientAcc),
                 ),
               );
             },
           );
         },
-        itemCount: transactions.length + 1,
+        itemCount: showntransactions.length + cupertinoCounter,
       ),
     );
   }
