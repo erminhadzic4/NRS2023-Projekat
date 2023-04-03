@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/pay.dart';
+import 'package:intl/intl.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final String transactionId;
   final String transactionCurrency;
   final String transactionType;
   final double transactionAmount;
-  final String transactionDate;
+  final DateTime transactionDate;
   final String transactionDetails;
+  final String recipientName;
+  final String recipientAccount;
 
   TransactionDetailsScreen({
     required this.transactionId,
@@ -16,6 +19,8 @@ class TransactionDetailsScreen extends StatelessWidget {
     required this.transactionAmount,
     required this.transactionDate,
     required this.transactionDetails,
+    required this.recipientName,
+    required this.recipientAccount,
   });
 
   @override
@@ -30,7 +35,10 @@ class TransactionDetailsScreen extends StatelessWidget {
           //Title
           Text(
             'Transaction Details',
-            style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, ),
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           SizedBox(height: 16.0),
 
@@ -41,8 +49,23 @@ class TransactionDetailsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              '${transactionAmount.toStringAsFixed(2)}' + ' ' + transactionCurrency,
+              '${transactionAmount.toStringAsFixed(2)}' +
+                  ' ' +
+                  transactionCurrency,
               style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Divider(height: 1.0, color: Colors.grey[400]),
+
+          //Transaction Recipient name
+          ListTile(
+            title: Text(
+              'Recipient Name',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              recipientName,
+              style: TextStyle(fontSize: 16.0),
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
@@ -68,7 +91,9 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
             subtitle: Text(
               transactionDetails,
-              style: TextStyle(fontSize: 16.0,),
+              style: TextStyle(
+                fontSize: 16.0,
+              ),
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
@@ -80,13 +105,13 @@ class TransactionDetailsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              transactionDate,
+              DateFormat.yMMMMd('en_US').format(transactionDate),
               style: TextStyle(fontSize: 16.0),
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
-          
-           //Transaction ID
+
+          //Transaction ID
           ListTile(
             title: Text(
               'Transaction ID',
@@ -98,6 +123,23 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentPage(
+                        recipientName: recipientName,
+                        recipientAccount: recipientAccount,
+                        amount: transactionAmount.toString(),
+                        currency: transactionCurrency,
+                      ),
+                    ));
+              },
+              child: Text('Use as Template'),
+            ),
+          ),
         ],
       ),
     );

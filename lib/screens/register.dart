@@ -1,8 +1,8 @@
+import 'dart:convert';
+import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:nrs2023/screens/emailVaildation.dart';
-
-import 'numberValidation.dart';
+import 'package:http/http.dart' as http;
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -12,11 +12,79 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final List _focusInput = List.generate(6, (index) => FocusNode());
+  final List _focusInput = List.generate(7, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
 
-  final List Controllers = List.generate(6, (index) => TextEditingController());
+  final List _controllers =
+      List.generate(8, (index) => TextEditingController());
   final myController = TextEditingController();
+
+  void registerNewUser(
+      String firstName,
+      String lastName,
+      String email,
+      String username,
+      String password,
+      String address,
+      String phoneNumber) async {
+    final res = await http.post(
+        Uri.parse("http://siprojekat.duckdns.org:5051/Register"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "firstName": firstName,
+          "lastName": lastName,
+          "email": email,
+          "username": username,
+          "password": password,
+          "address": address,
+          "phoneNumber": phoneNumber
+        }));
+    if (res.statusCode == 200 && context.mounted) {
+      Navigator.push(
+        //PRELAZAK
+        context,
+        MaterialPageRoute(
+            builder: (context) => EmailValidation(
+                  valuesInput: _controllers,
+                )),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Failure'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Username already exists',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -28,7 +96,7 @@ class _RegisterState extends State<Register> {
     return InputDecoration(
       isDense: true,
       contentPadding:
-      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -43,7 +111,7 @@ class _RegisterState extends State<Register> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Sign in"),
+          title: const Text("Register"),
           centerTitle: true,
           leading: BackButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -54,7 +122,6 @@ class _RegisterState extends State<Register> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Form(
@@ -64,10 +131,10 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          controller: Controllers[0],
+                          controller: _controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                          registerInputDecoration("Email", "Enter Email"),
+                              registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
@@ -89,15 +156,13 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[0],
-                          controller: Controllers[1],
+                          controller: _controllers[1],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration:
-                          registerInputDecoration("Name", "Enter Name"),
-
+                              registerInputDecoration("Name", "Enter Name"),
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context)
-                                .requestFocus(_focusInput[1]);
+                            FocusScope.of(context).requestFocus(_focusInput[1]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -118,7 +183,7 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[1],
-                          controller: Controllers[2],
+                          controller: _controllers[2],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration: registerInputDecoration(
@@ -146,16 +211,39 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           focusNode: _focusInput[2],
-                          controller: Controllers[3],
+                          controller: _controllers[3],
+                          textCapitalization: TextCapitalization.words,
+                          keyboardType: TextInputType.name,
+                          decoration: registerInputDecoration(
+                              "Username", "Enter Username"),
+                          onChanged: (String value) {},
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[3]);
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Username can't be empty";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          focusNode: _focusInput[3],
+                          controller: _controllers[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Password", "Enter Password"),
-                          onChanged: (String value) {
-
-                          },
+                          onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(_focusInput[3]);
+                            FocusScope.of(context).requestFocus(_focusInput[4]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -174,21 +262,20 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: _focusInput[3],
-                          controller: Controllers[4],
+                          focusNode: _focusInput[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Re-enter Password", "Enter your password again"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(_focusInput[4]);
+                            FocusScope.of(context).requestFocus(_focusInput[5]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null ||
                                 value.isEmpty ||
-                                value != Controllers[3].text) {
+                                value != _controllers[4].text) {
                               return 'Passwords do not match';
                             }
                             return null;
@@ -201,14 +288,14 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: _focusInput[4],
-                          controller: Controllers[5],
+                          focusNode: _focusInput[5],
+                          controller: _controllers[5],
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Address", "Enter Address"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(_focusInput[5]);
+                            FocusScope.of(context).requestFocus(_focusInput[6]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -225,9 +312,12 @@ class _RegisterState extends State<Register> {
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: InternationalPhoneNumberInput(
-                            focusNode: _focusInput[5],
+                            focusNode: _focusInput[6],
+                            textFieldController: _controllers[6],
+                            countrySelectorScrollControlled: true,
                             onInputChanged: (PhoneNumber value) {},
-                            autoValidateMode: AutovalidateMode.onUserInteraction,
+                            autoValidateMode:
+                                AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Invalid phone number';
@@ -236,7 +326,7 @@ class _RegisterState extends State<Register> {
                             },
                           )),
                       const SizedBox(
-                        height: 90,
+                        height: 50,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
@@ -245,7 +335,7 @@ class _RegisterState extends State<Register> {
                             height: 50,
                             minWidth: double.infinity,
                             color: Colors.blue,
-                            child: const Text("Sign in",
+                            child: const Text("Register",
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -253,37 +343,17 @@ class _RegisterState extends State<Register> {
                                 )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      EmailValidation(
-                                        valuesInput: Controllers,)),
-                                );
+                                registerNewUser(
+                                    _controllers[1].text,
+                                    _controllers[2].text,
+                                    _controllers[0].text,
+                                    _controllers[3].text, //username
+                                    _controllers[4].text,
+                                    _controllers[5].text,
+                                    "06${_controllers[6].text}");
                               }
-                            }
-                        ),
+                            }),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 100),
-                        child: MaterialButton(
-                          elevation: 10,
-                          height: 50,
-                          minWidth: double.infinity,
-                          onPressed: () {
-                            print(Controllers[3].text);
-                          },
-                          color: Colors.white,
-                          child: const Text("Log In",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                              )),
-                        ),
-                      )
                     ],
                   ),
                 ),
