@@ -85,15 +85,14 @@ class InitalState extends State<Transactions> {
   }
 */
 
-//KOD za dummy podatke --- Mock baza sa 10000 transakcija
-  @override
+//KOD za dummy podatke
   void initState() {
     // Mock baza sa 10000 transakcija
     for (int i = 0; i < 10000; i++) {
       final insertDate = DateTime(2020, 1, i + 1); // Datum raste za jedan dan
       var insertCurrency; // Valuta - Moze biti EUR USD GBP ili CHF
       var insertType; // Tip Transakcije - Moze biti Deposit ili Withdrawal
-      final insertAmount = (i + 1) * 100.0; // Iznos raste za 100
+      final insertAmount = (i + 1) * 10.0; // Iznos raste za 100
       final insertId = i.toString(); // Id Transakcije raste za 1
       var inesertRecipientN; // Ime primatelja, rotira 4 imena
       var inesertRecipientAcc; // Racun primatelja, rotira 4 racuna
@@ -149,12 +148,12 @@ class InitalState extends State<Transactions> {
     _filtering();
   }
 
+  //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
     _filtering();
     setState(() {});
   }
-//KOD za dummy podatke
 
 //KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
@@ -224,11 +223,11 @@ class InitalState extends State<Transactions> {
           child: Text("All Transactions"),
         ),
         onSearch: (value) => setState(() {
+          _filtering();
           searchValue = value;
-          showntransactions.clear();
           for (int i = 0; i < transactions.length; i++) {
-            if (transactions[i].details.contains(searchValue)) {
-              showntransactions.add(transactions[i]);
+            if (transactions[i].details.contains(searchValue) == false) {
+              showntransactions.remove(transactions[i]);
             }
           }
         }),
@@ -237,8 +236,25 @@ class InitalState extends State<Transactions> {
               icon: const Icon(Icons.filter_alt_outlined),
               tooltip: 'Filter Transactions',
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FiltersScreen()));
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FiltersScreen(
+                              isCheckedDeposit: widget.filterDepositsTrue,
+                              isCheckedWithdrawal: widget.filterWithdrawalsTrue,
+                              textEditingController1: TextEditingController(
+                                  text: widget.filterPriceRangeStart
+                                      .toInt()
+                                      .toString()),
+                              textEditingController2: TextEditingController(
+                                  text: widget.filterPriceRangeEnd
+                                      .toInt()
+                                      .toString()),
+                              selectedDates: DateTimeRange(
+                                  start: widget.filterDateStart,
+                                  end: widget.filterDateEnd),
+                              selectedCurrency: widget.filterCurrency,
+                            )));
               }),
           IconButton(
             icon: Icon(Icons.sort),
@@ -315,7 +331,7 @@ class InitalState extends State<Transactions> {
             subtitle: Text(showntransactions[index].type),
             trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
