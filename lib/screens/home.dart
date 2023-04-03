@@ -60,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                           filterDateEnd: DateTime.now(),
                           filterCurrency: 'All',
                           filterPriceRangeStart: 0,
-                          filterPriceRangeEnd: 10000,
+                          filterPriceRangeEnd: 100000,
                           filterDepositsTrue: true,
                           filterWithdrawalsTrue: true,
                         )),
