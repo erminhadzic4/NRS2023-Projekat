@@ -236,7 +236,7 @@ class InitalState extends State<Transactions> {
               icon: const Icon(Icons.filter_alt_outlined),
               tooltip: 'Filter Transactions',
               onPressed: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => FiltersScreen(
@@ -271,7 +271,7 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (ascending)
                           setState(() {
-                            transactions
+                            showntransactions
                                 .sort((a, b) => a.amount.compareTo(b.amount));
                           });
                           Navigator.pop(context);
@@ -282,7 +282,7 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (descending)
                           setState(() {
-                            transactions
+                            showntransactions
                                 .sort((a, b) => b.amount.compareTo(a.amount));
                           });
                           Navigator.pop(context);
@@ -293,7 +293,7 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (ascending)
                           setState(() {
-                            transactions
+                            showntransactions
                                 .sort((a, b) => a.date.compareTo(b.date));
                           });
                           Navigator.pop(context);
@@ -304,7 +304,7 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (descending)
                           setState(() {
-                            transactions
+                            showntransactions
                                 .sort((a, b) => b.date.compareTo(a.date));
                           });
                           Navigator.pop(context);
@@ -331,7 +331,7 @@ class InitalState extends State<Transactions> {
             subtitle: Text(showntransactions[index].type),
             trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
