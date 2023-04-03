@@ -44,10 +44,12 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => PaymentPage(
+                          templateData: ["", "", "", ""],
                           recipientName: '',
                           recipientAccount: '',
                           amount: '',
-                          currency: 'USD',
+                          currency: '',
+
                         )),
               );
               break;
