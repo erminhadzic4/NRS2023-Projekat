@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/home.dart';
 
 class LoginAuthScreen extends StatefulWidget {
-  const LoginAuthScreen({super.key});
+  const LoginAuthScreen({Key? key}) : super(key: key);
 
   @override
   _LoginAuthScreenState createState() => _LoginAuthScreenState();
@@ -60,14 +61,26 @@ class _LoginAuthScreenState extends State<LoginAuthScreen> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
                 // TODO: IMPLEMENTIRATI LOGIKU VALIDACIJE
                 print('Email code entered: $_emailCode');
                 print('Phone code entered: $_phoneCode');
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(100, 40),
+                minimumSize: const Size(120, 50),
               ),
-              child: const Text('Submit'),
+              child: const Text(
+                  'Submit',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
             ),
           ],
         ),
