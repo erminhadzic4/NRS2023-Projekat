@@ -3,8 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
 
 class PaymentPage extends StatefulWidget {
-
-  const PaymentPage({Key? key,  required this.templateData, required String recipientName, required String recipientAccount, required String amount, required String currency}) : super(key: key);
+  const PaymentPage(
+      {Key? key,
+      required this.templateData,
+      required String recipientName,
+      required String recipientAccount,
+      required String amount,
+      required String currency})
+      : super(key: key);
   final List templateData;
 
   @override
