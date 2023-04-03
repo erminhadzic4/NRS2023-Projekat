@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
 
 class Register extends StatefulWidget {
@@ -326,7 +327,7 @@ class _RegisterState extends State<Register> {
                             },
                           )),
                       const SizedBox(
-                        height: 50,
+                        height: 40,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
@@ -353,6 +354,26 @@ class _RegisterState extends State<Register> {
                                     "0${_controllers[6].text}");
                               }
                             }),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 100),
+                        child: Column(
+                          children: [
+
+                            SignInButton(
+                              Buttons.Google,
+                              text: "Register with Google",
+                              onPressed: () {},
+                            ),
+                            SignInButton(
+                              Buttons.Facebook,
+                              text: "Register with Facebook",
+                              onPressed: () {},
+                            )
+                          ],
+                        ),
                       ),
                     ],
                   ),
