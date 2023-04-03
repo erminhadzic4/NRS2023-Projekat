@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
+import 'loginAuth.dart';
+
 class logIn extends StatefulWidget {
   const logIn({Key? key}) : super(key: key);
 
@@ -11,6 +13,8 @@ class logIn extends StatefulWidget {
 
 class _logInState extends State<logIn>{
   final _formkey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
@@ -78,6 +82,7 @@ class _logInState extends State<logIn>{
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: TextFormField(
                                 //controller: _controllers[0],
+                                controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration:
                                 registerInputDecoration("Email", "Enter Email"),
@@ -121,6 +126,7 @@ class _logInState extends State<logIn>{
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: TextFormField(
+                              controller: _passwordController,
                               keyboardType: TextInputType.emailAddress,
                               decoration:
                               registerInputDecoration("Password", "Enter password"),
@@ -158,22 +164,98 @@ class _logInState extends State<logIn>{
                   const SizedBox(
                     height: 20,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 100),
-                    child: MaterialButton(
-                      elevation: 10,
-                      height: 50,
-                      minWidth: double.infinity,
-                      onPressed: () {},
-                      color: Colors.blue,
-                      child: const Text("LOGIN",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 100),
+                  child: MaterialButton(
+                    elevation: 10,
+                    height: 50,
+                    minWidth: double.infinity,
+                    onPressed: () {
+                      print(_emailController.text + " " + _passwordController.text);
+                        if (_emailController.text == "test@test.com" &&
+                            _passwordController.text == "testTest12345") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Success'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 64,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'You will now be prompted for 2FA!',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => LoginAuthScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Failure'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.error,
+                                      color: Colors.red,
+                                      size: 64,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'Incorrect login info!',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                    },
+                    color: Colors.blue,
+                    child: const Text("LOGIN",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
+                ),
                   Padding(padding: const EdgeInsets.only(top: 10),
                       child: Column(
                         children: [

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/logIn.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:nrs2023/screens/loginAuth.dart';
+
+import 'home.dart';
 
 class logInPhone extends StatefulWidget {
   const logInPhone({Key? key}) : super(key: key);
@@ -11,6 +14,8 @@ class logInPhone extends StatefulWidget {
 
 class _logInPhoneState extends State<logInPhone>{
   final _formkey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
@@ -60,7 +65,7 @@ class _logInPhoneState extends State<logInPhone>{
                 padding: EdgeInsets.only(top: 40),
                 child: SizedBox(
                   width: 350,
-                  child: Text('E-mail',
+                  child: Text('Phone number',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
@@ -78,6 +83,7 @@ class _logInPhoneState extends State<logInPhone>{
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           //controller: _controllers[0],
+                          controller: _phoneController,
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                           registerInputDecoration("Phone number", "Enter phone number"),
@@ -114,6 +120,7 @@ class _logInPhoneState extends State<logInPhone>{
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          controller: _passwordController,
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                           registerInputDecoration("Password", "Enter password"),
@@ -153,7 +160,84 @@ class _logInPhoneState extends State<logInPhone>{
                   elevation: 10,
                   height: 50,
                   minWidth: double.infinity,
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_formkey.currentState!.validate()) {
+                      if (_phoneController.text == "063123123" &&
+                          _passwordController.text == "testTest12345") {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Success'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 64,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'You will now be prompted for 2FA!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LoginAuthScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Failure'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(
+                                    Icons.error,
+                                    color: Colors.red,
+                                    size: 64,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Incorrect login info!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    }
+                  },
                   color: Colors.blue,
                   child: const Text("LOGIN",
                       style: TextStyle(
@@ -163,6 +247,7 @@ class _logInPhoneState extends State<logInPhone>{
                       )),
                 ),
               ),
+
               Padding(padding: const EdgeInsets.only(top: 10),
                 child: Column(
                   children: [
