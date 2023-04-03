@@ -74,6 +74,8 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                   children: <Widget>[
                     Flexible(
                       child: TextField(
+                        keyboardType: TextInputType.number,
+                        enableInteractiveSelection: false,
                         controller: widget.textEditingController1,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -88,6 +90,8 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                     ),
                     Flexible(
                       child: TextField(
+                        keyboardType: TextInputType.number,
+                        enableInteractiveSelection: false,
                         controller: widget.textEditingController2,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
