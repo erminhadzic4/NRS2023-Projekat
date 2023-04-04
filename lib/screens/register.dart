@@ -42,7 +42,7 @@ class _RegisterState extends State<Register> {
           "address": address,
           "phoneNumber": phoneNumber
         }));
-    if (res.statusCode == 200) {
+    if (res.statusCode == 200 && context.mounted) {
       Navigator.push(
         //PRELAZAK
         context,
