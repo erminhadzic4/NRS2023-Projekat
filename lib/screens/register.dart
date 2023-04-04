@@ -29,7 +29,7 @@ class _RegisterState extends State<Register> {
       String address,
       String phoneNumber) async {
     final res = await http.post(
-        Uri.parse("http://siprojekat.duckdns.org:5051/Register"),
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/Register"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
