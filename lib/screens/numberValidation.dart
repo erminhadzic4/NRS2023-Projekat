@@ -116,7 +116,7 @@ class _NumberValidationState extends State<NumberValidation> {
     }
 
     Future<void> verifyNumber() async {
-      final url = Uri.parse('http://siprojekat.duckdns.org:5051/Register/confirm/phone');
+      final url = Uri.parse('http://siprojekat.duckdns.org:5051/api/Register/confirm/phone');
       final headers = {'Content-Type': 'application/json'};
       final body = json.encode({
         'Username': userName,
@@ -138,7 +138,7 @@ class _NumberValidationState extends State<NumberValidation> {
 
     void sendCode(String username) async {
       final url = await http.get(
-          Uri.parse("http://siprojekat.duckdns.org:5051/Register/phone?Username=$username"),
+          Uri.parse("http://siprojekat.duckdns.org:5051/api/Register/phone?Username=$username"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           });
