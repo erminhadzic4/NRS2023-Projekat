@@ -4,9 +4,12 @@ import 'package:nrs2023/screens/numberValidation.dart';
 import 'package:nrs2023/screens/home.dart';
 import 'package:nrs2023/screens/welcome.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

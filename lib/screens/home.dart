@@ -9,43 +9,22 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Screen'),
+        title: const Text('Home Screen'),
       ),
       body:  Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+            children: const [
               Text(
                 'Welcome to the Home Screen!',
                 style: TextStyle(fontSize: 24.0),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 30),
-                child: MaterialButton(
-                  elevation: 10,
-                  height: 50,
-                  minWidth: double.infinity,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => logIn()),
-                    );
-                  },
-                  color: Colors.blue,
-                  child: const Text("Login",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ),
               ),
             ],
           )
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.person_add),
             label: 'Register',
@@ -71,7 +50,7 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => PaymentPage(
+                    builder: (context) => const PaymentPage(
                           templateData: ["", "", "", ""],
                           recipientName: '',
                           recipientAccount: '',
