@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
@@ -52,9 +50,13 @@ class _AccountNumberFormatter extends TextInputFormatter {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _recipientNameController =
+  final TextEditingController _recipientFirstNameController =
       TextEditingController();
   final TextEditingController _recipientAccountController =
+      TextEditingController();
+  final TextEditingController _recipientLastNameController =
+      TextEditingController();
+  final TextEditingController _recipientDescriptionController =
       TextEditingController();
   String _selectedCurrency = "USD";
   final List<String> _currencies = [
@@ -114,10 +116,7 @@ class _PaymentPageState extends State<PaymentPage> {
     final jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
-      final recipientFirstName = jsonResponse['recipientFirstName'];
-      if (recipientFirstName == firstName) {
-        return transactionValidation(true, jsonResponse['message']);
-      }
+      return transactionValidation(true, jsonResponse['message']);
     }
     return transactionValidation(false, jsonResponse['message']);
   }
@@ -128,10 +127,10 @@ class _PaymentPageState extends State<PaymentPage> {
           double.tryParse(_amountController.text),
           _selectedCurrency,
           "type",
-          "desc",
+          _recipientDescriptionController.text,
           _recipientAccountController.text,
-          _recipientNameController.text,
-          "Last Name");
+          _recipientFirstNameController.text,
+          _recipientLastNameController.text);
       if (!isValidRecipient.success) {
         showDialog(
             context: context,
@@ -163,7 +162,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     child: ListBody(
                       children: <Widget>[
                         Text(
-                            "Recipient Name: ${_recipientNameController.text}"),
+                            "Recipient Name: ${_recipientFirstNameController.text}"),
                         SizedBox(
                           height: 10,
                         ),
@@ -190,63 +189,10 @@ class _PaymentPageState extends State<PaymentPage> {
     }
   }
 
-/*
-  void _submitPaymentForm() {
-    if (_formKey.currentState!.validate()) {
-      if (_recipientNameController.text.isEmpty ||
-          _recipientAccountController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Recipient name or account details are required.'),
-        ));
-      } else {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Transaction Succesfull '),
-                      Icon(
-                        Icons.check_box,
-                        color: Colors.green,
-                      ),
-                    ],
-                  ),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            "Recipient Name: ${_recipientNameController.text}"),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                            "Amount: ${_amountController.text} $_selectedCurrency"),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                            "Recipient Account: ${_recipientAccountController.text}")
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('OK'),
-                    )
-                  ],
-                ));
-      }
-    }
-  }
-*/
   @override
   void initState() {
     _amountController.text = widget.templateData[1];
-    _recipientNameController.text = widget.templateData[2];
+    _recipientFirstNameController.text = widget.templateData[2];
     _recipientAccountController.text = widget.templateData[3];
   }
 
@@ -314,19 +260,35 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Text('Recipient Name'),
+                Text('Recipient First Name'),
                 TextFormField(
-                  controller: _recipientNameController,
+                  controller: _recipientFirstNameController,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Recipient name is required';
+                      return 'Recipient first name is required';
                     } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
-                      return 'Recipient name can only contain letters and spaces';
+                      return 'Recipient first name can only contain letters and spaces';
                     }
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Enter recipient name',
+                    hintText: 'Enter recipient first name',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Recipient Last Name'),
+                TextFormField(
+                  controller: _recipientLastNameController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Recipient last name is required';
+                    } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
+                      return 'Recipient last name can only contain letters and spaces';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Enter recipient last name',
                   ),
                 ),
                 SizedBox(height: 16),
@@ -349,6 +311,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Enter recipient account details',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Transaction Details'),
+                TextFormField(
+                  controller: _recipientDescriptionController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter transaction details',
                   ),
                 ),
                 SizedBox(height: 16),
