@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
@@ -72,6 +74,96 @@ class _PaymentPageState extends State<PaymentPage> {
     'TWD'
   ];
 
+  Future<bool> validateRecipientFirstName(String firstName) async {
+    final uri = Uri.https('processingserver.herokuapp.com', '/api/Transaction/CreateTransaction');
+
+    final body = {
+      "amount": 0,
+      "currency": "string",
+      "paymentType": "string",
+      "description": "string",
+      "recipientAccountNumber": "string",
+      "recipientFirstName": firstName,
+      "recipientLastName": "string"
+    };
+
+    final headers = {
+      'Content-Type': 'application/json'
+    };
+
+    final response = await http.post(uri, headers: headers, body: json.encode(body));
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final recipientFirstName = jsonResponse['recipientFirstName'];
+      if (recipientFirstName == firstName) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void _submitPaymentForm() async {
+    if (_formKey.currentState!.validate()) {
+      if (_recipientNameController.text.isEmpty ||
+          _recipientAccountController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Recipient name or account details are required.'),
+        ));
+      } else {
+        bool isValidRecipientName = await validateRecipientFirstName(_recipientNameController.text);
+        if (isValidRecipientName) {
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Transaction Succesfull '),
+                    Icon(
+                      Icons.check_box,
+                      color: Colors.green,
+                    ),
+                  ],
+                ),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text(
+                          "Recipient Name: ${_recipientNameController.text}"),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                          "Amount: ${_amountController.text} $_selectedCurrency"),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                          "Recipient Account: ${_recipientAccountController.text}")
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  )
+                ],
+              ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Recipient name is not valid.'),
+          ));
+        }
+      }
+    }
+  }
+
+/*
   void _submitPaymentForm() {
     if (_formKey.currentState!.validate()) {
       if (_recipientNameController.text.isEmpty ||
@@ -123,7 +215,7 @@ class _PaymentPageState extends State<PaymentPage> {
       }
     }
   }
-
+*/
   @override
   void initState() {
     _amountController.text = widget.templateData[1];
