@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
@@ -14,23 +16,25 @@ class Transaction {
   late String id;
   late String currency;
   late String details;
-  late String recipientN;
+  late String recipientName;
   late String recipientAcc;
+  late String providerName;
 
   // constructor
-  Transaction(this.date, this.type, this.amount, this.currency, this.details,
-      this.id, this.recipientN, this.recipientAcc);
+  Transaction(this.id, this.amount, this.currency, this.type, this.details,
+      this.date, this.recipientName, this.recipientAcc,this.providerName);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      json['date'],
-      json['type'],
+      json['transactionId'].toString(),
       json['amount'].toDouble(),
-      json['id'],
       json['currency'],
-      json['details'],
-      json['recipientN'],
-      json['recipientAcc'],
+      json['paymentType'],
+      json['description'],
+      DateTime.parse(json['createdAt']),
+      json['recipientName'],
+      json['recipientAccountNumber'].toString(),
+      json['providerName'],
     );
   }
 }
@@ -58,35 +62,49 @@ class Transactions extends StatefulWidget {
 }
 
 class InitalState extends State<Transactions> {
+  var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiJlOTZkN2VhMC1l"
+      "YTBjLTQ0ZmMtYWFlOS1kOTcwNmQ0ZmQ0NmUiLCJVc2VyTmFtZSI6ImFoYXN0b3IxIiwianRpIjoiNDcwZmQ3ZTYtM"
+      "TYxNC00MjZmLWIzYjEtYjI4NGI2ZDAxZmYzIiwiZXhwIjoxNjgxMjU4NjM5LCJpc3MiOiJodHRwOi8vc2lwcm9qZWth"
+      "dC5kdWNrZG5zLm9yZzo1MDUxIiwiYXVkIjoiaHR0cDovL3NpcHJvamVrYXQuZHVja2R"
+      "ucy5vcmc6MzAwMCJ9.cBGy0jLhVvC8KPaUWiUp1zGOAv9coxj1O5BrOJbY0ZM";
   final transactions = <Transaction>[];
   final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
   int shownTransactionsLimit = 10;
   int _currentPage = 1;
+  int _loadTransactionsLimit = 10;
   bool _isLoading = false;
   String searchValue = '';
   int shownTransactionsCounter = 0;
-  int cupertinoCounter = 1; // 1 znaci ON, 0 znaci OFF
+  int cupertinoCounter = 1;
+  // 1 znaci ON, 0 znaci OFF
 
 //KOD Za povlacenje tranzakcija sa API-a
 
-/*
+
   @override
   void initState() {
-    super.initState();
-    transactions = [];
     _getMoreTransactions();
+    //_filtering();
+
+    super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
+        _getMoreList();
         _getMoreTransactions();
+
       }
     });
+
+    //showntransactions.addAll(transactions);
+    //_filtering();
+
   }
-*/
+
 
 //KOD za dummy podatke
-  void initState() {
+  /*void initState() {
     // Mock baza sa 10000 transakcija
     for (int i = 0; i < 10000; i++) {
       final insertDate = DateTime(2020, 1, i + 1); // Datum raste za jedan dan
@@ -97,12 +115,14 @@ class InitalState extends State<Transactions> {
       var inesertRecipientN; // Ime primatelja, rotira 4 imena
       var inesertRecipientAcc; // Racun primatelja, rotira 4 racuna
       var insertDetails; // Detalji, rotira 4 detalja
+      var insertProviderName;
       if (i % 4 == 0) {
         insertCurrency = 'EUR';
         insertType = 'Withdrawal';
         inesertRecipientN = 'Enes';
         inesertRecipientAcc = '384324924923';
         insertDetails = '$insertType for school';
+        var insertProviderName = 'Enes';
       }
       if (i % 4 == 1) {
         insertCurrency = 'USD';
@@ -110,6 +130,7 @@ class InitalState extends State<Transactions> {
         inesertRecipientN = 'Amir';
         inesertRecipientAcc = '884567324895';
         insertDetails = '$insertType for taxes';
+        var insertProviderName = 'Enes';
       }
       if (i % 4 == 2) {
         insertCurrency = 'GBP';
@@ -117,6 +138,7 @@ class InitalState extends State<Transactions> {
         inesertRecipientN = 'Nikola';
         inesertRecipientAcc = '439682436329';
         insertDetails = '$insertType for amazon';
+        var insertProviderName = 'Enes';
       }
       if (i % 4 == 3) {
         insertCurrency = 'CHF';
@@ -124,16 +146,19 @@ class InitalState extends State<Transactions> {
         inesertRecipientN = 'Edin';
         inesertRecipientAcc = '970456340532';
         insertDetails = '$insertType for video games';
+        var insertProviderName = 'Enes';
       }
       transactions.add(Transaction(
-          insertDate,
-          insertType,
+          insertId,
           insertAmount,
           insertCurrency,
+          insertType,
           insertDetails,
-          insertId,
+          insertDate,
           inesertRecipientN,
-          inesertRecipientAcc));
+          inesertRecipientAcc,
+          insertProviderName
+      ));
     }
     super.initState();
     _scrollController.addListener(() {
@@ -147,7 +172,7 @@ class InitalState extends State<Transactions> {
     }
     _filtering();
   }
-
+*/
   //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
@@ -162,15 +187,15 @@ class InitalState extends State<Transactions> {
     }
     _isLoading = true;
     //URL ce se promijeniti kada RI završti backend
-    final url = Uri.parse('https://my-api.com/transactions?page=$_currentPage');
+    final url = Uri.parse('https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit');
     final response = await http.get(url);
     final responseData = json.decode(response.body);
-    final List<Transaction> loadedTransactions = [];
-    responseData['data'].forEach((transactionData) {
-      loadedTransactions.add(Transaction.fromJson(transactionData));
+    //final List<Transaction> loadedTransactions = [];
+    responseData.forEach((transactionData) {
+      showntransactions.add(Transaction.fromJson(transactionData));
+      transactions.add(Transaction.fromJson(transactionData));
     });
     setState(() {
-      transactions.addAll(loadedTransactions);
       _isLoading = false;
       _currentPage++;
     });
@@ -341,7 +366,7 @@ class InitalState extends State<Transactions> {
                       transactionAmount: showntransactions[index].amount,
                       transactionDate: showntransactions[index].date,
                       transactionDetails: showntransactions[index].details,
-                      recipientName: showntransactions[index].recipientN,
+                      recipientName: showntransactions[index].recipientName,
                       recipientAccount: showntransactions[index].recipientAcc),
                 ),
               );
