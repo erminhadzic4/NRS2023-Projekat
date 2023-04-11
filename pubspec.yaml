@@ -45,6 +45,7 @@ dev_dependencies:
   flutter_signin_button: ^2.0.0
   flutter_test:
     sdk: flutter
+  awesome_notifications: ^0.7.4+1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
