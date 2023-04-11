@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/templates.dart';
@@ -19,6 +21,13 @@ class PaymentPage extends StatefulWidget {
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
+}
+
+class transactionValidation {
+  late bool success;
+  late String message;
+
+  transactionValidation(this.success, this.message);
 }
 
 class _AccountNumberFormatter extends TextInputFormatter {
@@ -74,91 +83,109 @@ class _PaymentPageState extends State<PaymentPage> {
     'TWD'
   ];
 
-  Future<bool> validateRecipientFirstName(String firstName) async {
-    final uri = Uri.https('processingserver.herokuapp.com', '/api/Transaction/CreateTransaction');
+  Future<transactionValidation> validateTransaction(
+      double? amount,
+      String currency,
+      String paymentType,
+      String description,
+      String recipientAccountNumber,
+      String firstName,
+      String lastName) async {
+    final uri = Uri.parse(
+        "https://processingserver.herokuapp.com/Transaction/CreateTransaction?token=TEST");
 
     final body = {
-      "amount": 0,
-      "currency": "string",
-      "paymentType": "string",
-      "description": "string",
-      "recipientAccountNumber": "string",
+      "amount": amount,
+      "currency": currency,
+      "paymentType": paymentType,
+      "description": description,
+      "recipientAccountNumber": recipientAccountNumber,
       "recipientFirstName": firstName,
-      "recipientLastName": "string"
+      "recipientLastName": lastName
     };
 
     final headers = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json; charset=utf-8',
     };
 
-    final response = await http.post(uri, headers: headers, body: json.encode(body));
+    final response =
+        await http.post(uri, headers: headers, body: json.encode(body));
+
+    final jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
       final recipientFirstName = jsonResponse['recipientFirstName'];
       if (recipientFirstName == firstName) {
-        return true;
+        return transactionValidation(true, jsonResponse['message']);
       }
     }
-
-    return false;
+    return transactionValidation(false, jsonResponse['message']);
   }
 
   void _submitPaymentForm() async {
     if (_formKey.currentState!.validate()) {
-      if (_recipientNameController.text.isEmpty ||
-          _recipientAccountController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Recipient name or account details are required.'),
-        ));
+      var isValidRecipient = await validateTransaction(
+          double.tryParse(_amountController.text),
+          _selectedCurrency,
+          "type",
+          "desc",
+          _recipientAccountController.text,
+          _recipientNameController.text,
+          "Last Name");
+      if (!isValidRecipient.success) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                    content: Text("${isValidRecipient.message}"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      )
+                    ]));
       } else {
-        bool isValidRecipientName = await validateRecipientFirstName(_recipientNameController.text);
-        if (isValidRecipientName) {
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Transaction Succesfull '),
-                    Icon(
-                      Icons.check_box,
-                      color: Colors.green,
-                    ),
-                  ],
-                ),
-                content: SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text(
-                          "Recipient Name: ${_recipientNameController.text}"),
-                      SizedBox(
-                        height: 10,
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Transaction Succesfull '),
+                      Icon(
+                        Icons.check_box,
+                        color: Colors.green,
                       ),
-                      Text(
-                          "Amount: ${_amountController.text} $_selectedCurrency"),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                          "Recipient Account: ${_recipientAccountController.text}")
                     ],
                   ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  )
-                ],
-              ));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Recipient name is not valid.'),
-          ));
-        }
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            "Recipient Name: ${_recipientNameController.text}"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Recipient Account: ${_recipientAccountController.text}")
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('OK'),
+                    )
+                  ],
+                ));
       }
     }
   }
