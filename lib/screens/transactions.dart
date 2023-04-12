@@ -77,6 +77,7 @@ class InitalState extends State<Transactions> {
   String searchValue = '';
   int shownTransactionsCounter = 0;
   int cupertinoCounter = 1;
+  int _sortOption = 0;
   // 1 znaci ON, 0 znaci OFF
 
 
@@ -102,6 +103,7 @@ class InitalState extends State<Transactions> {
 
     //showntransactions.addAll(transactions);
     _filtering();
+    _sorting();
 
   }
 
@@ -180,6 +182,7 @@ class InitalState extends State<Transactions> {
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
     _filtering();
+    _sorting();
     setState(() {});
   }
 
@@ -203,7 +206,22 @@ class InitalState extends State<Transactions> {
       _currentPage++;
     });
   }
-
+//Sortiranje
+Future<void> _sorting() async {
+  if(_sortOption == 0){
+     showntransactions.sort((a, b) => a.date.compareTo(b.date));                      
+  }
+  else if(_sortOption == 1){
+    showntransactions.sort((a, b) => b.date.compareTo(a.date));  
+  }
+  else if(_sortOption == 2){
+    showntransactions.sort((a, b) => a.amount.compareTo(b.amount));
+  }
+  else if(_sortOption == 3){
+    showntransactions.sort((a, b) => b.amount.compareTo(a.amount));
+  }
+setState(() {});
+}
   //Filtriranje
   Future<void> _filtering() async {
     showntransactions.clear();
@@ -299,8 +317,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (ascending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => a.amount.compareTo(b.amount));
+                            _sortOption = 2;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -310,8 +328,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (descending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => b.amount.compareTo(a.amount));
+                            _sortOption = 3;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -321,8 +339,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (ascending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => a.date.compareTo(b.date));
+                            _sortOption = 0;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -332,8 +350,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (descending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => b.date.compareTo(a.date));
+                            _sortOption = 1;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
