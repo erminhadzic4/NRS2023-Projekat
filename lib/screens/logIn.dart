@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import '../auth_provider.dart';
 import 'loginAuth.dart';
 
 class logIn extends StatefulWidget {
@@ -18,8 +20,18 @@ class _logInState extends State<logIn>{
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late AuthProvider _authProvider;
+  //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
+  //  final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //  token = _authProvider.token;
   var token;
   var userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  }
 
   void logInRequest(String phoneEmail, String password) async {
     final res = await http.post(
@@ -33,6 +45,7 @@ class _logInState extends State<logIn>{
         }));
     if ( (res.statusCode == 200) && context.mounted) {
       var responseData = jsonDecode(res.body);
+      _authProvider.setToken(responseData['token']);
       token = responseData['token'];
       userId = responseData['userId'];
       showDialog(
