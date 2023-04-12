@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactions.dart';
+import 'package:intl/intl.dart' as intl;
 
 final List<String> _currencies = [
   'All',
@@ -28,6 +29,14 @@ final List<String> _currencies = [
   'TWD'
 ];
 
+final List<String> _TransactionTypes = [
+  'All',
+  'Withdrawal',
+  'Deposit',
+  'Send',
+  'Receive'
+];
+
 class FiltersScreen extends StatefulWidget {
   late bool? isCheckedDeposit = true;
   late bool? isCheckedWithdrawal = true;
@@ -37,16 +46,19 @@ class FiltersScreen extends StatefulWidget {
       TextEditingController(text: '100000');
   late DateTimeRange selectedDates =
       DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now());
+  late DateTime? selectedDate = (DateTime.now());
   late String selectedCurrency = "All";
+  late String selectedTransactionType = "All";
 
-  FiltersScreen({
-    required this.isCheckedDeposit,
-    required this.isCheckedWithdrawal,
-    required this.textEditingController1,
-    required this.textEditingController2,
-    required this.selectedDates,
-    required this.selectedCurrency,
-  });
+  FiltersScreen(
+      {required this.isCheckedDeposit,
+      required this.isCheckedWithdrawal,
+      required this.textEditingController1,
+      required this.textEditingController2,
+      required this.selectedDates,
+      required this.selectedDate,
+      required this.selectedCurrency,
+      required this.selectedTransactionType});
   @override
   MyStatefulWidgetState createState() => MyStatefulWidgetState();
 }
@@ -63,7 +75,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
         child: Column(children: <Widget>[
           Row(children: <Widget>[
             Text(
-              'Price Range:',
+              'Price:',
               style: const TextStyle(
                 fontSize: 18.0,
               ),
@@ -82,22 +94,6 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                         ),
                       ),
                     ),
-                    Text(
-                      ' - ',
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    Flexible(
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        enableInteractiveSelection: false,
-                        controller: widget.textEditingController2,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -111,33 +107,35 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
             ),
             Expanded(
-              child: Column(children: <Widget>[
-                CheckboxListTile(
-                  title: const Text('Deposits'),
-                  value: widget.isCheckedDeposit,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      widget.isCheckedDeposit = newValue;
-                    });
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
+              child: DropdownButtonFormField<String>(
+                isExpanded: true,
+                decoration: InputDecoration(
+                  enabledBorder: InputBorder.none,
                 ),
-                CheckboxListTile(
-                  title: const Text('Withdrawals'),
-                  value: widget.isCheckedWithdrawal,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      widget.isCheckedWithdrawal = newValue;
-                    });
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
-              ]),
+                value: widget.selectedTransactionType,
+                onChanged: (String? value) {
+                  setState(() {
+                    widget.selectedTransactionType = value!;
+                  });
+                },
+                items:
+                    _TransactionTypes.map((transactiontype) => DropdownMenuItem(
+                          value: transactiontype,
+                          child: Center(
+                            child: Text(
+                              transactiontype,
+                              style: const TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                        )).toList(),
+              ),
             ),
           ]),
           Row(children: <Widget>[
             Text(
-              'Date Range:',
+              'Date:',
               style: const TextStyle(
                 fontSize: 18.0,
               ),
@@ -145,37 +143,28 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
             Expanded(
               child: Column(children: <Widget>[
                 ElevatedButton(
-                  child: const Text("Select Date Range"),
+                  child: const Text("Select Date"),
                   onPressed: () async {
-                    final DateTimeRange? dateTimeRange =
-                        await showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(3000),
-                    );
-                    if (dateTimeRange != null) {
+                    DateTime? dateTime = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(3000),
+                        initialDate: DateTime(2023));
+                    if (DateTime != null) {
                       setState(() {
-                        widget.selectedDates = dateTimeRange;
+                        widget.selectedDate = dateTime;
                       });
                     }
                   },
                 ),
-                Text(
-                  widget.selectedDates.start.day.toString() +
-                      "/" +
-                      widget.selectedDates.start.month.toString() +
-                      "/" +
-                      widget.selectedDates.start.year.toString() +
-                      " - " +
-                      widget.selectedDates.end.day.toString() +
-                      "/" +
-                      widget.selectedDates.end.month.toString() +
-                      "/" +
-                      widget.selectedDates.end.year.toString(),
-                  style: const TextStyle(
-                    fontSize: 16.0,
+                if (widget.selectedDate != null)
+                  Text(
+                    intl.DateFormat.yMMMMd('en_US')
+                        .format(widget.selectedDate!),
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                    ),
                   ),
-                ),
               ]),
             ),
           ]),
@@ -223,6 +212,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                     builder: (context) => Transactions(
                           filterDateStart: widget.selectedDates.start,
                           filterDateEnd: widget.selectedDates.end,
+                          filterDate: widget.selectedDate,
                           filterCurrency: widget.selectedCurrency,
                           filterPriceRangeStart: (double.parse(
                               widget.textEditingController1.text)),
@@ -230,6 +220,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                               widget.textEditingController2.text)),
                           filterDepositsTrue: widget.isCheckedDeposit,
                           filterWithdrawalsTrue: widget.isCheckedWithdrawal,
+                          filterTransactionType: widget.selectedTransactionType,
                         )),
               );
             },

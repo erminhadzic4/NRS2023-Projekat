@@ -11,8 +11,6 @@ import 'package:provider/provider.dart';
 
 import '../auth_provider.dart';
 
-
-
 class Transaction {
   late DateTime date;
   late String type;
@@ -26,7 +24,7 @@ class Transaction {
 
   // constructor
   Transaction(this.id, this.amount, this.currency, this.type, this.details,
-      this.date, this.recipientName, this.recipientAcc,this.providerName);
+      this.date, this.recipientName, this.recipientAcc, this.providerName);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
@@ -46,7 +44,9 @@ class Transaction {
 class Transactions extends StatefulWidget {
   late DateTime filterDateStart;
   late DateTime filterDateEnd;
+  late DateTime? filterDate;
   late String filterCurrency;
+  late String filterTransactionType;
   late double filterPriceRangeStart;
   late double filterPriceRangeEnd;
   late bool? filterDepositsTrue;
@@ -55,7 +55,9 @@ class Transactions extends StatefulWidget {
   Transactions({
     required this.filterDateStart,
     required this.filterDateEnd,
+    required this.filterDate,
     required this.filterCurrency,
+    required this.filterTransactionType,
     required this.filterPriceRangeStart,
     required this.filterPriceRangeEnd,
     required this.filterDepositsTrue,
@@ -66,7 +68,7 @@ class Transactions extends StatefulWidget {
 }
 
 class InitalState extends State<Transactions> {
-  var token ;
+  var token;
   final transactions = <Transaction>[];
   final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
@@ -77,8 +79,8 @@ class InitalState extends State<Transactions> {
   String searchValue = '';
   int shownTransactionsCounter = 0;
   int cupertinoCounter = 1;
+  int _sortOption = 0;
   // 1 znaci ON, 0 znaci OFF
-
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -96,15 +98,13 @@ class InitalState extends State<Transactions> {
           _scrollController.position.maxScrollExtent) {
         _getMoreList();
         _getMoreTransactions();
-
       }
     });
 
     //showntransactions.addAll(transactions);
     _filtering();
-
+    _sorting();
   }
-
 
 //KOD za dummy podatke
   /*void initState() {
@@ -179,7 +179,7 @@ class InitalState extends State<Transactions> {
   //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
-    _filtering();
+    _sorting();
     setState(() {});
   }
 
@@ -189,8 +189,34 @@ class InitalState extends State<Transactions> {
       return;
     }
     _isLoading = true;
-    //URL ce se promijeniti kada RI završti backend
-    final url = Uri.parse('https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit');
+    var amount = widget.filterPriceRangeStart.toInt();
+    var currency = widget.filterCurrency.toString();
+    var paymentType = widget.filterTransactionType;
+    var recipientName;
+    var recipientAccountNumber;
+    var providerName;
+    var date = widget.filterDate;
+    var sortingOrder;
+    print("currency is: $currency");
+    print("amount is: $amount");
+    var link =
+        "https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
+    if (amount != 0) {
+      link = link + "&AmountFilter=$amount";
+    }
+    if (currency != "All") {
+      link = link + "&CurrencyFilter=$currency";
+    }
+    if (paymentType != "All") {
+      link = link + "&PaymentTypeFilter=$paymentType";
+    }
+    if (currency != "All") {
+      link = link + "&CurrencyFilter=$currency";
+    }
+    if (date != null) {
+      link = link + "&CreatedOnFilter=$date";
+    }
+    final url = Uri.parse(link);
     final response = await http.get(url);
     final responseData = json.decode(response.body);
     //final List<Transaction> loadedTransactions = [];
@@ -202,6 +228,20 @@ class InitalState extends State<Transactions> {
       _isLoading = false;
       _currentPage++;
     });
+  }
+
+//Sortiranje
+  Future<void> _sorting() async {
+    if (_sortOption == 0) {
+      showntransactions.sort((a, b) => a.date.compareTo(b.date));
+    } else if (_sortOption == 1) {
+      showntransactions.sort((a, b) => b.date.compareTo(a.date));
+    } else if (_sortOption == 2) {
+      showntransactions.sort((a, b) => a.amount.compareTo(b.amount));
+    } else if (_sortOption == 3) {
+      showntransactions.sort((a, b) => b.amount.compareTo(a.amount));
+    }
+    setState(() {});
   }
 
   //Filtriranje
@@ -270,6 +310,8 @@ class InitalState extends State<Transactions> {
                         builder: (context) => FiltersScreen(
                               isCheckedDeposit: widget.filterDepositsTrue,
                               isCheckedWithdrawal: widget.filterWithdrawalsTrue,
+                              selectedTransactionType:
+                                  widget.filterTransactionType,
                               textEditingController1: TextEditingController(
                                   text: widget.filterPriceRangeStart
                                       .toInt()
@@ -282,6 +324,7 @@ class InitalState extends State<Transactions> {
                                   start: widget.filterDateStart,
                                   end: widget.filterDateEnd),
                               selectedCurrency: widget.filterCurrency,
+                              selectedDate: widget.filterDate,
                             )));
               }),
           IconButton(
@@ -299,8 +342,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (ascending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => a.amount.compareTo(b.amount));
+                            _sortOption = 2;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -310,8 +353,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by amount (descending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => b.amount.compareTo(a.amount));
+                            _sortOption = 3;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -321,8 +364,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (ascending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => a.date.compareTo(b.date));
+                            _sortOption = 0;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -332,8 +375,8 @@ class InitalState extends State<Transactions> {
                         onTap: () {
                           // Sort transactions by date (descending)
                           setState(() {
-                            showntransactions
-                                .sort((a, b) => b.date.compareTo(a.date));
+                            _sortOption = 1;
+                            _sorting();
                           });
                           Navigator.pop(context);
                         },
