@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
@@ -16,11 +17,12 @@ class logIn extends StatefulWidget {
   State<logIn> createState() => _logInState();
 }
 
-class _logInState extends State<logIn>{
+class _logInState extends State<logIn> {
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late AuthProvider _authProvider;
+
   //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
   //  final _authProvider = Provider.of<AuthProvider>(context, listen: false);
   //  token = _authProvider.token;
@@ -43,11 +45,13 @@ class _logInState extends State<logIn>{
           "email": _emailController.text,
           "password": _passwordController.text,
         }));
-    if ( (res.statusCode == 200) && context.mounted) {
+    if ((res.statusCode == 200) && context.mounted) {
       var responseData = jsonDecode(res.body);
       _authProvider.setToken(responseData['token']);
       token = responseData['token'];
       userId = responseData['userId'];
+      final storage = new FlutterSecureStorage();
+      await storage.write(key: 'token', value: '$token');
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -74,9 +78,7 @@ class _logInState extends State<logIn>{
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            LoginAuthScreen()),
+                    MaterialPageRoute(builder: (context) => LoginAuthScreen()),
                   );
                 },
                 child: const Text('OK'),
@@ -85,7 +87,6 @@ class _logInState extends State<logIn>{
           );
         },
       );
-
     } else {
       showDialog(
         context: context,
@@ -126,7 +127,7 @@ class _logInState extends State<logIn>{
     return InputDecoration(
       isDense: true,
       contentPadding:
-      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -141,174 +142,178 @@ class _logInState extends State<logIn>{
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-            title: const Text("Login"),
-            centerTitle: true,
-            leading: BackButton(
-              onPressed: () => Navigator.of(context).pop(),
+          title: const Text("Login"),
+          centerTitle: true,
+          leading: BackButton(
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
         body: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 80),
-                  child: SizedBox(
-                    width: 350,
-                    child: Text("Login",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: SizedBox(
+                  width: 350,
+                  child: Text("Login",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 33,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: SizedBox(
+                  width: 350,
+                  child: Text('E-mail',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextFormField(
+                        //controller: _controllers[0],
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration:
+                            registerInputDecoration("Email", "Enter Email"),
+                        onFieldSubmitted: (String value) {
+                          //FocusScope.of(context).requestFocus(_focusInput[0]);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              !value.contains("@")) {
+                            return 'Invalid address';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: SizedBox(
+                  width: 350,
+                  child: Text('Password',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Form(
+                  key: _formkey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: registerInputDecoration(
+                              "Password", "Enter password"),
+                          onFieldSubmitted: (String value) {
+                            //FocusScope.of(context).requestFocus(_focusInput[0]);
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          //validator:
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: SizedBox(
+                  width: 350,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const logInPhone()),
+                      );
+                    },
+                    child: const Text(
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 33,
-                            fontWeight: FontWeight.bold)),
+                            decoration: TextDecoration.underline,
+                            color: Colors.blue),
+                        'Login via phone number'),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: SizedBox(
-                    width: 350,
-                    child: Text('E-mail',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
-                  ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                child: MaterialButton(
+                  elevation: 10,
+                  height: 50,
+                  minWidth: double.infinity,
+                  onPressed: () {
+                    logInRequest(
+                        _emailController.text, _passwordController.text);
+                    print(
+                        _emailController.text + " " + _passwordController.text);
+                  },
+                  color: Colors.blue,
+                  child: const Text("LOGIN",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      )),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextFormField(
-                                //controller: _controllers[0],
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration:
-                                registerInputDecoration("Email", "Enter Email"),
-                                onFieldSubmitted: (String value) {
-                                  //FocusScope.of(context).requestFocus(_focusInput[0]);
-                                },
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (value) {
-                                  if (value == null ||
-                                      value.isEmpty ||
-                                      !value.contains("@")) {
-                                    return 'Invalid address';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: SizedBox(
-                      width: 350,
-                      child: Text('Password',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  children: [
+                    SignInButton(
+                      Buttons.Google,
+                      //mini: true,
+                      onPressed: () {},
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Form(
-                      key:_formkey,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration:
-                              registerInputDecoration("Password", "Enter password"),
-                              onFieldSubmitted: (String value) {
-                                //FocusScope.of(context).requestFocus(_focusInput[0]);
-                              },
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              //validator:
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: SizedBox(
-                      width: 350,
-                      child:
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const logInPhone()),
-                          );
-                        },
-                        child: const Text(
-                            textAlign: TextAlign.center,
-                            style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                            'Login via phone number'
-                        ),
-                      ),
-                      ),
+                    SignInButton(
+                      Buttons.Facebook,
+                      onPressed: () {},
+                    )
+                  ],
                 ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 100),
-                  child: MaterialButton(
-                    elevation: 10,
-                    height: 50,
-                    minWidth: double.infinity,
-                    onPressed: () {
-                      logInRequest(_emailController.text, _passwordController.text);
-                      print(_emailController.text+ " " + _passwordController.text);
-                    },
-                    color: Colors.blue,
-                    child: const Text("LOGIN",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
-                ),
-                  Padding(padding: const EdgeInsets.only(top: 10),
-                      child: Column(
-                        children: [
-                          SignInButton(
-                            Buttons.Google,
-                            //mini: true,
-                            onPressed: () {},
-                          ),
-                          SignInButton(
-                            Buttons.Facebook,
-                            onPressed: () {},
-                          )
-                        ],
-                      ),
-                  ),
-                ],
-            ),
+              ),
+            ],
+          ),
         ),
-       ),
+      ),
     );
   }
 }

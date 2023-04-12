@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/templates.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -59,6 +60,7 @@ class _PaymentPageState extends State<PaymentPage> {
   final TextEditingController _recipientDescriptionController =
       TextEditingController();
   String _selectedCurrency = "USD";
+  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',
@@ -93,8 +95,10 @@ class _PaymentPageState extends State<PaymentPage> {
       String recipientAccountNumber,
       String firstName,
       String lastName) async {
+    String? token = await storage.read(key: 'token');
+
     final uri = Uri.parse(
-        "https://processingserver.herokuapp.com/Transaction/CreateTransaction?token=TEST");
+        "https://processingserver.herokuapp.com/Transaction/CreateTransaction?token=$token");
 
     final body = {
       "amount": amount,
@@ -113,6 +117,7 @@ class _PaymentPageState extends State<PaymentPage> {
     final response =
         await http.post(uri, headers: headers, body: json.encode(body));
 
+    print(token);
     final jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
