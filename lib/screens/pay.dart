@@ -117,7 +117,6 @@ class _PaymentPageState extends State<PaymentPage> {
     final response =
         await http.post(uri, headers: headers, body: json.encode(body));
 
-    print(token);
     final jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
