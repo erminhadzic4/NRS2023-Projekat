@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:nrs2023/screens/biometricAuth.dart';
 import 'loginAuth.dart';
 
 class logIn extends StatefulWidget {
@@ -292,6 +292,22 @@ class _logInState extends State<logIn>{
                         ],
                       ),
                   ),
+                MaterialButton(
+                    child: const Text("LOGIN USING BIOMETRICS",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        )),
+                    onPressed: (){
+                Navigator.push(
+                //PRELAZAK
+                context,
+                MaterialPageRoute(
+                builder: (context) => BiometricAuthentication(
+                )),
+                );
+                })
                 ],
             ),
         ),
