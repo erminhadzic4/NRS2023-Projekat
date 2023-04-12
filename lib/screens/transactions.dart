@@ -1,13 +1,17 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/logIn.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../auth_provider.dart';
+
+
 
 class Transaction {
   late DateTime date;
@@ -62,11 +66,7 @@ class Transactions extends StatefulWidget {
 }
 
 class InitalState extends State<Transactions> {
-  var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiJlOTZkN2VhMC1l"
-      "YTBjLTQ0ZmMtYWFlOS1kOTcwNmQ0ZmQ0NmUiLCJVc2VyTmFtZSI6ImFoYXN0b3IxIiwianRpIjoiNDcwZmQ3ZTYtM"
-      "TYxNC00MjZmLWIzYjEtYjI4NGI2ZDAxZmYzIiwiZXhwIjoxNjgxMjU4NjM5LCJpc3MiOiJodHRwOi8vc2lwcm9qZWth"
-      "dC5kdWNrZG5zLm9yZzo1MDUxIiwiYXVkIjoiaHR0cDovL3NpcHJvamVrYXQuZHVja2R"
-      "ucy5vcmc6MzAwMCJ9.cBGy0jLhVvC8KPaUWiUp1zGOAv9coxj1O5BrOJbY0ZM";
+  var token ;
   final transactions = <Transaction>[];
   final showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
@@ -79,11 +79,14 @@ class InitalState extends State<Transactions> {
   int cupertinoCounter = 1;
   // 1 znaci ON, 0 znaci OFF
 
-//KOD Za povlacenje tranzakcija sa API-a
 
+//KOD Za povlacenje tranzakcija sa API-a
 
   @override
   void initState() {
+    final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    token = _authProvider.token;
+
     _getMoreTransactions();
     //_filtering();
 
@@ -98,7 +101,7 @@ class InitalState extends State<Transactions> {
     });
 
     //showntransactions.addAll(transactions);
-    //_filtering();
+    _filtering();
 
   }
 
