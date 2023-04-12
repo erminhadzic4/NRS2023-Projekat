@@ -292,11 +292,12 @@ class _logInState extends State<logIn>{
                         ],
                       ),
                   ),
-                MaterialButton(
-                    child: const Text("LOGIN USING BIOMETRICS",
+                ElevatedButton(
+                    child: const Text("Login using biometrics",
                         style: TextStyle(
+                          backgroundColor: Colors.blue,
                           fontSize: 20,
-                          color: Colors.blue,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         )),
                     onPressed: (){
