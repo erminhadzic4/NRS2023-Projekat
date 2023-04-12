@@ -52,6 +52,7 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
           options: const AuthenticationOptions(
             stickyAuth: true,
             biometricOnly: true,
+            useErrorDialogs: true,
           )
       );
     } on PlatformException catch (e) {
@@ -65,22 +66,19 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Biometrics Login"),
+        centerTitle: true,
+        leading: BackButton(
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Center(
-              child: Text(
-                "Biometrics Login",
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 30.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
               margin: EdgeInsets.symmetric(vertical: 50.0),
@@ -88,17 +86,8 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
                 children: [
                   Image.asset(
                     "res/img/fingerprint.jpg",
-                    width: 140.0,
+                    width: 160.0,
                   ),
-                /*  Text(
-                    "Fingerprint Auth",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-
-                    ),
-                  ),*/
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 15.0),
                     child: const Text(
@@ -110,11 +99,12 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
 
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 15.0),
-                    width: 400,
+                    width: 300,
+                    height: 50,
                     child: ElevatedButton(
                         onPressed: authenticate,
                         child: Text("Authenticate", style: TextStyle(color: Colors.white,
-                            fontSize: 20.0),
+                            fontSize: 25.0),
                         )
                     ),
                   )
@@ -128,29 +118,3 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
   }
 }
 
-
-/*
-@override
-  Widget build(BuildContext context) {
-    return  Scaffold(
-        appBar: AppBar(
-        title: Text('Biometrics auth')
-        ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ElevatedButton(
-              onPressed: getSupportedBios,
-              child: Text("get supported biometrics")
-          ),
-          ElevatedButton(
-              onPressed: authenticate,
-              child: Text("authenticate")
-          )
-        ],
-      ),
-    );
-  }
-}
-*/
