@@ -139,7 +139,16 @@ class _PaymentPageState extends State<PaymentPage> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                    content: Text("${isValidRecipient.message}"),
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${isValidRecipient.message}'),
+                        Icon(
+                          Icons.clear,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () {
