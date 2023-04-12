@@ -49,6 +49,8 @@ dev_dependencies:
     sdk: flutter
   awesome_notifications: ^0.7.4+1
 
+  local_auth: ^2.1.6
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
