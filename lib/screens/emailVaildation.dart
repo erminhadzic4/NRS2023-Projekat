@@ -38,7 +38,7 @@ class _EmailValidationState extends State<EmailValidation> {
 
   void confirmEmail(String username, String code) async {
     final res = await http.post(
-        Uri.parse("http://siprojekat.duckdns.org:5051/api/Register/confirm/email"),
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User/confirm/email"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
