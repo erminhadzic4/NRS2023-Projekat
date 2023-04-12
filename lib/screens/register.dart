@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
 
 class Register extends StatefulWidget {
@@ -12,11 +14,11 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final List _focusInput = List.generate(7, (index) => FocusNode());
+  final List _focusInput = List.generate(9, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
 
   final List _controllers =
-      List.generate(8, (index) => TextEditingController());
+      List.generate(9, (index) => TextEditingController());
   final myController = TextEditingController();
 
   void registerNewUser(
@@ -26,9 +28,10 @@ class _RegisterState extends State<Register> {
       String username,
       String password,
       String address,
-      String phoneNumber) async {
+      String phoneNumber,
+      String accountNumber) async {
     final res = await http.post(
-        Uri.parse("http://siprojekat.duckdns.org:5051/Register"),
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -39,7 +42,8 @@ class _RegisterState extends State<Register> {
           "username": username,
           "password": password,
           "address": address,
-          "phoneNumber": phoneNumber
+          "phoneNumber": phoneNumber,
+          "accountNumber": accountNumber
         }));
     if (res.statusCode == 200 && context.mounted) {
       Navigator.push(
@@ -51,6 +55,7 @@ class _RegisterState extends State<Register> {
                 )),
       );
     } else {
+      print(res.body.toString());
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -92,6 +97,12 @@ class _RegisterState extends State<Register> {
     super.dispose();
   }
 
+  /*@override
+  void initstate() {
+
+    super.initState();
+  }*/
+
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
       isDense: true,
@@ -105,13 +116,32 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  void triggerNotification() {
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if(!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+            id: 1,
+            channelKey: 'channelKey',
+            title: "Naslov Notifikacije",
+            body: "Sadržaj notifikacije"
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Register"),
+          title: GestureDetector(
+            onLongPress: triggerNotification,
+            child: const Text("Register"),
+          ),
           centerTitle: true,
           leading: BackButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -123,7 +153,7 @@ class _RegisterState extends State<Register> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 30),
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Form(
                   key: _formkey,
                   child: Column(
@@ -150,7 +180,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -177,7 +207,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -205,7 +235,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -230,7 +260,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -257,7 +287,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -283,7 +313,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -307,13 +337,31 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          focusNode: _focusInput[6],
+                          controller: _controllers[6],
+                          obscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: registerInputDecoration(
+                              "Account Number", "Enter Your account information"),
+                          onChanged: (String value) {},
+                          onFieldSubmitted: (String value) {
+                            FocusScope.of(context).requestFocus(_focusInput[7]);
+                          },
+                        ),
+                      ),
+                      const SizedBox(
                         height: 20,
                       ),
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: InternationalPhoneNumberInput(
-                            focusNode: _focusInput[6],
-                            textFieldController: _controllers[6],
+                            focusNode: _focusInput[7],
+                            textFieldController: _controllers[7],
                             countrySelectorScrollControlled: true,
                             onInputChanged: (PhoneNumber value) {},
                             autoValidateMode:
@@ -325,8 +373,9 @@ class _RegisterState extends State<Register> {
                               return null;
                             },
                           )),
+
                       const SizedBox(
-                        height: 50,
+                        height: 30,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
@@ -343,6 +392,16 @@ class _RegisterState extends State<Register> {
                                 )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
+                                print(
+                                    _controllers[1].text+" "+
+                                    _controllers[2].text+" "+
+                                    _controllers[0].text+" "+
+                                    _controllers[3].text+" "+ //username
+                                    _controllers[4].text+" "+
+                                    _controllers[5].text+" "+
+                                    "0${_controllers[7].text} "+
+                                    _controllers[6].text
+                                );
                                 registerNewUser(
                                     _controllers[1].text,
                                     _controllers[2].text,
@@ -350,9 +409,30 @@ class _RegisterState extends State<Register> {
                                     _controllers[3].text, //username
                                     _controllers[4].text,
                                     _controllers[5].text,
-                                    "06${_controllers[6].text}");
+                                    "0${_controllers[7].text}",
+                                    _controllers[6].text
+                                );
                               }
                             }),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 50),
+                        child: Column(
+                          children: [
+                            SignInButton(
+                              Buttons.Google,
+                              text: "Register with Google",
+                              onPressed: () {},
+                            ),
+                            SignInButton(
+                              Buttons.Facebook,
+                              text: "Register with Facebook",
+                              onPressed: () {},
+                            )
+                          ],
+                        ),
                       ),
                     ],
                   ),

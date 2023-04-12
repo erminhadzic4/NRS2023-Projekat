@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/login.dart';
 import 'package:nrs2023/screens/transactions.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -8,16 +9,22 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Screen'),
+        title: const Text('Home Screen'),
       ),
-      body: Center(
-        child: Text(
-          'Welcome to the Home Screen!',
-          style: TextStyle(fontSize: 24.0),
-        ),
+      body:  Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Text(
+                'Welcome to the Home Screen!',
+                style: TextStyle(fontSize: 24.0),
+              ),
+            ],
+          )
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.person_add),
             label: 'Register',
@@ -43,7 +50,7 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => PaymentPage(
+                    builder: (context) => const PaymentPage(
                           templateData: ["", "", "", ""],
                           recipientName: '',
                           recipientAccount: '',

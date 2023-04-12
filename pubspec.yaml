@@ -28,20 +28,25 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_signin_button: ^2.0.0
   flutter:
     sdk: flutter
   intl: ^0.17.0
+  awesome_notifications: ^0.7.4+1
   intl_phone_number_input: ^0.7.2
   http: ^0.13.4
   easy_search_bar: ^2.4.2
+  provider: ^6.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
+  flutter_signin_button: ^2.0.0
   flutter_test:
     sdk: flutter
+  awesome_notifications: ^0.7.4+1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -62,8 +67,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+      - res/img/logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

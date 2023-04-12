@@ -199,9 +199,6 @@ class _TemplatesPageState extends State<TemplatesPage> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      suffixText: _selectedCurrency,
-                      suffixStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       hintText: '0.00',
                     ),
                   ),
@@ -320,9 +317,6 @@ class _TemplatesPageState extends State<TemplatesPage> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      suffixText: _selectedCurrency,
-                      suffixStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       hintText: '0.00',
                     ),
                   ),
