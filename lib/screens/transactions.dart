@@ -186,14 +186,37 @@ class InitalState extends State<Transactions> {
     setState(() {});
   }
 
-//KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
     if (_isLoading) {
       return;
     }
     _isLoading = true;
-    //URL ce se promijeniti kada RI završti backend
-    final url = Uri.parse('https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit');
+
+    var amount = widget.filterPriceRangeStart.toInt();
+    var currency = widget.filterCurrency.toString();
+    var paymentType;
+    var recipientName;
+    var recipientAccountNumber;
+    var providerName;
+    var date;
+    var sortingOrder;
+    print("currency is: $currency");
+    print("amount is: $amount");
+    var link="https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
+    if(amount!=0) {
+      link = link + "&AmountFilter=$amount";
+    }
+    if(currency!="All") {
+      link = link + "&CurrencyFilter=$currency";
+    }
+    //if(paymentType!="All") {
+    //  link = link + "&PaymentTypeFilter=$paymentType";
+    //}
+    if(currency!="All") {
+      link = link + "&CurrencyFilter=$currency";
+    }
+
+    final url = Uri.parse(link);
     final response = await http.get(url);
     final responseData = json.decode(response.body);
     //final List<Transaction> loadedTransactions = [];
