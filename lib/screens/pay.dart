@@ -120,7 +120,7 @@ class _PaymentPageState extends State<PaymentPage> {
     final jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
-      return transactionValidation(true, jsonResponse['message']);
+      return transactionValidation(true, 'success');
     }
     return transactionValidation(false, jsonResponse['message']);
   }
