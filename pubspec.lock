@@ -201,7 +201,7 @@ packages:
     source: hosted
     version: "2.0.1"
   local_auth:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: local_auth
       sha256: "0cf238be2bfa51a6c9e7e9cfc11c05ea39f2a3a4d3e5bb255d0ebc917da24401"
