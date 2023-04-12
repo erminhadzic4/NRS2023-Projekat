@@ -21,6 +21,9 @@ class _logInState extends State<logIn>{
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late AuthProvider _authProvider;
+  //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
+  //  final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //  token = _authProvider.token;
   var token;
   var userId;
 
