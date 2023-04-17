@@ -121,10 +121,18 @@ class InitalState extends State<Transactions> {
   int _loadTransactionsLimit = 10;
   bool _isLoading = false;
   String searchValue = '';
-  int shownTransactionsCounter = 0;
   int cupertinoCounter = 1; // 1 znaci ON, 0 znaci OFF
 
 //KOD Za povlacenje tranzakcija sa API-a
+
+  @override
+  void _cupertinoCheck() {
+    if (shownTransactionsLimit != transactions.length) {
+      cupertinoCounter = 0;
+    } else {
+      cupertinoCounter = 1;
+    }
+  }
 
   @override
   void initState() {
@@ -149,6 +157,7 @@ class InitalState extends State<Transactions> {
 
 //KOD za podatke sa servera
   Future<void> _getMoreTransactions() async {
+    _cupertinoCheck();
     if (_isLoading) {
       return;
     }
@@ -163,7 +172,7 @@ class InitalState extends State<Transactions> {
     var dateStart = widget.filterDateStart;
     var dateEnd = widget.filterDateEnd;
     var category = widget.filterCategory;
-    var sortingOrder = widget.filterSortingOrder; // TREBA IMPLEMENTIRATI
+    var sortingOrder = widget.filterSortingOrder;
     var link =
         "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
     link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
@@ -197,6 +206,7 @@ class InitalState extends State<Transactions> {
       showntransactions.add(Transaction.fromJson(transactionData));
       transactions.add(Transaction.fromJson(transactionData));
     });
+    _cupertinoCheck();
     setState(() {
       //da li je ucitano onoliko tranzakcija koliko je pozvano ili je kraj
       if (counter == _loadTransactionsLimit) {
@@ -273,7 +283,7 @@ class InitalState extends State<Transactions> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext contect) =>
+                                  builder: (BuildContext context) =>
                                       super.widget));
                         },
                       ),
@@ -285,7 +295,7 @@ class InitalState extends State<Transactions> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext contect) =>
+                                  builder: (BuildContext context) =>
                                       super.widget));
                         },
                       ),
@@ -297,7 +307,7 @@ class InitalState extends State<Transactions> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext contect) =>
+                                  builder: (BuildContext context) =>
                                       super.widget));
                         },
                       ),
@@ -309,7 +319,7 @@ class InitalState extends State<Transactions> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext contect) =>
+                                  builder: (BuildContext context) =>
                                       super.widget));
                         },
                       ),
