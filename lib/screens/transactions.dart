@@ -291,6 +291,12 @@ class InitalState extends State<Transactions> {
               );
             },
           ),
+          IconButton(
+            icon: Icon(Icons.grid_on_rounded),
+            onPressed: () {
+              print("group");
+            },
+          )
         ],
       ),
       body: ListView.builder(
