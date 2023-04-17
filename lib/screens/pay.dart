@@ -12,11 +12,9 @@ class PaymentPage extends StatefulWidget {
       required String recipientName,
       required String recipientAccount,
       required String amount,
-      required String currency,
-      this.transactionCategory})
+      required String currency})
       : super(key: key);
   final List templateData;
-  final String? transactionCategory;
 
   get recipientAccount => null;
 
@@ -61,8 +59,8 @@ class _PaymentPageState extends State<PaymentPage> {
       TextEditingController();
   final TextEditingController _recipientDescriptionController =
       TextEditingController();
-  final storage = new FlutterSecureStorage();
   String _selectedCurrency = "USD";
+  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',
@@ -88,8 +86,6 @@ class _PaymentPageState extends State<PaymentPage> {
     'THB',
     'TWD'
   ];
-  String? selectedCategory = "Currency";
-  final List<String> category = ['Currency','Amount','Recipient Account', 'Transaction Details'];
 
   Future<transactionValidation> validateTransaction(
       double? amount,
@@ -337,22 +333,6 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     hintText: 'Enter transaction details',
                   ),
-                ),
-                SizedBox(height: 16),
-                Text('Transaction Category'),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  onChanged: (String? value) {
-                    setState(() {
-                      selectedCategory = value!;
-                    });
-                  },
-                  items: category
-                      .map((cat) => DropdownMenuItem(
-                    value: cat,
-                    child: Text(cat),
-                  ))
-                      .toList(),
                 ),
                 SizedBox(height: 16),
                 Row(
