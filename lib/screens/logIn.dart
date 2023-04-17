@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +21,6 @@ class _logInState extends State<logIn> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late AuthProvider _authProvider;
-
   //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
   //  final _authProvider = Provider.of<AuthProvider>(context, listen: false);
   //  token = _authProvider.token;
@@ -50,8 +48,6 @@ class _logInState extends State<logIn> {
       _authProvider.setToken(responseData['token']);
       token = responseData['token'];
       userId = responseData['userId'];
-      final storage = new FlutterSecureStorage();
-      await storage.write(key: 'token', value: '$token');
       showDialog(
         context: context,
         builder: (BuildContext context) {

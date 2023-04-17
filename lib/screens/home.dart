@@ -65,13 +65,14 @@ class HomeScreen extends StatelessWidget {
                     builder: (context) => Transactions(
                           filterDateStart: DateTime.utc(1900, 1, 1),
                           filterDateEnd: DateTime.now(),
-                          filterDate: null,
                           filterCurrency: 'All',
                           filterTransactionType: 'All',
-                          filterPriceRangeStart: 0,
-                          filterPriceRangeEnd: 100000,
-                          filterDepositsTrue: true,
-                          filterWithdrawalsTrue: true,
+                          filterPriceRangeStart: '0',
+                          filterPriceRangeEnd: '100000',
+                          filterRecipientName: '',
+                          filterRecipientAccount: '',
+                          filterSenderName: '',
+                          filterCategory: '',
                         )),
               );
               break;
