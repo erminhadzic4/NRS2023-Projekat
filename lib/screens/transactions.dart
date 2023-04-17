@@ -157,8 +157,8 @@ class InitalState extends State<Transactions> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _getMoreList();
-        _getMoreTransactions();
+          _getMoreList();
+          _getMoreTransactions();
       }
     });
     _sorting();
@@ -196,26 +196,20 @@ class InitalState extends State<Transactions> {
     }
     final url = Uri.parse(link);
     final response = await http.get(url);
-    /*
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      List<dynamic> data = json['data'];
-      showntransactions = data.map((e) => Transaction.fromJson(e)).toList();
-      transactions = data.map((e) => Transaction.fromJson(e)).toList();
-      //final json = jsonDecode(response.body);
-      //print(json);
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-    }
-    */
+
+    var counter=0;
     final responseData = json.decode(response.body);
     responseData.forEach((transactionData) {
+      counter++;
       showntransactions.add(Transaction.fromJson(transactionData));
       transactions.add(Transaction.fromJson(transactionData));
     });
     setState(() {
-      _isLoading = false;
-      _currentPage++;
+      //da li je ucitano onoliko tranzakcija koliko je pozvano ili je kraj
+      if(counter==_loadTransactionsLimit) {
+        _currentPage++;
+        _isLoading = false;
+      }
     });
   }
 
