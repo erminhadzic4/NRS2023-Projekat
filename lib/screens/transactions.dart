@@ -22,8 +22,18 @@ class Transaction {
   String senderId;
   User sender;
 
-  Transaction(this.transactionId, this.amount, this.currency, this.transactionType, this.transactionPurpose,this.category,
-      this.createdAt, this.recipientId, this.recipient, this.senderId, this.sender);
+  Transaction(
+      this.transactionId,
+      this.amount,
+      this.currency,
+      this.transactionType,
+      this.transactionPurpose,
+      this.category,
+      this.createdAt,
+      this.recipientId,
+      this.recipient,
+      this.senderId,
+      this.sender);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
@@ -71,36 +81,6 @@ class User {
   }
 }
 
-/*class Transaction {
-  late DateTime date;
-  late String type;
-  late double amount;
-  late String id;
-  late String currency;
-  late String details;
-  late String recipientName;
-  late String recipientAcc;
-  late String providerName;
-
-  // constructor
-  Transaction(this.id, this.amount, this.currency, this.type, this.details,
-      this.date, this.recipientName, this.recipientAcc, this.providerName);
-
-  factory Transaction.fromJson(Map<String, dynamic> json) {
-    return Transaction(
-      json['transactionId'].toString(),
-      json['amount'].toDouble(),
-      json['currency'],
-      json['paymentType'],
-      json['description'],
-      DateTime.parse(json['createdAt']),
-      json['recipientName'],
-      json['recipientAccountNumber'].toString(),
-      json['providerName'],
-    );
-  }
-}
-*/
 class Transactions extends StatefulWidget {
   late DateTime filterDateStart;
   late DateTime filterDateEnd;
@@ -112,20 +92,18 @@ class Transactions extends StatefulWidget {
   late String filterRecipientAccount;
   late String filterSenderName;
   late String filterCategory;
-  late bool? filterDepositsTrue;
-  late bool? filterWithdrawalsTrue;
 
   Transactions(
       {required this.filterDateStart,
-        required this.filterDateEnd,
-        required this.filterCurrency,
-        required this.filterTransactionType,
-        required this.filterPriceRangeStart,
-        required this.filterPriceRangeEnd,
-        required this.filterRecipientName,
-        required this.filterRecipientAccount,
-        required this.filterSenderName,
-        required this.filterCategory});
+      required this.filterDateEnd,
+      required this.filterCurrency,
+      required this.filterTransactionType,
+      required this.filterPriceRangeStart,
+      required this.filterPriceRangeEnd,
+      required this.filterRecipientName,
+      required this.filterRecipientAccount,
+      required this.filterSenderName,
+      required this.filterCategory});
   @override
   InitalState createState() => InitalState();
 }
@@ -157,8 +135,8 @@ class InitalState extends State<Transactions> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-          _getMoreList();
-          _getMoreTransactions();
+        _getMoreList();
+        _getMoreTransactions();
       }
     });
     _sorting();
@@ -188,21 +166,33 @@ class InitalState extends State<Transactions> {
     var dateEnd = widget.filterDateEnd;
     var category = widget.filterCategory;
     var sortingOrder; // TREBA IMPLEMENTIRATI
-    //&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category
     var link =
         "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
-    if (startAmount != 0 || endAmount!= 100000){
-      link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
-    }
-
-
+    link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
     if (currency != "All") {
-      //link = link + "&CurrencyFilter=$currency";
+      link = link + "&CurrencyFilter=$currency";
+    }
+    if (paymentType != 'All') {
+      link = link + "&TransactionTypeFilter=$paymentType";
+    }
+    if (recipientName != '') {
+      link = link + "&RecipientNameFilter=$recipientName";
+    }
+    if (recipientAccountNumber != '') {
+      link = link + "&RecipientAccountNumberFilter=$recipientAccountNumber";
+    }
+    if (senderName != '') {
+      link = link + "&RecipientAccountNumberFilter=$recipientAccountNumber";
+    }
+    link =
+        link + "&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd";
+    if (category != '') {
+      link = link + "&CategoryFilter=$category";
     }
     final url = Uri.parse(link);
     final response = await http.get(url);
 
-    var counter=0;
+    var counter = 0;
     final responseData = json.decode(response.body);
     responseData.forEach((transactionData) {
       counter++;
@@ -211,7 +201,7 @@ class InitalState extends State<Transactions> {
     });
     setState(() {
       //da li je ucitano onoliko tranzakcija koliko je pozvano ili je kraj
-      if(counter==_loadTransactionsLimit) {
+      if (counter == _loadTransactionsLimit) {
         _currentPage++;
         _isLoading = false;
       }
@@ -244,7 +234,8 @@ class InitalState extends State<Transactions> {
           //_filtering();
           searchValue = value;
           for (int i = 0; i < transactions.length; i++) {
-            if (transactions[i].transactionPurpose.contains(searchValue) == false) {
+            if (transactions[i].transactionPurpose.contains(searchValue) ==
+                false) {
               showntransactions.remove(transactions[i]);
             }
           }
@@ -258,25 +249,25 @@ class InitalState extends State<Transactions> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => FiltersScreen(
-                          selectedTransactionType:
-                          widget.filterTransactionType,
-                          textEditingController1: TextEditingController(
-                              text: widget.filterPriceRangeStart),
-                          textEditingController2: TextEditingController(
-                              text: widget.filterPriceRangeEnd),
-                          textEditingController3: TextEditingController(
-                              text: widget.filterRecipientName),
-                          textEditingController4: TextEditingController(
-                              text: widget.filterRecipientAccount),
-                          textEditingController5: TextEditingController(
-                              text: widget.filterSenderName),
-                          textEditingController6: TextEditingController(
-                              text: widget.filterCategory),
-                          selectedDates: DateTimeRange(
-                              start: widget.filterDateStart,
-                              end: widget.filterDateEnd),
-                          selectedCurrency: widget.filterCurrency,
-                        )));
+                              selectedTransactionType:
+                                  widget.filterTransactionType,
+                              textEditingController1: TextEditingController(
+                                  text: widget.filterPriceRangeStart),
+                              textEditingController2: TextEditingController(
+                                  text: widget.filterPriceRangeEnd),
+                              textEditingController3: TextEditingController(
+                                  text: widget.filterRecipientName),
+                              textEditingController4: TextEditingController(
+                                  text: widget.filterRecipientAccount),
+                              textEditingController5: TextEditingController(
+                                  text: widget.filterSenderName),
+                              textEditingController6: TextEditingController(
+                                  text: widget.filterCategory),
+                              selectedDates: DateTimeRange(
+                                  start: widget.filterDateStart,
+                                  end: widget.filterDateEnd),
+                              selectedCurrency: widget.filterCurrency,
+                            )));
               }),
           IconButton(
             icon: Icon(Icons.sort),
@@ -357,14 +348,17 @@ class InitalState extends State<Transactions> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
-                      transactionId: showntransactions[index].transactionId.toString(),
+                      transactionId:
+                          showntransactions[index].transactionId.toString(),
                       transactionCurrency: showntransactions[index].currency,
                       transactionType: showntransactions[index].transactionType,
                       transactionAmount: showntransactions[index].amount,
                       transactionDate: showntransactions[index].createdAt,
-                      transactionDetails: showntransactions[index].transactionPurpose,
+                      transactionDetails:
+                          showntransactions[index].transactionPurpose,
                       recipientName: showntransactions[index].recipient.name,
-                      recipientAccount: showntransactions[index].recipient.accountNumber),
+                      recipientAccount:
+                          showntransactions[index].recipient.accountNumber),
                 ),
               );
             },

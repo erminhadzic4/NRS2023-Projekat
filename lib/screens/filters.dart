@@ -32,10 +32,9 @@ final List<String> _currencies = [
 
 final List<String> _TransactionTypes = [
   'All',
-  'Withdrawal',
-  'Deposit',
-  'Send',
-  'Receive'
+  'c2c',
+  'c2b',
+  'b2b',
 ];
 
 class FiltersScreen extends StatefulWidget {
