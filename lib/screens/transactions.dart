@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../auth_provider.dart';
 
+// Implementacija klase Transaction
 class Transaction {
   int transactionId;
   double amount;
@@ -52,6 +53,7 @@ class Transaction {
   }
 }
 
+// Implementacija klase User
 class User {
   String userId;
   String name;
@@ -92,7 +94,7 @@ class Transactions extends StatefulWidget {
   late String filterRecipientAccount;
   late String filterSenderName;
   late String filterCategory;
-
+  late String filterSortingOrder;
   Transactions(
       {required this.filterDateStart,
       required this.filterDateEnd,
@@ -103,7 +105,8 @@ class Transactions extends StatefulWidget {
       required this.filterRecipientName,
       required this.filterRecipientAccount,
       required this.filterSenderName,
-      required this.filterCategory});
+      required this.filterCategory,
+      required this.filterSortingOrder});
   @override
   InitalState createState() => InitalState();
 }
@@ -119,9 +122,7 @@ class InitalState extends State<Transactions> {
   bool _isLoading = false;
   String searchValue = '';
   int shownTransactionsCounter = 0;
-  int cupertinoCounter = 1;
-  int _sortOption = 0;
-  // 1 znaci ON, 0 znaci OFF
+  int cupertinoCounter = 1; // 1 znaci ON, 0 znaci OFF
 
 //KOD Za povlacenje tranzakcija sa API-a
 
@@ -129,7 +130,6 @@ class InitalState extends State<Transactions> {
   void initState() {
     final _authProvider = Provider.of<AuthProvider>(context, listen: false);
     token = _authProvider.token;
-
     _getMoreTransactions();
     super.initState();
     _scrollController.addListener(() {
@@ -139,13 +139,11 @@ class InitalState extends State<Transactions> {
         _getMoreTransactions();
       }
     });
-    _sorting();
   }
 
   //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
-    _sorting();
     setState(() {});
   }
 
@@ -165,7 +163,7 @@ class InitalState extends State<Transactions> {
     var dateStart = widget.filterDateStart;
     var dateEnd = widget.filterDateEnd;
     var category = widget.filterCategory;
-    var sortingOrder; // TREBA IMPLEMENTIRATI
+    var sortingOrder = widget.filterSortingOrder; // TREBA IMPLEMENTIRATI
     var link =
         "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
     link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
@@ -189,9 +187,9 @@ class InitalState extends State<Transactions> {
     if (category != '') {
       link = link + "&CategoryFilter=$category";
     }
+    link = link + "&sortingOrder=$sortingOrder";
     final url = Uri.parse(link);
     final response = await http.get(url);
-
     var counter = 0;
     final responseData = json.decode(response.body);
     responseData.forEach((transactionData) {
@@ -206,20 +204,6 @@ class InitalState extends State<Transactions> {
         _isLoading = false;
       }
     });
-  }
-
-//Sortiranje // Ovo treba implementirati preko API
-  Future<void> _sorting() async {
-    if (_sortOption == 0) {
-      showntransactions.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    } else if (_sortOption == 1) {
-      showntransactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    } else if (_sortOption == 2) {
-      showntransactions.sort((a, b) => a.amount.compareTo(b.amount));
-    } else if (_sortOption == 3) {
-      showntransactions.sort((a, b) => b.amount.compareTo(a.amount));
-    }
-    setState(() {});
   }
 
 //KOD za podatke sa servera
@@ -267,6 +251,8 @@ class InitalState extends State<Transactions> {
                                   start: widget.filterDateStart,
                                   end: widget.filterDateEnd),
                               selectedCurrency: widget.filterCurrency,
+                              selectedFilterSortingOrder:
+                                  widget.filterSortingOrder,
                             )));
               }),
           IconButton(
@@ -283,44 +269,48 @@ class InitalState extends State<Transactions> {
                         title: Text("Amount (ascending)"),
                         onTap: () {
                           // Sort transactions by amount (ascending)
-                          setState(() {
-                            _sortOption = 2;
-                            _sorting();
-                          });
-                          Navigator.pop(context);
+                          widget.filterSortingOrder = "amountAsc";
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext contect) =>
+                                      super.widget));
                         },
                       ),
                       ListTile(
                         title: Text("Amount (descending)"),
                         onTap: () {
                           // Sort transactions by amount (descending)
-                          setState(() {
-                            _sortOption = 3;
-                            _sorting();
-                          });
-                          Navigator.pop(context);
+                          widget.filterSortingOrder = "amountDesc";
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext contect) =>
+                                      super.widget));
                         },
                       ),
                       ListTile(
                         title: Text("Date (ascending)"),
                         onTap: () {
                           // Sort transactions by date (ascending)
-                          setState(() {
-                            _sortOption = 0;
-                            _sorting();
-                          });
-                          Navigator.pop(context);
+                          widget.filterSortingOrder = "createdAtAsc";
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext contect) =>
+                                      super.widget));
                         },
                       ),
                       ListTile(
                         title: Text("Date (descending)"),
                         onTap: () {
                           // Sort transactions by date (descending)
-                          setState(() {
-                            _sortOption = 1;
-                            _sorting();
-                          });
-                          Navigator.pop(context);
+                          widget.filterSortingOrder = "createdAtDesc";
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext contect) =>
+                                      super.widget));
                         },
                       ),
                     ],

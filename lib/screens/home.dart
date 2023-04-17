@@ -63,17 +63,17 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => Transactions(
-                          filterDateStart: DateTime.utc(1900, 1, 1),
-                          filterDateEnd: DateTime.now(),
-                          filterCurrency: 'All',
-                          filterTransactionType: 'All',
-                          filterPriceRangeStart: '0',
-                          filterPriceRangeEnd: '100000',
-                          filterRecipientName: '',
-                          filterRecipientAccount: '',
-                          filterSenderName: '',
-                          filterCategory: '',
-                        )),
+                        filterDateStart: DateTime.utc(1900, 1, 1),
+                        filterDateEnd: DateTime.now(),
+                        filterCurrency: 'All',
+                        filterTransactionType: 'All',
+                        filterPriceRangeStart: '0',
+                        filterPriceRangeEnd: '100000',
+                        filterRecipientName: '',
+                        filterRecipientAccount: '',
+                        filterSenderName: '',
+                        filterCategory: '',
+                        filterSortingOrder: 'createdAtAsc')),
               );
               break;
           }
