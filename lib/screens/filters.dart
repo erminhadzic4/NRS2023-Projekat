@@ -105,12 +105,10 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                       ),
                     ),
                     Center(
-                      child: Flexible(
-                        child: Text(
-                          ' - ',
-                          style: const TextStyle(
-                            fontSize: 18.0,
-                          ),
+                      child: Text(
+                        ' - ',
+                        style: const TextStyle(
+                          fontSize: 18.0,
                         ),
                       ),
                     ),

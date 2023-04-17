@@ -9,33 +9,59 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../auth_provider.dart';
 
-class Transaction {
-  late DateTime date;
+class Person {
+  late String personId;
+  late String name;
+  late String accountNumber;
+  late String bankName;
   late String type;
-  late double amount;
-  late String id;
-  late String currency;
-  late String details;
-  late String recipientName;
-  late String recipientAcc;
-  late String providerName;
+  late String phoneNumber;
 
-  // constructor
-  Transaction(this.id, this.amount, this.currency, this.type, this.details,
-      this.date, this.recipientName, this.recipientAcc, this.providerName);
+  // Person Constructor
+  Person(this.personId, this.name, this.accountNumber, this.bankName, this.type,
+      this.phoneNumber);
+}
+
+class Transaction {
+  late int transactionId;
+  late double amount;
+  late String currency;
+  late String transactionType;
+  late String transactionPurpose;
+  late String category;
+  late DateTime createdAt;
+  late String recipientId;
+  late Person recipient;
+  late String senderId;
+  late Person sender;
+
+  // Transaction Constructor
+  Transaction(
+      this.transactionId,
+      this.amount,
+      this.currency,
+      this.transactionType,
+      this.transactionPurpose,
+      this.category,
+      this.createdAt,
+      this.recipientId,
+      this.recipient,
+      this.senderId,
+      this.sender);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      json['transactionId'].toString(),
-      json['amount'].toDouble(),
-      json['currency'],
-      json['paymentType'],
-      json['description'],
-      DateTime.parse(json['createdAt']),
-      json['recipientName'],
-      json['recipientAccountNumber'].toString(),
-      json['providerName'],
-    );
+        json['transactionId'],
+        json['amount'],
+        json['currency'],
+        json['transactionType'],
+        json['transactionPurpose'],
+        json['category'],
+        DateTime.parse(json['createdAt']),
+        json['recipientId'],
+        json['recipient'],
+        json['senderId'],
+        json['sender']);
   }
 }
 
@@ -98,13 +124,13 @@ class InitalState extends State<Transactions> {
         _getMoreTransactions();
       }
     });
-    _sorting();
+    //_sorting();
   }
 
   //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
-    _sorting();
+    //_sorting();
     setState(() {});
   }
 
@@ -125,11 +151,9 @@ class InitalState extends State<Transactions> {
     var dateEnd = widget.filterDateEnd;
     var category = widget.filterCategory;
     var sortingOrder; // TREBA IMPLEMENTIRATI
+    print('yes');
     var link =
-        "https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category";
-    if (currency != "All") {
-      link = link + "&CurrencyFilter=$currency";
-    }
+        "https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&TransactionTypeFilter=$paymentType&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category";
     final url = Uri.parse(link);
     final response = await http.get(url);
     final responseData = json.decode(response.body);
@@ -142,6 +166,8 @@ class InitalState extends State<Transactions> {
       _currentPage++;
     });
   }
+
+/*
 
 //Sortiranje // Ovo treba implementirati preko API
   Future<void> _sorting() async {
@@ -156,6 +182,7 @@ class InitalState extends State<Transactions> {
     }
     setState(() {});
   }
+  */
 
 //KOD za podatke sa servera
   @override
@@ -169,7 +196,8 @@ class InitalState extends State<Transactions> {
           //_filtering();
           searchValue = value;
           for (int i = 0; i < transactions.length; i++) {
-            if (transactions[i].details.contains(searchValue) == false) {
+            if (transactions[i].transactionPurpose.contains(searchValue) ==
+                false) {
               showntransactions.remove(transactions[i]);
             }
           }
@@ -219,7 +247,7 @@ class InitalState extends State<Transactions> {
                           // Sort transactions by amount (ascending)
                           setState(() {
                             _sortOption = 2;
-                            _sorting();
+                            //_sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -230,7 +258,7 @@ class InitalState extends State<Transactions> {
                           // Sort transactions by amount (descending)
                           setState(() {
                             _sortOption = 3;
-                            _sorting();
+                            //_sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -241,7 +269,7 @@ class InitalState extends State<Transactions> {
                           // Sort transactions by date (ascending)
                           setState(() {
                             _sortOption = 0;
-                            _sorting();
+                            //_sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -252,7 +280,7 @@ class InitalState extends State<Transactions> {
                           // Sort transactions by date (descending)
                           setState(() {
                             _sortOption = 1;
-                            _sorting();
+                            //_sorting();
                           });
                           Navigator.pop(context);
                         },
@@ -274,22 +302,25 @@ class InitalState extends State<Transactions> {
           }
           return ListTile(
             title: Text(DateFormat.yMMMMd('en_US')
-                .format(showntransactions[index].date)),
-            subtitle: Text(showntransactions[index].type),
+                .format(showntransactions[index].createdAt)),
+            subtitle: Text(showntransactions[index].transactionPurpose),
             trailing: Text(showntransactions[index].amount.toString()),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransactionDetailsScreen(
-                      transactionId: showntransactions[index].id,
+                      transactionId:
+                          showntransactions[index].transactionId.toString(),
                       transactionCurrency: showntransactions[index].currency,
-                      transactionType: showntransactions[index].type,
+                      transactionType: showntransactions[index].transactionType,
                       transactionAmount: showntransactions[index].amount,
-                      transactionDate: showntransactions[index].date,
-                      transactionDetails: showntransactions[index].details,
-                      recipientName: showntransactions[index].recipientName,
-                      recipientAccount: showntransactions[index].recipientAcc),
+                      transactionDate: showntransactions[index].createdAt,
+                      transactionDetails:
+                          showntransactions[index].transactionPurpose,
+                      recipientName: showntransactions[index].recipient.name,
+                      recipientAccount:
+                          showntransactions[index].recipient.accountNumber),
                 ),
               );
             },
