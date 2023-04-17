@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:flutter/services.dart';
 
 final List<String> _currencies = [
   'All',
@@ -38,25 +39,31 @@ final List<String> _TransactionTypes = [
 ];
 
 class FiltersScreen extends StatefulWidget {
-  late bool? isCheckedDeposit = true;
-  late bool? isCheckedWithdrawal = true;
   late TextEditingController textEditingController1 =
       TextEditingController(text: '0');
   late TextEditingController textEditingController2 =
       TextEditingController(text: '100000');
+  late TextEditingController textEditingController3 =
+      TextEditingController(text: '');
+  late TextEditingController textEditingController4 =
+      TextEditingController(text: '');
+  late TextEditingController textEditingController5 =
+      TextEditingController(text: '');
+  late TextEditingController textEditingController6 =
+      TextEditingController(text: '');
   late DateTimeRange selectedDates =
       DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now());
-  late DateTime? selectedDate = (DateTime.now());
   late String selectedCurrency = "All";
   late String selectedTransactionType = "All";
 
   FiltersScreen(
-      {required this.isCheckedDeposit,
-      required this.isCheckedWithdrawal,
-      required this.textEditingController1,
+      {required this.textEditingController1,
       required this.textEditingController2,
+      required this.textEditingController3,
+      required this.textEditingController4,
+      required this.textEditingController5,
+      required this.textEditingController6,
       required this.selectedDates,
-      required this.selectedDate,
       required this.selectedCurrency,
       required this.selectedTransactionType});
   @override
@@ -70,12 +77,12 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
       appBar: AppBar(
         title: Text('Filter'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(children: <Widget>[
           Row(children: <Widget>[
             Text(
-              'Price:',
+              'Price Range: ',
               style: const TextStyle(
                 fontSize: 18.0,
               ),
@@ -84,11 +91,37 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               child: Center(
                 child: Row(
                   children: <Widget>[
-                    Flexible(
-                      child: TextField(
+                    Expanded(
+                      child: TextFormField(
                         keyboardType: TextInputType.number,
                         enableInteractiveSelection: false,
                         controller: widget.textEditingController1,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Flexible(
+                        child: Text(
+                          ' - ',
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        enableInteractiveSelection: false,
+                        controller: widget.textEditingController2,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                         ),
@@ -99,6 +132,62 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
             ),
           ]),
+          Row(
+            children: <Widget>[
+              Text(
+                "Recipient's Name: ",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: widget.textEditingController3,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Text(
+                "Recipient's Account: ",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+              Expanded(
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: widget.textEditingController4,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Text(
+                "Sender's Name: ",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: widget.textEditingController5,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              )
+            ],
+          ),
           Row(children: <Widget>[
             Text(
               'Transaction Type:',
@@ -135,7 +224,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
           ]),
           Row(children: <Widget>[
             Text(
-              'Date:',
+              'Date Range:',
               style: const TextStyle(
                 fontSize: 18.0,
               ),
@@ -143,24 +232,28 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
             Expanded(
               child: Column(children: <Widget>[
                 ElevatedButton(
-                  child: const Text("Select Date"),
+                  child: const Text("Select Date Range"),
                   onPressed: () async {
-                    DateTime? dateTime = await showDatePicker(
-                        context: context,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(3000),
-                        initialDate: DateTime(2023));
-                    if (DateTime != null) {
+                    final DateTimeRange? dateTimeRange =
+                        await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(3000),
+                    );
+                    if (dateTimeRange != null) {
                       setState(() {
-                        widget.selectedDate = dateTime;
+                        widget.selectedDates = dateTimeRange;
                       });
                     }
                   },
                 ),
-                if (widget.selectedDate != null)
+                if (widget.selectedDates != null)
                   Text(
                     intl.DateFormat.yMMMMd('en_US')
-                        .format(widget.selectedDate!),
+                            .format(widget.selectedDates.start) +
+                        ' - ' +
+                        intl.DateFormat.yMMMMd('en_US')
+                            .format(widget.selectedDates.end),
                     style: const TextStyle(
                       fontSize: 16.0,
                     ),
@@ -203,6 +296,24 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
             ),
           ]),
+          Row(
+            children: <Widget>[
+              Text(
+                "Category: ",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: widget.textEditingController6,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              )
+            ],
+          ),
           ElevatedButton(
             child: const Text("Apply Filters"),
             onPressed: () async {
@@ -212,14 +323,17 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                     builder: (context) => Transactions(
                           filterDateStart: widget.selectedDates.start,
                           filterDateEnd: widget.selectedDates.end,
-                          filterDate: widget.selectedDate,
                           filterCurrency: widget.selectedCurrency,
-                          filterPriceRangeStart: (double.parse(
-                              widget.textEditingController1.text)),
-                          filterPriceRangeEnd: (double.parse(
-                              widget.textEditingController2.text)),
-                          filterDepositsTrue: widget.isCheckedDeposit,
-                          filterWithdrawalsTrue: widget.isCheckedWithdrawal,
+                          filterPriceRangeStart:
+                              widget.textEditingController1.text,
+                          filterPriceRangeEnd:
+                              widget.textEditingController2.text,
+                          filterRecipientName:
+                              widget.textEditingController3.text,
+                          filterRecipientAccount:
+                              widget.textEditingController4.text,
+                          filterSenderName: widget.textEditingController5.text,
+                          filterCategory: widget.textEditingController6.text,
                           filterTransactionType: widget.selectedTransactionType,
                         )),
               );
