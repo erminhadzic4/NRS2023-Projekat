@@ -88,11 +88,7 @@ class _PaymentPageState extends State<PaymentPage> {
   ];
 
   String _selectedCategory = "Currency";
-  final List<String> _categories = [
-    'Currency',
-    'Amount',
-    'Recipient Account',
-    'Transaction Details'];
+  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
 
   Future<transactionValidation> validateTransaction(
       double? amount,
