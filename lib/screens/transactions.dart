@@ -157,8 +157,8 @@ class InitalState extends State<Transactions> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _getMoreList();
-        _getMoreTransactions();
+          _getMoreList();
+          _getMoreTransactions();
       }
     });
     _sorting();
@@ -191,31 +191,30 @@ class InitalState extends State<Transactions> {
     //&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category
     var link =
         "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
+    if (startAmount != 0 || endAmount!= 100000){
+      link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
+    }
+
+
     if (currency != "All") {
       //link = link + "&CurrencyFilter=$currency";
     }
     final url = Uri.parse(link);
     final response = await http.get(url);
-    /*
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      List<dynamic> data = json['data'];
-      showntransactions = data.map((e) => Transaction.fromJson(e)).toList();
-      transactions = data.map((e) => Transaction.fromJson(e)).toList();
-      //final json = jsonDecode(response.body);
-      //print(json);
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-    }
-    */
+
+    var counter=0;
     final responseData = json.decode(response.body);
     responseData.forEach((transactionData) {
+      counter++;
       showntransactions.add(Transaction.fromJson(transactionData));
       transactions.add(Transaction.fromJson(transactionData));
     });
     setState(() {
-      _isLoading = false;
-      _currentPage++;
+      //da li je ucitano onoliko tranzakcija koliko je pozvano ili je kraj
+      if(counter==_loadTransactionsLimit) {
+        _currentPage++;
+        _isLoading = false;
+      }
     });
   }
 
