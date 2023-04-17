@@ -191,6 +191,11 @@ class InitalState extends State<Transactions> {
     //&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category
     var link =
         "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
+    if (startAmount != 0 || endAmount!= 100000){
+      link = link + "&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount";
+    }
+
+
     if (currency != "All") {
       //link = link + "&CurrencyFilter=$currency";
     }
