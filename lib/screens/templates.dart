@@ -231,9 +231,6 @@ class _TemplatesPageState extends State<TemplatesPage> {
       template.RecipientName?.text.toString(),
       template.RecipientAccount?.text.toString()
     ];
-        RecipientAccount: templates[index].RecipientAccount);
-
-    List<String?> data = [template.Currency.text.toString(),template.Amount?.text.toString(), template.RecipientName?.text.toString(), template.RecipientAccount?.text.toString()];
 
     Navigator.push(
         context,
