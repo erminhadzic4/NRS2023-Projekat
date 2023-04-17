@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:nrs2023/screens/pay.dart';
 
-
 class Payment {
-  TextEditingController Currency = TextEditingController();
+  TextEditingController? Currency = TextEditingController();
   TextEditingController? Amount = TextEditingController();
   TextEditingController? RecipientName = TextEditingController();
   TextEditingController? RecipientAccount = TextEditingController();
@@ -44,6 +46,7 @@ class _AccountNumberFormatter extends TextInputFormatter {
 
 class _TemplatesPageState extends State<TemplatesPage> {
   List<Payment> templates = [];
+  final storage = FlutterSecureStorage();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -74,6 +77,147 @@ class _TemplatesPageState extends State<TemplatesPage> {
     'TWD'
   ];
 
+  // Fetch funkcije za back-end
+
+  Future getUserId() async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': '$token'
+    };
+
+    final getUserName = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User"),
+        headers: headers);
+
+    var userName = json.decode(getUserName.body);
+
+    final getUserId = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User/$userName"),
+        headers: headers);
+
+    return json.decode(getUserId.body);
+  }
+
+  Future getTemplates() async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': '$token'
+    };
+
+    var userId = getUserId();
+
+    final getUserTemplates = await http.get(
+        Uri.parse(
+            "http://siprojekat.duckdns.org:5051/api/Template/User/$userId"),
+        headers: headers);
+
+    var userTemplates = json.decode(getUserTemplates.body);
+
+    for (int i = 0; i < userTemplates.length; i++) {
+      TextEditingController? Currency =
+          TextEditingController(text: userTemplates[i].currency);
+      TextEditingController? Amount =
+          TextEditingController(text: userTemplates[i].amount);
+      TextEditingController? RecipientName =
+          TextEditingController(text: userTemplates[i].name);
+      TextEditingController? RecipientAccount =
+          TextEditingController(text: userTemplates[i].account);
+
+      var template = Payment(
+          Currency: Currency,
+          Amount: Amount,
+          RecipientName: RecipientName,
+          RecipientAccount: RecipientAccount);
+      templates.add(template);
+    }
+  }
+
+  Future sendTemplate(
+      String? currency, String? amount, String? name, String? account) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': '$token'
+    };
+
+    var userId = getUserId();
+
+    var body = {
+      "userId": userId,
+      "title": "string",
+      "amount": amount,
+      "paymentType": "string",
+      "description": "string",
+      "currency": currency,
+      "recipientName": name,
+      "recipientAccountNumber": account,
+      "phoneNumber": "string",
+      "category": "string",
+      "received": "string"
+    };
+
+    final sendUserTemplate = await http.post(
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Template'),
+        headers: headers,
+        body: body);
+
+    return json.decode(sendUserTemplate.body);
+  }
+
+  Future deleteTemplateBE(int id) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': '$token'
+    };
+
+    final deleteTemplate = await http.delete(
+      Uri.parse('http://siprojekat.duckdns.org:5051/api/Document/$id'),
+      headers: headers,
+    );
+
+    return json.decode(deleteTemplate.body);
+  }
+
+  Future editTemplateBE(int id, String? currency, String? amount, String? name,
+      String? account) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': '$token'
+    };
+
+    var userId = getUserId();
+
+    var body = {
+      "userId": userId,
+      "title": "string",
+      "amount": amount,
+      "paymentType": "string",
+      "description": "string",
+      "currency": currency,
+      "recipientName": name,
+      "recipientAccountNumber": account,
+      "phoneNumber": "string",
+      "category": "string",
+      "received": "string"
+    };
+
+    final editUserTemplate = await http.put(
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Template/$id'),
+        headers: headers,
+        body: body);
+
+    return json.decode(editUserTemplate.body);
+  }
+
   void _sendTemplateData(index) {
     var template = Payment(
         Currency: templates[index].Currency,
@@ -81,13 +225,23 @@ class _TemplatesPageState extends State<TemplatesPage> {
         RecipientName: templates[index].RecipientName,
         RecipientAccount: templates[index].RecipientAccount);
 
-    List<String?> data = [template.Currency.text.toString(),template.Amount?.text.toString(), template.RecipientName?.text.toString(), template.RecipientAccount?.text.toString()];
+    List<String?> data = [
+      template.Currency?.text.toString(),
+      template.Amount?.text.toString(),
+      template.RecipientName?.text.toString(),
+      template.RecipientAccount?.text.toString()
+    ];
 
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => PaymentPage(templateData: data, recipientName: '', recipientAccount: '', amount: '', currency: '',)
-        ));
+            builder: (context) => PaymentPage(
+                  recipientName: '',
+                  recipientAccount: '',
+                  amount: '',
+                  currency: '',
+                  templateData: [],
+                )));
   }
 
   @override
