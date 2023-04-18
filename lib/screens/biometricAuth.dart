@@ -81,36 +81,40 @@ class BiometricAuthenticationState extends State<BiometricAuthentication> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-              margin: EdgeInsets.symmetric(vertical: 50.0),
+              margin: const EdgeInsets.symmetric(vertical: 50.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    "res/img/fingerprint.jpg",
-                    width: 160.0,
-                  ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 15.0),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 15.0),
                     child: const Text(
-                      "Authenticate using your fingerprint",
+                      "Authenticate using your fingerprint or face recognition",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, height: 1.5),
+                      style: TextStyle(color: Colors.blueGrey,
+                          height: 1.5, fontSize: 16),
                     ),
                   ),
-
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 15.0),
+                    margin: const EdgeInsets.symmetric(vertical: 15.0),
                     width: 300,
                     height: 50,
                     child: ElevatedButton(
                         onPressed: authenticate,
-                        child: Text("Authenticate", style: TextStyle(color: Colors.white,
-                            fontSize: 25.0),
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                      ),
+                        child: const Text("Authenticate", style: TextStyle(color: Colors.white,
+                            fontSize: 25.0, ),
                         )
                     ),
                   )
                 ],
               ),
-            )
+            ),
+            const SizedBox(height: 80), // prazan prostor za podizanje dugmeta
           ],
         ),
       ),

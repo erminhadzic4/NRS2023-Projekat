@@ -307,23 +307,36 @@ class _logInState extends State<logIn>{
                       ),
                   ),
                 ElevatedButton(
-                    child: const Text("Login using biometrics",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BiometricAuthentication(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.fingerprint, size: 30.0,),
+                      SizedBox(width: 8.0),
+                      Text(
+                        'Biometric login',
                         style: TextStyle(
-                          backgroundColor: Colors.blue,
+                          //backgroundColor: Colors.blue,
                           fontSize: 20,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    onPressed: (){
-                Navigator.push(
-                //PRELAZAK
-                context,
-                MaterialPageRoute(
-                builder: (context) => BiometricAuthentication(
-                )),
-                );
-                })
-                ],
+                          //fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              ],
             ),
         ),
        ),
