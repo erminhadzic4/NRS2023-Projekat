@@ -4,25 +4,73 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/templates.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:share/share.dart';
+
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
       {Key? key,
-      required this.templateData,
-      required String recipientName,
-      required String recipientAccount,
-      required String amount,
-      required String currency,
-      this.transactionCategory})
+        required this.templateData,
+        required String recipientName,
+        required String recipientAccount,
+        required String amount,
+        required String currency})
       : super(key: key);
   final List templateData;
-  final String? transactionCategory;
 
   get recipientAccount => null;
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
+
+class Transaction {
+  double? amount;
+  String currency;
+  String paymentType;
+  String description;
+  String recipientAccountNumber;
+  String recipientFirstName;
+  String recipientLastName;
+
+  Transaction({
+    required this.amount,
+    required this.currency,
+    required this.paymentType,
+    required this.description,
+    required this.recipientAccountNumber,
+    required this.recipientFirstName,
+    required this.recipientLastName,
+  });
+
+  // Convert a transaction to a JSON string
+  String toJson() {
+    return json.encode({
+      'amount': amount,
+      'currency': currency,
+      'paymentType': paymentType,
+      'description': description,
+      'recipientAccountNumber': recipientAccountNumber,
+      'recipientFirstName': recipientFirstName,
+      'recipientLastName': recipientLastName,
+    });
+  }
+
+  // Create a transaction from a JSON string
+  static Transaction fromJson(String jsonString) {
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    return Transaction(
+      amount: jsonMap['amount'],
+      currency: jsonMap['currency'],
+      paymentType: jsonMap['paymentType'],
+      description: jsonMap['description'],
+      recipientAccountNumber: jsonMap['recipientAccountNumber'],
+      recipientFirstName: jsonMap['recipientFirstName'],
+      recipientLastName: jsonMap['recipientLastName'],
+    );
+  }
+}
+
 
 class transactionValidation {
   late bool success;
@@ -54,15 +102,15 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientFirstNameController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientAccountController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientLastNameController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientDescriptionController =
-      TextEditingController();
-  final storage = new FlutterSecureStorage();
+  TextEditingController();
   String _selectedCurrency = "USD";
+  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',
@@ -88,8 +136,9 @@ class _PaymentPageState extends State<PaymentPage> {
     'THB',
     'TWD'
   ];
-  String? selectedCategory = "Currency";
-  final List<String> category = ['Currency','Amount','Recipient Account', 'Transaction Details'];
+
+  String _selectedCategory = "Currency";
+  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
 
   Future<transactionValidation> validateTransaction(
       double? amount,
@@ -119,7 +168,7 @@ class _PaymentPageState extends State<PaymentPage> {
     };
 
     final response =
-        await http.post(uri, headers: headers, body: json.encode(body));
+    await http.post(uri, headers: headers, body: json.encode(body));
 
     final jsonResponse = json.decode(response.body);
 
@@ -131,77 +180,94 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void _submitPaymentForm() async {
     if (_formKey.currentState!.validate()) {
+      Transaction newTransaction = Transaction(
+        amount: double.tryParse(_amountController.text),
+        currency: _selectedCurrency,
+        paymentType: "type",
+        description: _recipientDescriptionController.text,
+        recipientAccountNumber: _recipientAccountController.text,
+        recipientFirstName: _recipientFirstNameController.text,
+        recipientLastName: _recipientLastNameController.text,
+      );
+
+      String transactionJson = newTransaction.toJson();
+
+      Share.share(transactionJson, subject: 'New transaction for execution');
+
+      Transaction receivedTransaction = Transaction.fromJson(transactionJson);
+
       var isValidRecipient = await validateTransaction(
-          double.tryParse(_amountController.text),
-          _selectedCurrency,
-          "type",
-          _recipientDescriptionController.text,
-          _recipientAccountController.text,
-          _recipientFirstNameController.text,
-          _recipientLastNameController.text);
+        receivedTransaction.amount,
+        receivedTransaction.currency,
+        receivedTransaction.paymentType,
+        receivedTransaction.description,
+        receivedTransaction.recipientAccountNumber,
+        receivedTransaction.recipientFirstName,
+        receivedTransaction.recipientLastName,
+      );
       if (!isValidRecipient.success) {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                    content: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('${isValidRecipient.message}'),
-                        Icon(
-                          Icons.clear,
-                          color: Colors.red,
-                        ),
-                      ],
+                content: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${isValidRecipient.message}'),
+                    Icon(
+                      Icons.clear,
+                      color: Colors.red,
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('OK'),
-                      )
-                    ]));
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  )
+                ]));
       } else {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Transaction Succesfull '),
-                      Icon(
-                        Icons.check_box,
-                        color: Colors.green,
-                      ),
-                    ],
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Transaction Succesfull '),
+                  Icon(
+                    Icons.check_box,
+                    color: Colors.green,
                   ),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            "Recipient Name: ${_recipientFirstNameController.text}"),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                            "Amount: ${_amountController.text} $_selectedCurrency"),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                            "Recipient Account: ${_recipientAccountController.text}")
-                      ],
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(
+                        "Recipient Name: ${_recipientFirstNameController.text}"),
+                    SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('OK'),
-                    )
+                    Text(
+                        "Amount: ${_amountController.text} $_selectedCurrency"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                        "Recipient Account: ${_recipientAccountController.text}")
                   ],
-                ));
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                )
+              ],
+            ));
       }
     }
   }
@@ -243,9 +309,9 @@ class _PaymentPageState extends State<PaymentPage> {
                   },
                   items: _currencies
                       .map((currency) => DropdownMenuItem(
-                            value: currency,
-                            child: Text(currency),
-                          ))
+                    value: currency,
+                    child: Text(currency),
+                  ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -272,7 +338,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -341,16 +407,16 @@ class _PaymentPageState extends State<PaymentPage> {
                 SizedBox(height: 16),
                 Text('Transaction Category'),
                 DropdownButtonFormField<String>(
-                  value: selectedCategory,
+                  value: _selectedCategory,
                   onChanged: (String? value) {
                     setState(() {
-                      selectedCategory = value!;
+                      _selectedCategory= value!;
                     });
                   },
-                  items: category
-                      .map((cat) => DropdownMenuItem(
-                    value: cat,
-                    child: Text(cat),
+                  items: _categories
+                      .map((category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
                   ))
                       .toList(),
                 ),
