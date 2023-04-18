@@ -11,12 +11,14 @@ class Payment {
   TextEditingController? Amount = TextEditingController();
   TextEditingController? RecipientName = TextEditingController();
   TextEditingController? RecipientAccount = TextEditingController();
+  int? templateId;
 
   Payment({
     required this.Currency,
     required this.Amount,
     required this.RecipientName,
     required this.RecipientAccount,
+    this.templateId,
   });
 }
 
@@ -77,10 +79,17 @@ class _TemplatesPageState extends State<TemplatesPage> {
     'TWD'
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    getUserId();
+  }
+
   // Fetch funkcije za back-end
 
   Future getUserId() async {
     String? token = await storage.read(key: 'token');
+    print(token);
 
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
@@ -123,15 +132,16 @@ class _TemplatesPageState extends State<TemplatesPage> {
       TextEditingController? Amount =
           TextEditingController(text: userTemplates[i].amount);
       TextEditingController? RecipientName =
-          TextEditingController(text: userTemplates[i].name);
+          TextEditingController(text: userTemplates[i].recipientName);
       TextEditingController? RecipientAccount =
-          TextEditingController(text: userTemplates[i].account);
+          TextEditingController(text: userTemplates[i].recipientAccountNumber);
 
       var template = Payment(
           Currency: Currency,
           Amount: Amount,
           RecipientName: RecipientName,
-          RecipientAccount: RecipientAccount);
+          RecipientAccount: RecipientAccount,
+          templateId: userTemplates[i].userId);
       templates.add(template);
     }
   }
@@ -185,7 +195,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
     return json.decode(deleteTemplate.body);
   }
 
-  Future editTemplateBE(int id, String? currency, String? amount, String? name,
+  Future editTemplateBE(int? id, String? currency, String? amount, String? name,
       String? account) async {
     String? token = await storage.read(key: 'token');
 
@@ -291,9 +301,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
     );
   }
 
-  void deleteTemplate(int index) {
+  void deleteTemplate(int? index) {
     setState(() {
-      templates.removeAt(index);
+      deleteTemplate(templates.elementAt(index!).templateId);
+      getTemplates();
     });
   }
 
@@ -399,11 +410,17 @@ class _TemplatesPageState extends State<TemplatesPage> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     setState(() {
-                      templates.elementAt(index).Currency = _currencyController;
+                      editTemplateBE(
+                          templates.elementAt(index).templateId,
+                          _currencyController?.text,
+                          _amountController?.text,
+                          _recipientNameController?.text,
+                          _recipientAccountController?.text);
+                      /*  templates.elementAt(index).Currency = _currencyController;
                       templates.elementAt(index).Amount = _amountController;
                       templates[index].RecipientName = _recipientNameController;
                       templates[index].RecipientAccount =
-                          _recipientAccountController;
+                          _recipientAccountController; */
                     });
                     Navigator.pop(context);
                   }
@@ -516,13 +533,19 @@ class _TemplatesPageState extends State<TemplatesPage> {
               TextButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Payment newPayment = Payment(
+                    /*  Payment newPayment = Payment(
                         Currency: _currencyController,
                         Amount: _amountController,
                         RecipientName: _recipientNameController,
-                        RecipientAccount: _recipientAccountController);
+                        RecipientAccount: _recipientAccountController); */
                     setState(() {
-                      templates.add(newPayment);
+                      sendTemplate(
+                          _currencyController?.text,
+                          _amountController?.text,
+                          _recipientNameController?.text,
+                          _recipientAccountController?.text);
+                      getTemplates();
+                      // templates.add(newPayment);
                     });
                     Navigator.pop(context);
                   }
