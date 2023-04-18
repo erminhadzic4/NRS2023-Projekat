@@ -87,6 +87,9 @@ class _PaymentPageState extends State<PaymentPage> {
     'TWD'
   ];
 
+  String _selectedCategory = "Currency";
+  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
+
   Future<transactionValidation> validateTransaction(
       double? amount,
       String currency,
@@ -333,6 +336,22 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     hintText: 'Enter transaction details',
                   ),
+                ),
+                SizedBox(height: 16),
+                Text('Transaction Category'),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCategory= value!;
+                    });
+                  },
+                  items: _categories
+                      .map((category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  ))
+                      .toList(),
                 ),
                 SizedBox(height: 16),
                 Row(
