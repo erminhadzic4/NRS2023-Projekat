@@ -9,14 +9,12 @@ class Payment {
   TextEditingController? Amount = TextEditingController();
   TextEditingController? RecipientName = TextEditingController();
   TextEditingController? RecipientAccount = TextEditingController();
-  String? Category;
 
   Payment({
     required this.Currency,
     required this.Amount,
     required this.RecipientName,
     required this.RecipientAccount,
-    this.Category
   });
 }
 
@@ -76,19 +74,13 @@ class _TemplatesPageState extends State<TemplatesPage> {
     'TWD'
   ];
 
-  Map<List<String?>, String> categoryMap = {
-    ['currency', 'amount', 'recipientName', 'recipientAccount']: 'category1',
-    ['currency', 'amount', 'recipientName', 'recipientAccount']: 'category2',
-    ['currency', 'amount', 'recipientName', 'recipientAccount']: 'category3',
-  };
-
   void _sendTemplateData(index) {
     var template = Payment(
         Currency: templates[index].Currency,
         Amount: templates[index].Amount,
         RecipientName: templates[index].RecipientName,
-        RecipientAccount: templates[index].RecipientAccount,
-        Category: templates[index].Category);
+        RecipientAccount: templates[index].RecipientAccount);
+
     List<String?> data = [template.Currency.text.toString(),template.Amount?.text.toString(), template.RecipientName?.text.toString(), template.RecipientAccount?.text.toString()];
 
     Navigator.push(

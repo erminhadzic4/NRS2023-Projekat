@@ -17,6 +17,7 @@ class PaymentPage extends StatefulWidget {
         required String currency})
       : super(key: key);
   final List templateData;
+  final String? transactionCategory;
 
   get recipientAccount => null;
 
@@ -110,7 +111,6 @@ class _PaymentPageState extends State<PaymentPage> {
   final TextEditingController _recipientDescriptionController =
   TextEditingController();
   String _selectedCurrency = "USD";
-  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nrs2023/screens/logIn.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
@@ -8,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../auth_provider.dart';
 
 class Transaction {
@@ -44,25 +42,28 @@ class Transaction {
 class Transactions extends StatefulWidget {
   late DateTime filterDateStart;
   late DateTime filterDateEnd;
-  late DateTime? filterDate;
   late String filterCurrency;
   late String filterTransactionType;
-  late double filterPriceRangeStart;
-  late double filterPriceRangeEnd;
+  late String filterPriceRangeStart;
+  late String filterPriceRangeEnd;
+  late String filterRecipientName;
+  late String filterRecipientAccount;
+  late String filterSenderName;
+  late String filterCategory;
   late bool? filterDepositsTrue;
   late bool? filterWithdrawalsTrue;
 
-  Transactions({
-    required this.filterDateStart,
-    required this.filterDateEnd,
-    required this.filterDate,
-    required this.filterCurrency,
-    required this.filterTransactionType,
-    required this.filterPriceRangeStart,
-    required this.filterPriceRangeEnd,
-    required this.filterDepositsTrue,
-    required this.filterWithdrawalsTrue,
-  });
+  Transactions(
+      {required this.filterDateStart,
+      required this.filterDateEnd,
+      required this.filterCurrency,
+      required this.filterTransactionType,
+      required this.filterPriceRangeStart,
+      required this.filterPriceRangeEnd,
+      required this.filterRecipientName,
+      required this.filterRecipientAccount,
+      required this.filterSenderName,
+      required this.filterCategory});
   @override
   InitalState createState() => InitalState();
 }
@@ -88,10 +89,7 @@ class InitalState extends State<Transactions> {
   void initState() {
     final _authProvider = Provider.of<AuthProvider>(context, listen: false);
     token = _authProvider.token;
-
     _getMoreTransactions();
-    //_filtering();
-
     super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -100,82 +98,9 @@ class InitalState extends State<Transactions> {
         _getMoreTransactions();
       }
     });
-
-    //showntransactions.addAll(transactions);
-    _filtering();
     _sorting();
   }
 
-//KOD za dummy podatke
-  /*void initState() {
-    // Mock baza sa 10000 transakcija
-    for (int i = 0; i < 10000; i++) {
-      final insertDate = DateTime(2020, 1, i + 1); // Datum raste za jedan dan
-      var insertCurrency; // Valuta - Moze biti EUR USD GBP ili CHF
-      var insertType; // Tip Transakcije - Moze biti Deposit ili Withdrawal
-      final insertAmount = (i + 1) * 10.0; // Iznos raste za 100
-      final insertId = i.toString(); // Id Transakcije raste za 1
-      var inesertRecipientN; // Ime primatelja, rotira 4 imena
-      var inesertRecipientAcc; // Racun primatelja, rotira 4 racuna
-      var insertDetails; // Detalji, rotira 4 detalja
-      var insertProviderName;
-      if (i % 4 == 0) {
-        insertCurrency = 'EUR';
-        insertType = 'Withdrawal';
-        inesertRecipientN = 'Enes';
-        inesertRecipientAcc = '384324924923';
-        insertDetails = '$insertType for school';
-        var insertProviderName = 'Enes';
-      }
-      if (i % 4 == 1) {
-        insertCurrency = 'USD';
-        insertType = 'Deposit';
-        inesertRecipientN = 'Amir';
-        inesertRecipientAcc = '884567324895';
-        insertDetails = '$insertType for taxes';
-        var insertProviderName = 'Enes';
-      }
-      if (i % 4 == 2) {
-        insertCurrency = 'GBP';
-        insertType = 'Withdrawal';
-        inesertRecipientN = 'Nikola';
-        inesertRecipientAcc = '439682436329';
-        insertDetails = '$insertType for amazon';
-        var insertProviderName = 'Enes';
-      }
-      if (i % 4 == 3) {
-        insertCurrency = 'CHF';
-        insertType = 'Deposit';
-        inesertRecipientN = 'Edin';
-        inesertRecipientAcc = '970456340532';
-        insertDetails = '$insertType for video games';
-        var insertProviderName = 'Enes';
-      }
-      transactions.add(Transaction(
-          insertId,
-          insertAmount,
-          insertCurrency,
-          insertType,
-          insertDetails,
-          insertDate,
-          inesertRecipientN,
-          inesertRecipientAcc,
-          insertProviderName
-      ));
-    }
-    super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _getMoreList();
-      }
-    });
-    for (int i = 0; i < transactions.length; i++) {
-      showntransactions.add(transactions[i]);
-    }
-    _filtering();
-  }
-*/
   //KOD za ucitavanje novih transakcija u prikaz
   _getMoreList() {
     shownTransactionsLimit = shownTransactionsLimit + 10;
@@ -189,37 +114,25 @@ class InitalState extends State<Transactions> {
       return;
     }
     _isLoading = true;
-    var amount = widget.filterPriceRangeStart.toInt();
-    var currency = widget.filterCurrency.toString();
+    var startAmount = widget.filterPriceRangeStart;
+    var endAmount = widget.filterPriceRangeEnd;
+    var currency = widget.filterCurrency;
     var paymentType = widget.filterTransactionType;
-    var recipientName;
-    var recipientAccountNumber;
-    var providerName;
-    var date = widget.filterDate;
-    var sortingOrder;
-    print("currency is: $currency");
-    print("amount is: $amount");
+    var recipientName = widget.filterRecipientName;
+    var recipientAccountNumber = widget.filterRecipientAccount;
+    var senderName = widget.filterSenderName;
+    var dateStart = widget.filterDateStart;
+    var dateEnd = widget.filterDateEnd;
+    var category = widget.filterCategory;
+    var sortingOrder; // TREBA IMPLEMENTIRATI
     var link =
-        "https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit";
-    if (amount != 0) {
-      link = link + "&AmountFilter=$amount";
-    }
+        "https://processingserver.herokuapp.com/Transaction/GetTransactionsForUser?token=$token&pageNumber=$_currentPage&pageSize=$_loadTransactionsLimit&AmountStartFilter=$startAmount&AmountEndFilter=$endAmount&CurrencyFilter=$currency&RecipientNameFilter=$recipientName&RecipientAccountNumberFilter=$recipientAccountNumber&SenderNameFilter=$senderName&CreatedAtStartFilter=$dateStart&CreatedAtEndFilter=$dateEnd&CategoryFilter=$category";
     if (currency != "All") {
       link = link + "&CurrencyFilter=$currency";
-    }
-    if (paymentType != "All") {
-      link = link + "&PaymentTypeFilter=$paymentType";
-    }
-    if (currency != "All") {
-      link = link + "&CurrencyFilter=$currency";
-    }
-    if (date != null) {
-      link = link + "&CreatedOnFilter=$date";
     }
     final url = Uri.parse(link);
     final response = await http.get(url);
     final responseData = json.decode(response.body);
-    //final List<Transaction> loadedTransactions = [];
     responseData.forEach((transactionData) {
       showntransactions.add(Transaction.fromJson(transactionData));
       transactions.add(Transaction.fromJson(transactionData));
@@ -230,7 +143,7 @@ class InitalState extends State<Transactions> {
     });
   }
 
-//Sortiranje
+//Sortiranje // Ovo treba implementirati preko API
   Future<void> _sorting() async {
     if (_sortOption == 0) {
       showntransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -244,44 +157,6 @@ class InitalState extends State<Transactions> {
     setState(() {});
   }
 
-  //Filtriranje
-  Future<void> _filtering() async {
-    showntransactions.clear();
-    int i;
-    for (i = 0; i < transactions.length; i++) {
-      if (widget.filterWithdrawalsTrue == false &&
-          transactions[i].type == 'Withdrawal') {
-        continue;
-      }
-      if (widget.filterDepositsTrue == false &&
-          transactions[i].type == 'Deposit') {
-        continue;
-      }
-      if (transactions[i].amount < widget.filterPriceRangeStart ||
-          transactions[i].amount > widget.filterPriceRangeEnd) {
-        continue;
-      }
-      if (transactions[i].currency != widget.filterCurrency &&
-          widget.filterCurrency != 'All') {
-        continue;
-      }
-      if (transactions[i].date.isBefore(widget.filterDateStart) == true ||
-          transactions[i].date.isAfter(widget.filterDateEnd) == true) {
-        continue;
-      }
-      if (transactions[i].details.contains(searchValue)) {
-        showntransactions.add(transactions[i]);
-        if (shownTransactionsLimit == showntransactions.length) {
-          break;
-        }
-      }
-    }
-    if (i == transactions.length) {
-      cupertinoCounter = 0;
-    }
-    setState(() {});
-  }
-
 //KOD za podatke sa servera
   @override
   Widget build(BuildContext context) {
@@ -291,7 +166,7 @@ class InitalState extends State<Transactions> {
           child: Text("All Transactions"),
         ),
         onSearch: (value) => setState(() {
-          _filtering();
+          //_filtering();
           searchValue = value;
           for (int i = 0; i < transactions.length; i++) {
             if (transactions[i].details.contains(searchValue) == false) {
@@ -308,23 +183,24 @@ class InitalState extends State<Transactions> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => FiltersScreen(
-                              isCheckedDeposit: widget.filterDepositsTrue,
-                              isCheckedWithdrawal: widget.filterWithdrawalsTrue,
                               selectedTransactionType:
                                   widget.filterTransactionType,
                               textEditingController1: TextEditingController(
-                                  text: widget.filterPriceRangeStart
-                                      .toInt()
-                                      .toString()),
+                                  text: widget.filterPriceRangeStart),
                               textEditingController2: TextEditingController(
-                                  text: widget.filterPriceRangeEnd
-                                      .toInt()
-                                      .toString()),
+                                  text: widget.filterPriceRangeEnd),
+                              textEditingController3: TextEditingController(
+                                  text: widget.filterRecipientName),
+                              textEditingController4: TextEditingController(
+                                  text: widget.filterRecipientAccount),
+                              textEditingController5: TextEditingController(
+                                  text: widget.filterSenderName),
+                              textEditingController6: TextEditingController(
+                                  text: widget.filterCategory),
                               selectedDates: DateTimeRange(
                                   start: widget.filterDateStart,
                                   end: widget.filterDateEnd),
                               selectedCurrency: widget.filterCurrency,
-                              selectedDate: widget.filterDate,
                             )));
               }),
           IconButton(
@@ -387,12 +263,6 @@ class InitalState extends State<Transactions> {
               );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.grid_on_rounded),
-            onPressed: () {
-              print("group");
-            },
-          )
         ],
       ),
       body: ListView.builder(
