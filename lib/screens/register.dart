@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -11,6 +12,25 @@ class Register extends StatefulWidget {
 
   @override
   State<Register> createState() => _RegisterState();
+}
+
+class _AccountNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String value = newValue.text.replaceAll('-', '');
+    String formattedValue = '';
+    for (int i = 0; i < value.length; i++) {
+      formattedValue += value[i];
+      if ((i + 1) % 4 == 0 && i != value.length - 1) {
+        formattedValue += '-';
+      }
+    }
+    return TextEditingValue(
+      text: formattedValue,
+      selection: TextSelection.collapsed(offset: formattedValue.length),
+    );
+  }
 }
 
 class _RegisterState extends State<Register> {
@@ -55,7 +75,7 @@ class _RegisterState extends State<Register> {
                 )),
       );
     } else {
-      print(res.body.toString());
+      //print(res.body.toString());
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -97,11 +117,7 @@ class _RegisterState extends State<Register> {
     super.dispose();
   }
 
-  /*@override
-  void initstate() {
 
-    super.initState();
-  }*/
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
@@ -126,8 +142,8 @@ class _RegisterState extends State<Register> {
         content: NotificationContent(
             id: 1,
             channelKey: 'channelKey',
-            title: "Naslov Notifikacije",
-            body: "Sadržaj notifikacije"
+            title: "Notification Title",
+            body: "Notification Content"
         )
     );
   }
@@ -279,9 +295,22 @@ class _RegisterState extends State<Register> {
                           validator: (value) {
                             if (value == null ||
                                 value.isEmpty ||
-                                value.length < 10) {
+                                value.length <= 10) {
                               return 'Password must be longer than 10 characters';
                             }
+                            else if (!value.contains(
+                                RegExp('[1-9]',))) {
+                              return 'Password must contain at least one digit';
+                            }
+                            else if (!value.contains(
+                                RegExp('[A-Z]',))) {
+                              return 'Password must contain at least one capital letter';
+                            }
+                            else if (!value.contains(
+                                RegExp('[^a-zA-Z0-9]',))) {
+                              return 'Password must contain a non-alphanumeric character';
+                            }
+
                             return null;
                           },
                         ),
@@ -344,8 +373,12 @@ class _RegisterState extends State<Register> {
                         child: TextFormField(
                           focusNode: _focusInput[6],
                           controller: _controllers[6],
-                          obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
+                              _AccountNumberFormatter(),
+                              LengthLimitingTextInputFormatter(19),
+                            ],
                           decoration: registerInputDecoration(
                               "Account Number", "Enter Your account information"),
                           onChanged: (String value) {},
@@ -392,7 +425,7 @@ class _RegisterState extends State<Register> {
                                 )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
-                                print(
+                               /* print(
                                     _controllers[1].text+" "+
                                     _controllers[2].text+" "+
                                     _controllers[0].text+" "+
@@ -401,7 +434,7 @@ class _RegisterState extends State<Register> {
                                     _controllers[5].text+" "+
                                     "0${_controllers[7].text} "+
                                     _controllers[6].text
-                                );
+                                );*/
                                 registerNewUser(
                                     _controllers[1].text,
                                     _controllers[2].text,
