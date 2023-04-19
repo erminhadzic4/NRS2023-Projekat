@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/templates.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:share/share.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
@@ -20,6 +21,53 @@ class PaymentPage extends StatefulWidget {
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
+}
+
+class Transaction {
+  double? amount;
+  String currency;
+  String paymentType;
+  String description;
+  String recipientAccountNumber;
+  String recipientFirstName;
+  String recipientLastName;
+
+  Transaction({
+    required this.amount,
+    required this.currency,
+    required this.paymentType,
+    required this.description,
+    required this.recipientAccountNumber,
+    required this.recipientFirstName,
+    required this.recipientLastName,
+  });
+
+  // Convert a transaction to a JSON string
+  String toJson() {
+    return json.encode({
+      'amount': amount,
+      'currency': currency,
+      'paymentType': paymentType,
+      'description': description,
+      'recipientAccountNumber': recipientAccountNumber,
+      'recipientFirstName': recipientFirstName,
+      'recipientLastName': recipientLastName,
+    });
+  }
+
+  // Create a transaction from a JSON string
+  static Transaction fromJson(String jsonString) {
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    return Transaction(
+      amount: jsonMap['amount'],
+      currency: jsonMap['currency'],
+      paymentType: jsonMap['paymentType'],
+      description: jsonMap['description'],
+      recipientAccountNumber: jsonMap['recipientAccountNumber'],
+      recipientFirstName: jsonMap['recipientFirstName'],
+      recipientLastName: jsonMap['recipientLastName'],
+    );
+  }
 }
 
 class transactionValidation {
@@ -88,7 +136,12 @@ class _PaymentPageState extends State<PaymentPage> {
   ];
 
   String _selectedCategory = "Currency";
-  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
+  final List<String> _categories = [
+    'Currency',
+    'Amount',
+    'Recipient Account',
+    'Transaction Details'
+  ];
 
   Future<transactionValidation> validateTransaction(
       double? amount,
@@ -224,7 +277,7 @@ class _PaymentPageState extends State<PaymentPage> {
             leading: BackButton(
               onPressed: () => Navigator.of(context).pop(),
             )),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: EdgeInsets.all(16),
           child: Form(
             key: _formKey,
@@ -343,14 +396,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   value: _selectedCategory,
                   onChanged: (String? value) {
                     setState(() {
-                      _selectedCategory= value!;
+                      _selectedCategory = value!;
                     });
                   },
                   items: _categories
                       .map((category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  ))
+                            value: category,
+                            child: Text(category),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -374,7 +427,40 @@ class _PaymentPageState extends State<PaymentPage> {
                         );
                       },
                       child: Text("Templates"),
-                    )
+                    ),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          Transaction newTransaction = Transaction(
+                            amount: double.tryParse(_amountController.text),
+                            currency: _selectedCurrency,
+                            paymentType: "type",
+                            description: _recipientDescriptionController.text,
+                            recipientAccountNumber:
+                                _recipientAccountController.text,
+                            recipientFirstName:
+                                _recipientFirstNameController.text,
+                            recipientLastName:
+                                _recipientLastNameController.text,
+                          );
+
+                          String transactionJson = newTransaction.toJson();
+
+                          Share.share(transactionJson,
+                              subject: 'New transaction for execution');
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Transaction sent for execution')),
+                          );
+                        }
+                      },
+                      child: Text('Send'),
+                    ),
                   ],
                 ),
               ],
