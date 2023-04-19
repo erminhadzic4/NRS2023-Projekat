@@ -72,6 +72,7 @@ class Transaction {
 }
 
 
+
 class transactionValidation {
   late bool success;
   late String message;
@@ -180,31 +181,14 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void _submitPaymentForm() async {
     if (_formKey.currentState!.validate()) {
-      Transaction newTransaction = Transaction(
-        amount: double.tryParse(_amountController.text),
-        currency: _selectedCurrency,
-        paymentType: "type",
-        description: _recipientDescriptionController.text,
-        recipientAccountNumber: _recipientAccountController.text,
-        recipientFirstName: _recipientFirstNameController.text,
-        recipientLastName: _recipientLastNameController.text,
-      );
-
-      String transactionJson = newTransaction.toJson();
-
-      Share.share(transactionJson, subject: 'New transaction for execution');
-
-      Transaction receivedTransaction = Transaction.fromJson(transactionJson);
-
       var isValidRecipient = await validateTransaction(
-        receivedTransaction.amount,
-        receivedTransaction.currency,
-        receivedTransaction.paymentType,
-        receivedTransaction.description,
-        receivedTransaction.recipientAccountNumber,
-        receivedTransaction.recipientFirstName,
-        receivedTransaction.recipientLastName,
-      );
+          double.tryParse(_amountController.text),
+          _selectedCurrency,
+          "type",
+          _recipientDescriptionController.text,
+          _recipientAccountController.text,
+          _recipientFirstNameController.text,
+          _recipientLastNameController.text);
       if (!isValidRecipient.success) {
         showDialog(
             context: context,
@@ -441,7 +425,66 @@ class _PaymentPageState extends State<PaymentPage> {
                         );
                       },
                       child: Text("Templates"),
-                    )
+                    ),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          Transaction newTransaction = Transaction(
+                            amount: double.tryParse(_amountController.text),
+                            currency: _selectedCurrency,
+                            paymentType: "type",
+                            description: _recipientDescriptionController.text,
+                            recipientAccountNumber: _recipientAccountController.text,
+                            recipientFirstName: _recipientFirstNameController.text,
+                            recipientLastName: _recipientLastNameController.text,
+                          );
+
+                          String transactionJson = newTransaction.toJson();
+
+                          Share.share(transactionJson, subject: 'New transaction for execution');
+// Show AlertDialog after sending the transaction for execution
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Transaction sent'),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: [
+                                      Text('Amount: ${newTransaction.amount} ${newTransaction.currency}'),
+                                      Text('Recipient First Name: ${newTransaction.recipientFirstName}'),
+                                      Text('Recipient Last Name: ${newTransaction.recipientLastName}'),
+                                      Text('Recipient Account: ${newTransaction.recipientAccountNumber}'),
+                                      Text('Transaction Details: ${newTransaction.description}'),
+                                      Text('Category: ${newTransaction.paymentType}'),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+
+                          // Show a message that the transaction has been sent
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Transaction sent for execution')),
+                          );
+                        }
+                      },
+                      child: Text('Send'),
+                    ),
+
                   ],
                 ),
               ],
