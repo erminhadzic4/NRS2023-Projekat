@@ -6,8 +6,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-
+import '../api/google_sign_in.dart';
 import '../auth_provider.dart';
+import 'home.dart';
 import 'loginAuth.dart';
 
 class logIn extends StatefulWidget {
@@ -18,12 +19,13 @@ class logIn extends StatefulWidget {
 }
 
 class _logInState extends State<logIn> {
+
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late AuthProvider _authProvider;
   //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
-  //  final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+   // final _authProvider = Provider.of<AuthProvider>(context, listen: false);
   //  token = _authProvider.token;
   var token;
   var userId;
@@ -33,7 +35,6 @@ class _logInState extends State<logIn> {
     super.initState();
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
   }
-
   void logInRequest(String phoneEmail, String password) async {
     final res = await http.post(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
@@ -300,11 +301,20 @@ class _logInState extends State<logIn> {
                     SignInButton(
                       Buttons.Google,
                       //mini: true,
-                      onPressed: () {},
+                      onPressed: () async {
+                        await GoogleSignInApi.signOut;
+                        await GoogleSignInApi.login();
+                        //_handleSignIn;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
+                      },
                     ),
                     SignInButton(
                       Buttons.Facebook,
-                      onPressed: () {},
+                      onPressed: () {
+                      },
                     )
                   ],
                 ),
