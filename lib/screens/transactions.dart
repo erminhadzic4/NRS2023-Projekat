@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
+import 'package:nrs2023/screens/grouping.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -321,6 +322,50 @@ class InitalState extends State<Transactions> {
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
                                       super.widget));
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.group_sharp),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Group by"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        title: Text("Currency"),
+                        onTap: () {
+                          // Group by currency
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupingScreen(
+                                  link:
+                                      "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsByCurrency?token=$token"),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Transaction Type"),
+                        onTap: () {
+                          // Group by type
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupingScreen(
+                                  link:
+                                      "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsByType?token=$token"),
+                            ),
+                          );
                         },
                       ),
                     ],
