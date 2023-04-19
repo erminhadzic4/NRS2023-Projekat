@@ -6,6 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nrs2023/screens/home.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
+import '../api/google_sign_in.dart';
+
+
+String prettyPrint(Map json) {
+  JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+  String pretty = encoder.convert(json);
+  return pretty;
+}
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -32,17 +45,60 @@ class _AccountNumberFormatter extends TextInputFormatter {
     );
   }
 }
+bool _isLoggedIn = false;
+Map _userObj = {};
+bool nextScreen = false;
 
 class _RegisterState extends State<Register> {
+  //final GoogleSignIn _googleSignIn = GoogleSignIn();
+  /*GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );*/
+  @override
+  void initState() {
+    super.initState();
+   /* _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      if (account != null) {
+        // user signed in
+        print('User signed in: ${account.email}');
+        setState(() {
+          _isLoggedIn = true;
+        });
+      }
+      _googleSignIn.signInSilently();
+    });*/
+  }
+/*
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print('Error signing in: $error');
+    }
+  }
+
+  Future<void> _handleSignOut() async {
+    try {
+      await _googleSignIn.disconnect();
+      setState(() {
+        _isLoggedIn = false;
+      });
+    } catch (error) {
+      print('Error signing out: $error');
+    }
+  }*/
+
   final List _focusInput = List.generate(9, (index) => FocusNode());
   final _formkey = GlobalKey<FormState>();
 
   final List _controllers =
-      List.generate(9, (index) => TextEditingController());
+  List.generate(9, (index) => TextEditingController());
   final myController = TextEditingController();
 
-  void registerNewUser(
-      String firstName,
+  void registerNewUser(String firstName,
       String lastName,
       String email,
       String username,
@@ -70,7 +126,8 @@ class _RegisterState extends State<Register> {
         //PRELAZAK
         context,
         MaterialPageRoute(
-            builder: (context) => EmailValidation(
+            builder: (context) =>
+                EmailValidation(
                   valuesInput: _controllers,
                 )),
       );
@@ -91,7 +148,7 @@ class _RegisterState extends State<Register> {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Username already exists',
+                  'User already exists',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -118,12 +175,11 @@ class _RegisterState extends State<Register> {
   }
 
 
-
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
       isDense: true,
       contentPadding:
-          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -134,7 +190,7 @@ class _RegisterState extends State<Register> {
 
   void triggerNotification() {
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if(!isAllowed) {
+      if (!isAllowed) {
         AwesomeNotifications().requestPermissionToSendNotifications();
       }
     });
@@ -180,7 +236,7 @@ class _RegisterState extends State<Register> {
                           controller: _controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
-                              registerInputDecoration("Email", "Enter Email"),
+                          registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
@@ -206,7 +262,7 @@ class _RegisterState extends State<Register> {
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration:
-                              registerInputDecoration("Name", "Enter Name"),
+                          registerInputDecoration("Name", "Enter Name"),
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[1]);
                           },
@@ -374,13 +430,14 @@ class _RegisterState extends State<Register> {
                           focusNode: _focusInput[6],
                           controller: _controllers[6],
                           keyboardType: TextInputType.visiblePassword,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-                              _AccountNumberFormatter(),
-                              LengthLimitingTextInputFormatter(19),
-                            ],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
+                            _AccountNumberFormatter(),
+                            LengthLimitingTextInputFormatter(19),
+                          ],
                           decoration: registerInputDecoration(
-                              "Account Number", "Enter Your account information"),
+                              "Account Number",
+                              "Enter Your account information"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
                             FocusScope.of(context).requestFocus(_focusInput[7]);
@@ -398,7 +455,7 @@ class _RegisterState extends State<Register> {
                             countrySelectorScrollControlled: true,
                             onInputChanged: (PhoneNumber value) {},
                             autoValidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Invalid phone number';
@@ -425,7 +482,7 @@ class _RegisterState extends State<Register> {
                                 )),
                             onPressed: () {
                               if (_formkey.currentState!.validate()) {
-                               /* print(
+                                /* print(
                                     _controllers[1].text+" "+
                                     _controllers[2].text+" "+
                                     _controllers[0].text+" "+
@@ -439,7 +496,8 @@ class _RegisterState extends State<Register> {
                                     _controllers[1].text,
                                     _controllers[2].text,
                                     _controllers[0].text,
-                                    _controllers[3].text, //username
+                                    _controllers[3].text,
+                                    //username
                                     _controllers[4].text,
                                     _controllers[5].text,
                                     "0${_controllers[7].text}",
@@ -451,18 +509,51 @@ class _RegisterState extends State<Register> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Padding(padding: const EdgeInsets.symmetric(horizontal: 50),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 50),
                         child: Column(
                           children: [
                             SignInButton(
                               Buttons.Google,
                               text: "Register with Google",
-                              onPressed: () {},
+                              onPressed: () async {
+                                await GoogleSignInApi.signOut;
+                                await GoogleSignInApi.login();
+                                //_handleSignIn;
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                                );
+                              },
                             ),
                             SignInButton(
                               Buttons.Facebook,
                               text: "Register with Facebook",
-                              onPressed: () {},
+                              onPressed: () async {
+                               /* await _handleSignOut();
+                                await _handleSignIn;*/
+                                await FacebookAuth.instance.logOut().then((value) {
+                                    setState(() {
+                                      _isLoggedIn = false;
+                                      _userObj = {};
+                                    });
+                                });
+                                await FacebookAuth.instance.login(
+                                  permissions: ["public_profile", "email"]).then((value) {
+                                    FacebookAuth.instance.getUserData().then((userData) async {
+                                      setState(() {
+                                        _isLoggedIn = true;
+                                        _userObj = userData;
+                                      });
+                                    });
+                                });
+                                //if(_isLoggedIn){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                                  );
+                                //}
+                                },
                             )
                           ],
                         ),
@@ -478,3 +569,16 @@ class _RegisterState extends State<Register> {
     );
   }
 }
+
+
+  /*Future signIn() async {
+    await GoogleSignInApi.login();
+  }
+}
+
+class GoogleSignInApi {
+  static final _googleSignIn = GoogleSignIn();
+
+  static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
+//static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
+}*/

@@ -19,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
           children: [
             SizedBox(
               height: 100.0,
-              child: Image.asset('res/img/logo.png'),
+              child: Image.asset('res/img/logo2.png'),
             ),
             const SizedBox(height: 20.0),
             const Text(
