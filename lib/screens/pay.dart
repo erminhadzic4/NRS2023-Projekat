@@ -6,18 +6,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
 
-
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
       {Key? key,
-        required this.templateData,
-        required String recipientName,
-        required String recipientAccount,
-        required String amount,
-        required String currency})
+      required this.templateData,
+      required String recipientName,
+      required String recipientAccount,
+      required String amount,
+      required String currency})
       : super(key: key);
   final List templateData;
-  final String? transactionCategory;
 
   get recipientAccount => null;
 
@@ -72,8 +70,6 @@ class Transaction {
   }
 }
 
-
-
 class transactionValidation {
   late bool success;
   late String message;
@@ -104,14 +100,15 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientFirstNameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientAccountController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientLastNameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientDescriptionController =
-  TextEditingController();
+      TextEditingController();
   String _selectedCurrency = "USD";
+  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',
@@ -139,7 +136,12 @@ class _PaymentPageState extends State<PaymentPage> {
   ];
 
   String _selectedCategory = "Currency";
-  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
+  final List<String> _categories = [
+    'Currency',
+    'Amount',
+    'Recipient Account',
+    'Transaction Details'
+  ];
 
   Future<transactionValidation> validateTransaction(
       double? amount,
@@ -169,7 +171,7 @@ class _PaymentPageState extends State<PaymentPage> {
     };
 
     final response =
-    await http.post(uri, headers: headers, body: json.encode(body));
+        await http.post(uri, headers: headers, body: json.encode(body));
 
     final jsonResponse = json.decode(response.body);
 
@@ -193,65 +195,65 @@ class _PaymentPageState extends State<PaymentPage> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                content: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('${isValidRecipient.message}'),
-                    Icon(
-                      Icons.clear,
-                      color: Colors.red,
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${isValidRecipient.message}'),
+                        Icon(
+                          Icons.clear,
+                          color: Colors.red,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  )
-                ]));
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      )
+                    ]));
       } else {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Transaction Succesfull '),
-                  Icon(
-                    Icons.check_box,
-                    color: Colors.green,
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Transaction Succesfull '),
+                      Icon(
+                        Icons.check_box,
+                        color: Colors.green,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text(
-                        "Recipient Name: ${_recipientFirstNameController.text}"),
-                    SizedBox(
-                      height: 10,
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            "Recipient Name: ${_recipientFirstNameController.text}"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                            "Recipient Account: ${_recipientAccountController.text}")
+                      ],
                     ),
-                    Text(
-                        "Amount: ${_amountController.text} $_selectedCurrency"),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                        "Recipient Account: ${_recipientAccountController.text}")
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('OK'),
+                    )
                   ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                )
-              ],
-            ));
+                ));
       }
     }
   }
@@ -275,7 +277,7 @@ class _PaymentPageState extends State<PaymentPage> {
             leading: BackButton(
               onPressed: () => Navigator.of(context).pop(),
             )),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: EdgeInsets.all(16),
           child: Form(
             key: _formKey,
@@ -293,9 +295,9 @@ class _PaymentPageState extends State<PaymentPage> {
                   },
                   items: _currencies
                       .map((currency) => DropdownMenuItem(
-                    value: currency,
-                    child: Text(currency),
-                  ))
+                            value: currency,
+                            child: Text(currency),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -322,7 +324,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -394,14 +396,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   value: _selectedCategory,
                   onChanged: (String? value) {
                     setState(() {
-                      _selectedCategory= value!;
+                      _selectedCategory = value!;
                     });
                   },
                   items: _categories
                       .map((category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  ))
+                            value: category,
+                            child: Text(category),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -437,54 +439,28 @@ class _PaymentPageState extends State<PaymentPage> {
                             currency: _selectedCurrency,
                             paymentType: "type",
                             description: _recipientDescriptionController.text,
-                            recipientAccountNumber: _recipientAccountController.text,
-                            recipientFirstName: _recipientFirstNameController.text,
-                            recipientLastName: _recipientLastNameController.text,
+                            recipientAccountNumber:
+                                _recipientAccountController.text,
+                            recipientFirstName:
+                                _recipientFirstNameController.text,
+                            recipientLastName:
+                                _recipientLastNameController.text,
                           );
 
                           String transactionJson = newTransaction.toJson();
 
-                          Share.share(transactionJson, subject: 'New transaction for execution');
-// Show AlertDialog after sending the transaction for execution
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Transaction sent'),
-                                content: SingleChildScrollView(
-                                  child: ListBody(
-                                    children: [
-                                      Text('Amount: ${newTransaction.amount} ${newTransaction.currency}'),
-                                      Text('Recipient First Name: ${newTransaction.recipientFirstName}'),
-                                      Text('Recipient Last Name: ${newTransaction.recipientLastName}'),
-                                      Text('Recipient Account: ${newTransaction.recipientAccountNumber}'),
-                                      Text('Transaction Details: ${newTransaction.description}'),
-                                      Text('Category: ${newTransaction.paymentType}'),
-                                    ],
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          Share.share(transactionJson,
+                              subject: 'New transaction for execution');
 
-
-                          // Show a message that the transaction has been sent
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Transaction sent for execution')),
+                            SnackBar(
+                                content:
+                                    Text('Transaction sent for execution')),
                           );
                         }
                       },
                       child: Text('Send'),
                     ),
-
                   ],
                 ),
               ],
