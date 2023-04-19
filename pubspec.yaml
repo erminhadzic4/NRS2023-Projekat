@@ -36,6 +36,7 @@ dependencies:
   intl_phone_number_input: ^0.7.2
   http: ^0.13.4
   easy_search_bar: ^2.4.2
+  local_auth: ^2.1.6
   provider: ^6.0.1
   onesignal_flutter: ^3.5.1
   flutter_secure_storage: ^5.0.0
