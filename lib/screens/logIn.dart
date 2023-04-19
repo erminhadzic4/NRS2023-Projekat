@@ -6,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 
 import '../auth_provider.dart';
 import 'loginAuth.dart';
@@ -30,9 +32,18 @@ class _logInState extends State<logIn> {
 
   @override
   void initState() {
+    configOneSignal();
     super.initState();
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
   }
+
+  void configOneSignal() async {
+    await OneSignal.shared.setAppId("fea9b7bf-2d17-401e-8026-78e184289a62");
+    OneSignal.shared.setNotificationWillShowInForegroundHandler((event) {
+      OSNotificationDisplayType.notification;
+    });
+  }
+
 
   void logInRequest(String phoneEmail, String password) async {
     final res = await http.post(
