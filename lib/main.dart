@@ -7,6 +7,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:provider/provider.dart';
 import 'auth_provider.dart';
 
+
 void main() {
   AwesomeNotifications().initialize(
     null,
