@@ -11,18 +11,17 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home Screen'),
       ),
-      body:  Center(
+      body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Text(
-                'Welcome to the Home Screen!',
-                style: TextStyle(fontSize: 24.0),
-              ),
-            ],
-          )
-      ),
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: const [
+          Text(
+            'Welcome to the Home Screen!',
+            style: TextStyle(fontSize: 24.0),
+          ),
+        ],
+      )),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -56,7 +55,6 @@ class HomeScreen extends StatelessWidget {
                           recipientAccount: '',
                           amount: '',
                           currency: '',
-
                         )),
               );
               break;
@@ -68,10 +66,13 @@ class HomeScreen extends StatelessWidget {
                           filterDateStart: DateTime.utc(1900, 1, 1),
                           filterDateEnd: DateTime.now(),
                           filterCurrency: 'All',
-                          filterPriceRangeStart: 0,
-                          filterPriceRangeEnd: 100000,
-                          filterDepositsTrue: true,
-                          filterWithdrawalsTrue: true,
+                          filterTransactionType: 'All',
+                          filterPriceRangeStart: '0',
+                          filterPriceRangeEnd: '100000',
+                          filterRecipientName: '',
+                          filterRecipientAccount: '',
+                          filterSenderName: '',
+                          filterCategory: '',
                         )),
               );
               break;

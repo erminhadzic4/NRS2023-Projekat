@@ -116,12 +116,11 @@ class _NumberValidationState extends State<NumberValidation> {
     }
 
     Future<void> verifyNumber() async {
-      final url = Uri.parse('http://siprojekat.duckdns.org:5051/api/confirm/phone');
+      final url = Uri.parse(
+          'http://siprojekat.duckdns.org:5051/api/User/confirm/phone');
       final headers = {'Content-Type': 'application/json'};
-      final body = json.encode({
-        'Username': userName,
-        'code': _confirmationCode
-      });
+      final body =
+          json.encode({'Username': userName, 'code': _confirmationCode});
 
       print(userName + " " + _confirmationCode);
 
@@ -138,19 +137,20 @@ class _NumberValidationState extends State<NumberValidation> {
 
     void sendCode(String username) async {
       final url = await http.get(
-          Uri.parse("http://siprojekat.duckdns.org:5051/api/User/send/sms?Username=$username"),
-          headers : <String, String>{
+          Uri.parse(
+              "http://siprojekat.duckdns.org:5051/api/User/send/sms?Username=$username"),
+          headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           });
-      if(url.statusCode == 200) {
+      if (url.statusCode == 200) {
         setState(() {
           codeSent = true;
         });
-      }
-      else {
+      } else {
         codeSent = false;
       }
     }
+
     InputDecoration registerInputDecoration(String labelText, String hintText) {
       return InputDecoration(
         isDense: true,
@@ -201,7 +201,8 @@ class _NumberValidationState extends State<NumberValidation> {
                 child: SizedBox(
                   width: 350,
                   child: Text(
-                      'Click on "Send code" button to get your code via SMS!', // + myController.text,
+                      'Click on "Send code" button to get your code via SMS!',
+                      // + myController.text,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
@@ -248,10 +249,9 @@ class _NumberValidationState extends State<NumberValidation> {
                               height: 50,
                               minWidth: 120,
                               onPressed: () {
-                                if(codeSent) {
+                                if (codeSent) {
                                   verifyNumber();
-                                }
-                                else {
+                                } else {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -302,7 +302,6 @@ class _NumberValidationState extends State<NumberValidation> {
                               height: 50,
                               minWidth: 120,
                               onPressed: () {
-
                                 Print();
                                 sendCode(userName);
                               },
@@ -317,7 +316,6 @@ class _NumberValidationState extends State<NumberValidation> {
                           ),
                         ],
                       ),
-
                     ],
                   ),
                 ),

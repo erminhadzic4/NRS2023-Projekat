@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/templates.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
@@ -17,6 +20,13 @@ class PaymentPage extends StatefulWidget {
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
+}
+
+class transactionValidation {
+  late bool success;
+  late String message;
+
+  transactionValidation(this.success, this.message);
 }
 
 class _AccountNumberFormatter extends TextInputFormatter {
@@ -41,11 +51,16 @@ class _AccountNumberFormatter extends TextInputFormatter {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _recipientNameController =
+  final TextEditingController _recipientFirstNameController =
       TextEditingController();
   final TextEditingController _recipientAccountController =
       TextEditingController();
+  final TextEditingController _recipientLastNameController =
+      TextEditingController();
+  final TextEditingController _recipientDescriptionController =
+      TextEditingController();
   String _selectedCurrency = "USD";
+  final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
     'AUD',
@@ -72,13 +87,79 @@ class _PaymentPageState extends State<PaymentPage> {
     'TWD'
   ];
 
-  void _submitPaymentForm() {
+  String _selectedCategory = "Currency";
+  final List<String> _categories = [ 'Currency', 'Amount', 'Recipient Account','Transaction Details'];
+
+  Future<transactionValidation> validateTransaction(
+      double? amount,
+      String currency,
+      String paymentType,
+      String description,
+      String recipientAccountNumber,
+      String firstName,
+      String lastName) async {
+    String? token = await storage.read(key: 'token');
+
+    final uri = Uri.parse(
+        "https://processingserver.herokuapp.com/Transaction/CreateTransaction?token=$token");
+
+    final body = {
+      "amount": amount,
+      "currency": currency,
+      "paymentType": paymentType,
+      "description": description,
+      "recipientAccountNumber": recipientAccountNumber,
+      "recipientFirstName": firstName,
+      "recipientLastName": lastName
+    };
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+    };
+
+    final response =
+        await http.post(uri, headers: headers, body: json.encode(body));
+
+    final jsonResponse = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      return transactionValidation(true, 'success');
+    }
+    return transactionValidation(false, jsonResponse['message']);
+  }
+
+  void _submitPaymentForm() async {
     if (_formKey.currentState!.validate()) {
-      if (_recipientNameController.text.isEmpty ||
-          _recipientAccountController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Recipient name or account details are required.'),
-        ));
+      var isValidRecipient = await validateTransaction(
+          double.tryParse(_amountController.text),
+          _selectedCurrency,
+          "type",
+          _recipientDescriptionController.text,
+          _recipientAccountController.text,
+          _recipientFirstNameController.text,
+          _recipientLastNameController.text);
+      if (!isValidRecipient.success) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${isValidRecipient.message}'),
+                        Icon(
+                          Icons.clear,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      )
+                    ]));
       } else {
         showDialog(
             context: context,
@@ -97,7 +178,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     child: ListBody(
                       children: <Widget>[
                         Text(
-                            "Recipient Name: ${_recipientNameController.text}"),
+                            "Recipient Name: ${_recipientFirstNameController.text}"),
                         SizedBox(
                           height: 10,
                         ),
@@ -127,7 +208,7 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     _amountController.text = widget.templateData[1];
-    _recipientNameController.text = widget.templateData[2];
+    _recipientFirstNameController.text = widget.templateData[2];
     _recipientAccountController.text = widget.templateData[3];
   }
 
@@ -195,19 +276,35 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Text('Recipient Name'),
+                Text('Recipient First Name'),
                 TextFormField(
-                  controller: _recipientNameController,
+                  controller: _recipientFirstNameController,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Recipient name is required';
+                      return 'Recipient first name is required';
                     } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
-                      return 'Recipient name can only contain letters and spaces';
+                      return 'Recipient first name can only contain letters and spaces';
                     }
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Enter recipient name',
+                    hintText: 'Enter recipient first name',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Recipient Last Name'),
+                TextFormField(
+                  controller: _recipientLastNameController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Recipient last name is required';
+                    } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
+                      return 'Recipient last name can only contain letters and spaces';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Enter recipient last name',
                   ),
                 ),
                 SizedBox(height: 16),
@@ -231,6 +328,30 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     hintText: 'Enter recipient account details',
                   ),
+                ),
+                SizedBox(height: 16),
+                Text('Transaction Details'),
+                TextFormField(
+                  controller: _recipientDescriptionController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter transaction details',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Transaction Category'),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCategory= value!;
+                    });
+                  },
+                  items: _categories
+                      .map((category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  ))
+                      .toList(),
                 ),
                 SizedBox(height: 16),
                 Row(
