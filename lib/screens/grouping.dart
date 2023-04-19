@@ -6,16 +6,14 @@ import 'dart:convert';
 // Klasa Group
 class Group {
   String keyValue;
-  List<Transaction> transactions;
   int totalAmount;
   int numberOfTransactions;
 
-  Group(this.keyValue, this.transactions, this.totalAmount,
-      this.numberOfTransactions);
+  Group(this.keyValue, this.totalAmount, this.numberOfTransactions);
 
   factory Group.fromJson(Map<String, dynamic> json) {
-    return Group(json['keyValue'], json['transactions'], json['totalAmount'],
-        json['numberOfTransactions']);
+    return Group(
+        json['keyValue'], json['totalAmount'], json['numberOfTransactions']);
   }
 }
 
@@ -57,8 +55,10 @@ class InitalState extends State<GroupingScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(Groups[index].keyValue),
-            subtitle: Text(Groups[index].totalAmount.toString()),
-            trailing: Text(Groups[index].numberOfTransactions.toString()),
+            subtitle:
+                Text("Total Amount: " + Groups[index].totalAmount.toString()),
+            trailing: Text("Number of Transactions: " +
+                Groups[index].numberOfTransactions.toString()),
           );
         },
         itemCount: Groups.length,

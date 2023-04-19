@@ -349,7 +349,7 @@ class InitalState extends State<Transactions> {
                             MaterialPageRoute(
                               builder: (context) => GroupingScreen(
                                   link:
-                                      "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsByCurrency?token=$token"),
+                                      "https://processingserver.herokuapp.com/api/Transaction/GroupTransactionsByCurrency?token=$token"),
                             ),
                           );
                         },
@@ -363,7 +363,7 @@ class InitalState extends State<Transactions> {
                             MaterialPageRoute(
                               builder: (context) => GroupingScreen(
                                   link:
-                                      "https://processingserver.herokuapp.com/api/Transaction/GetTransactionsByType?token=$token"),
+                                      "https://processingserver.herokuapp.com/api/Transaction/GroupTransactionsByType?token=$token"),
                             ),
                           );
                         },
