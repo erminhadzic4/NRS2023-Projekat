@@ -1,15 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:nrs2023/screens/biometricAuth.dart';
 import 'package:provider/provider.dart';
 
+import 'package:local_auth/local_auth.dart';
+
+
 import '../auth_provider.dart';
+import 'home.dart';
 import 'loginAuth.dart';
 
 class logIn extends StatefulWidget {
@@ -30,10 +33,24 @@ class _logInState extends State<logIn>{
   var token;
   var userId;
 
+  late final LocalAuthentication auth;
+  bool _supportState = false;
+  final bioStorage = FlutterSecureStorage();
+  bool _useBios = false;
+  late var bioMail = "";
+  late var bioPassword = "";
+
+
   @override
   void initState() {
     super.initState();
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    auth = LocalAuthentication();
+    auth.isDeviceSupported().then(
+            (bool isSupported) => setState(() {
+          _supportState = isSupported;
+        })
+    );
   }
 
   void logInRequest(String phoneEmail, String password) async {
@@ -47,6 +64,10 @@ class _logInState extends State<logIn>{
           "password": _passwordController.text,
         }));
     if ( (res.statusCode == 200) && context.mounted) {
+      if(_useBios) {
+        bioStorage.write(key: "email", value: _emailController.text);
+        bioStorage.write(key: "password", value: _passwordController.text);
+      }
       var responseData = jsonDecode(res.body);
       _authProvider.setToken(responseData['token']);
       token = responseData['token'];
@@ -68,7 +89,7 @@ class _logInState extends State<logIn>{
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'You will now be prompted for 2FA!',
+                  'Welcome Back!',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -81,7 +102,7 @@ class _logInState extends State<logIn>{
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            LoginAuthScreen()),
+                            HomeScreen()),
                   );
                 },
                 child: const Text('OK'),
@@ -124,6 +145,148 @@ class _logInState extends State<logIn>{
           );
         },
       );
+    }
+  }
+
+  Future<bool> hasBiometrics() async {
+    try {
+      return await auth.canCheckBiometrics;
+    } on PlatformException catch(e) {
+      print(e);
+      return false;
+    }
+  }
+
+  void getBioStorage() async {
+    final email = await bioStorage.read(key: "email");
+    //print(email);
+    setState(() {
+      bioMail = email!;
+    });
+    final password = await bioStorage.read(key: "password");
+    //print(password);
+    setState(() {
+      bioPassword = password!;
+    });
+
+  }
+
+  void bioLogInRequest() async {
+    getBioStorage();
+    print(bioMail+bioPassword);
+    final res = await http.post(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "email": bioMail,
+          "password": bioPassword,
+        }));
+    if ( (res.statusCode == 200) && context.mounted) {
+      var responseData = jsonDecode(res.body);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Success'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Welcome Back!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            HomeScreen()),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Failure'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Login failed!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+
+
+  Future<bool> authenticate() async {
+    final isAvalible = await hasBiometrics();
+    if(!isAvalible) {
+      return false;
+    }
+    try {
+      final authComplete = await auth.authenticate(
+          localizedReason: "Authenticate yourself with either fingerprint or face recognition",
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+            useErrorDialogs: true,
+          )
+      );
+      if(authComplete == true) {
+        //print("moze");
+        bioLogInRequest();
+        return true;
+      }
+      else {
+        print("ne moze");
+        return false;
+      }
+    } on PlatformException catch (e) {
+      print(e);
+      return false;
     }
   }
 
@@ -285,6 +448,7 @@ class _logInState extends State<logIn>{
                     onPressed: () {
                       logInRequest(_emailController.text, _passwordController.text);
                       print(_emailController.text+ " " + _passwordController.text);
+                      
                     },
                     color: Colors.blue,
                     child: const Text("LOGIN",
@@ -311,14 +475,7 @@ class _logInState extends State<logIn>{
                       ),
                   ),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BiometricAuthentication(),
-                      ),
-                    );
-                  },
+                  onPressed: authenticate,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                   ),
@@ -338,7 +495,25 @@ class _logInState extends State<logIn>{
                       ),
                     ],
                   ),
+                ),
+              
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                        value: _useBios,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _useBios = newValue!;
+                          });
+                        }),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("Use Biometric ID")
+                  ]
                 )
+                
                 ],
             ),
         ),
