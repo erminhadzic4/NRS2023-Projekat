@@ -8,10 +8,17 @@ import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nrs2023/screens/home.dart';
-import 'package:nrs2023/screens/welcome.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import '../api/google_sign_in.dart';
 
+
+String prettyPrint(Map json) {
+  JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+  String pretty = encoder.convert(json);
+  return pretty;
+}
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -39,6 +46,8 @@ class _AccountNumberFormatter extends TextInputFormatter {
   }
 }
 bool _isLoggedIn = false;
+Map _userObj = {};
+bool nextScreen = false;
 
 class _RegisterState extends State<Register> {
   //final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -139,7 +148,7 @@ class _RegisterState extends State<Register> {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Username already exists',
+                  'User already exists',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -520,7 +529,31 @@ class _RegisterState extends State<Register> {
                             SignInButton(
                               Buttons.Facebook,
                               text: "Register with Facebook",
-                              onPressed: () {},
+                              onPressed: () async {
+                               /* await _handleSignOut();
+                                await _handleSignIn;*/
+                                await FacebookAuth.instance.logOut().then((value) {
+                                    setState(() {
+                                      _isLoggedIn = false;
+                                      _userObj = {};
+                                    });
+                                });
+                                await FacebookAuth.instance.login(
+                                  permissions: ["public_profile", "email"]).then((value) {
+                                    FacebookAuth.instance.getUserData().then((userData) async {
+                                      setState(() {
+                                        _isLoggedIn = true;
+                                        _userObj = userData;
+                                      });
+                                    });
+                                });
+                                //if(_isLoggedIn){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                                  );
+                                //}
+                                },
                             )
                           ],
                         ),

@@ -10,6 +10,8 @@ import '../api/google_sign_in.dart';
 import '../auth_provider.dart';
 import 'home.dart';
 import 'loginAuth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
 
 class logIn extends StatefulWidget {
   const logIn({Key? key}) : super(key: key);
@@ -17,6 +19,8 @@ class logIn extends StatefulWidget {
   @override
   State<logIn> createState() => _logInState();
 }
+bool _isLoggedIn = false;
+Map _userObj = {};
 
 class _logInState extends State<logIn> {
 
@@ -313,7 +317,30 @@ class _logInState extends State<logIn> {
                     ),
                     SignInButton(
                       Buttons.Facebook,
-                      onPressed: () {
+                      onPressed: () async {
+                        /* await _handleSignOut();
+                                await _handleSignIn;*/
+                        await FacebookAuth.instance.logOut().then((value) {
+                          setState(() {
+                            _isLoggedIn = false;
+                            _userObj = {};
+                          });
+                        });
+                        await FacebookAuth.instance.login(
+                            permissions: ["public_profile", "email"]).then((value) {
+                          FacebookAuth.instance.getUserData().then((userData) async {
+                            setState(() {
+                              _isLoggedIn = true;
+                              _userObj = userData;
+                            });
+                          });
+                        });
+                        //if(_isLoggedIn){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomeScreen()),
+                          );
+                        //}
                       },
                     )
                   ],
