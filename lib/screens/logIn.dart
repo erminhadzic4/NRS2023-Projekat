@@ -9,9 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-
 import 'package:local_auth/local_auth.dart';
-
 
 import '../auth_provider.dart';
 import 'home.dart';
@@ -24,7 +22,7 @@ class logIn extends StatefulWidget {
   State<logIn> createState() => _logInState();
 }
 
-class _logInState extends State<logIn>{
+class _logInState extends State<logIn> {
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -43,18 +41,15 @@ class _logInState extends State<logIn>{
   late var bioMail = "";
   late var bioPassword = "";
 
-
   @override
   void initState() {
     configOneSignal();
     super.initState();
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     auth = LocalAuthentication();
-    auth.isDeviceSupported().then(
-            (bool isSupported) => setState(() {
+    auth.isDeviceSupported().then((bool isSupported) => setState(() {
           _supportState = isSupported;
-        })
-    );
+        }));
   }
 
   void configOneSignal() async {
@@ -63,7 +58,6 @@ class _logInState extends State<logIn>{
       OSNotificationDisplayType.notification;
     });
   }
-
 
   void logInRequest(String phoneEmail, String password) async {
     final res = await http.post(
@@ -75,8 +69,8 @@ class _logInState extends State<logIn>{
           "email": _emailController.text,
           "password": _passwordController.text,
         }));
-    if ( (res.statusCode == 200) && context.mounted) {
-      if(_useBios) {
+    if ((res.statusCode == 200) && context.mounted) {
+      if (_useBios) {
         bioStorage.write(key: "email", value: _emailController.text);
         bioStorage.write(key: "password", value: _passwordController.text);
       }
@@ -112,9 +106,7 @@ class _logInState extends State<logIn>{
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomeScreen()),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
                 },
                 child: const Text('OK'),
@@ -123,7 +115,6 @@ class _logInState extends State<logIn>{
           );
         },
       );
-
     } else {
       showDialog(
         context: context,
@@ -163,7 +154,7 @@ class _logInState extends State<logIn>{
   Future<bool> hasBiometrics() async {
     try {
       return await auth.canCheckBiometrics;
-    } on PlatformException catch(e) {
+    } on PlatformException catch (e) {
       print(e);
       return false;
     }
@@ -180,12 +171,11 @@ class _logInState extends State<logIn>{
     setState(() {
       bioPassword = password!;
     });
-
   }
 
   void bioLogInRequest() async {
     getBioStorage();
-    print(bioMail+bioPassword);
+    print(bioMail + bioPassword);
     final res = await http.post(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
         headers: <String, String>{
@@ -195,7 +185,7 @@ class _logInState extends State<logIn>{
           "email": bioMail,
           "password": bioPassword,
         }));
-    if ( (res.statusCode == 200) && context.mounted) {
+    if ((res.statusCode == 200) && context.mounted) {
       var responseData = jsonDecode(res.body);
       showDialog(
         context: context,
@@ -223,9 +213,7 @@ class _logInState extends State<logIn>{
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomeScreen()),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
                 },
                 child: const Text('OK'),
@@ -234,7 +222,6 @@ class _logInState extends State<logIn>{
           );
         },
       );
-
     } else {
       showDialog(
         context: context,
@@ -271,28 +258,25 @@ class _logInState extends State<logIn>{
     }
   }
 
-
-
   Future<bool> authenticate() async {
     final isAvalible = await hasBiometrics();
-    if(!isAvalible) {
+    if (!isAvalible) {
       return false;
     }
     try {
       final authComplete = await auth.authenticate(
-          localizedReason: "Authenticate yourself with either fingerprint or face recognition",
+          localizedReason:
+              "Authenticate yourself with either fingerprint or face recognition",
           options: const AuthenticationOptions(
             stickyAuth: true,
             biometricOnly: true,
             useErrorDialogs: true,
-          )
-      );
-      if(authComplete == true) {
+          ));
+      if (authComplete == true) {
         //print("moze");
         bioLogInRequest();
         return true;
-      }
-      else {
+      } else {
         print("ne moze");
         return false;
       }
@@ -306,7 +290,7 @@ class _logInState extends State<logIn>{
     return InputDecoration(
       isDense: true,
       contentPadding:
-      const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+          const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
       filled: true,
       fillColor: Colors.white,
       labelText: labelText,
@@ -321,215 +305,216 @@ class _logInState extends State<logIn>{
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-            title: const Text("Login"),
-            centerTitle: true,
-            leading: BackButton(
-              onPressed: () => Navigator.of(context).pop(),
+          title: const Text("Login"),
+          centerTitle: true,
+          leading: BackButton(
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
         body: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 80),
-                  child: SizedBox(
-                    width: 350,
-                    child: Text("Login",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 33,
-                            fontWeight: FontWeight.bold)),
-                  ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: SizedBox(
+                  width: 350,
+                  child: Text("Login",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 33,
+                          fontWeight: FontWeight.bold)),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: SizedBox(
-                    width: 350,
-                    child: Text('E-mail',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
-                  ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: SizedBox(
+                  width: 350,
+                  child: Text('E-mail',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextFormField(
-                                //controller: _controllers[0],
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration:
-                                registerInputDecoration("Email", "Enter Email"),
-                                onFieldSubmitted: (String value) {
-                                  //FocusScope.of(context).requestFocus(_focusInput[0]);
-                                },
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (value) {
-                                  if (value == null ||
-                                      value.isEmpty ||
-                                      !value.contains("@")) {
-                                    return 'Invalid address';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: SizedBox(
-                      width: 350,
-                      child: Text('Password',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Form(
-                      key:_formkey,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration:
-                              registerInputDecoration("Password", "Enter password"),
-                              onFieldSubmitted: (String value) {
-                                //FocusScope.of(context).requestFocus(_focusInput[0]);
-                              },
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              //validator:
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: SizedBox(
-                      width: 350,
-                      child:
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const logInPhone()),
-                          );
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextFormField(
+                        //controller: _controllers[0],
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration:
+                            registerInputDecoration("Email", "Enter Email"),
+                        onFieldSubmitted: (String value) {
+                          //FocusScope.of(context).requestFocus(_focusInput[0]);
                         },
-                        child: const Text(
-                            textAlign: TextAlign.center,
-                            style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                            'Login via phone number'
-                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              !value.contains("@")) {
+                            return 'Invalid address';
+                          }
+                          return null;
+                        },
                       ),
-                      ),
+                    ),
+                  ],
                 ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 100),
-                  child: MaterialButton(
-                    elevation: 10,
-                    height: 50,
-                    minWidth: double.infinity,
-                    onPressed: () {
-                      logInRequest(_emailController.text, _passwordController.text);
-                      print(_emailController.text+ " " + _passwordController.text);
-                      
-                    },
-                    color: Colors.blue,
-                    child: const Text("LOGIN",
-                        style: TextStyle(
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: SizedBox(
+                  width: 350,
+                  child: Text('Password',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.grey,
                           fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
+                          fontWeight: FontWeight.bold)),
                 ),
-                  Padding(padding: const EdgeInsets.only(top: 10),
-                      child: Column(
-                        children: [
-                          SignInButton(
-                            Buttons.Google,
-                            //mini: true,
-                            onPressed: () {},
-                          ),
-                          SignInButton(
-                            Buttons.Facebook,
-                            onPressed: () {},
-                          )
-                        ],
-                      ),
-                  ),
-                ElevatedButton(
-                  onPressed: authenticate,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.fingerprint, size: 30.0,),
-                      SizedBox(width: 8.0),
-                      Text(
-                        'Biometric login',
-                        style: TextStyle(
-                          //backgroundColor: Colors.blue,
-                          fontSize: 20,
-                          color: Colors.white,
-                          //fontWeight: FontWeight.bold,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Form(
+                  key: _formkey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: registerInputDecoration(
+                              "Password", "Enter password"),
+                          onFieldSubmitted: (String value) {
+                            //FocusScope.of(context).requestFocus(_focusInput[0]);
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          //validator:
                         ),
                       ),
                     ],
                   ),
                 ),
-              
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: SizedBox(
+                  width: 350,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const logInPhone()),
+                      );
+                    },
+                    child: const Text(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.blue),
+                        'Login via phone number'),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                child: MaterialButton(
+                  elevation: 10,
+                  height: 50,
+                  minWidth: double.infinity,
+                  onPressed: () {
+                    logInRequest(
+                        _emailController.text, _passwordController.text);
+                    print(
+                        _emailController.text + " " + _passwordController.text);
+                  },
+                  color: Colors.blue,
+                  child: const Text("LOGIN",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
                   children: [
-                    Checkbox(
-                        value: _useBios,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _useBios = newValue!;
-                          });
-                        }),
-                    SizedBox(
-                      height: 10,
+                    SignInButton(
+                      Buttons.Google,
+                      //mini: true,
+                      onPressed: () {},
                     ),
-                    Text("Use Biometric ID")
-                  ]
-                )
-                
-                ],
-            ),
+                    SignInButton(
+                      Buttons.Facebook,
+                      onPressed: () {},
+                    )
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: authenticate,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(
+                      Icons.fingerprint,
+                      size: 30.0,
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      'Biometric login',
+                      style: TextStyle(
+                        //backgroundColor: Colors.blue,
+                        fontSize: 20,
+                        color: Colors.white,
+                        //fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Checkbox(
+                    value: _useBios,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _useBios = newValue!;
+                      });
+                    }),
+                SizedBox(
+                  height: 10,
+                ),
+                Text("Use Biometric ID")
+              ])
+            ],
+          ),
         ),
-       ),
+      ),
     );
   }
 }

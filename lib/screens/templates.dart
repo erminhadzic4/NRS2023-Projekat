@@ -29,8 +29,8 @@ class TemplatesPage extends StatefulWidget {
 
 class _AccountNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue,
+      TextEditingValue newValue) {
     String value = newValue.text.replaceAll('-', '');
     String formattedValue = '';
     for (int i = 0; i < value.length; i++) {
@@ -128,13 +128,13 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
     for (int i = 0; i < userTemplates.length; i++) {
       TextEditingController? Currency =
-          TextEditingController(text: userTemplates[i].currency);
+      TextEditingController(text: userTemplates[i].currency);
       TextEditingController? Amount =
-          TextEditingController(text: userTemplates[i].amount);
+      TextEditingController(text: userTemplates[i].amount);
       TextEditingController? RecipientName =
-          TextEditingController(text: userTemplates[i].recipientName);
+      TextEditingController(text: userTemplates[i].recipientName);
       TextEditingController? RecipientAccount =
-          TextEditingController(text: userTemplates[i].recipientAccountNumber);
+      TextEditingController(text: userTemplates[i].recipientAccountNumber);
 
       var template = Payment(
           Currency: Currency,
@@ -146,8 +146,8 @@ class _TemplatesPageState extends State<TemplatesPage> {
     }
   }
 
-  Future sendTemplate(
-      String? currency, String? amount, String? name, String? account) async {
+  Future sendTemplate(String? currency, String? amount, String? name,
+      String? account) async {
     String? token = await storage.read(key: 'token');
 
     final headers = {
@@ -245,7 +245,8 @@ class _TemplatesPageState extends State<TemplatesPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => PaymentPage(
+            builder: (context) =>
+                PaymentPage(
                   recipientName: '',
                   recipientAccount: '',
                   amount: '',
@@ -267,7 +268,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
             return ListTile(
                 title: Text(templates[index].RecipientName!.text.toString()),
                 subtitle:
-                    Text(templates[index].Amount?.text.toString() ?? 'N/A'),
+                Text(templates[index].Amount?.text.toString() ?? 'N/A'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -303,7 +304,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
   void deleteTemplate(int? index) {
     setState(() {
-      deleteTemplate(templates.elementAt(index!).templateId);
+      deleteTemplate(templates
+          .elementAt(index!)
+          .templateId);
       getTemplates();
     });
   }
@@ -344,7 +347,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   TextFormField(
                     controller: _amountController,
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                    TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
@@ -390,7 +393,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Recipient account details are required';
-                      } else if (value.replaceAll('-', '').length != 16) {
+                      } else if (value
+                          .replaceAll('-', '')
+                          .length != 16) {
                         return 'Recipient account number must be 16 digits';
                       }
                       return null;
@@ -411,7 +416,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   if (_formKey.currentState!.validate()) {
                     setState(() {
                       editTemplateBE(
-                          templates.elementAt(index).templateId,
+                          templates
+                              .elementAt(index)
+                              .templateId,
                           _currencyController?.text,
                           _amountController?.text,
                           _recipientNameController?.text,
@@ -441,6 +448,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            scrollable: true,
             title: Text('Create a new template'),
             content: Form(
               key: _formKey,
@@ -468,7 +476,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   TextFormField(
                     controller: _amountController,
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                    TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
@@ -514,7 +522,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Recipient account details are required';
-                      } else if (value.replaceAll('-', '').length != 16) {
+                      } else if (value
+                          .replaceAll('-', '')
+                          .length != 16) {
                         return 'Recipient account number must be 16 digits';
                       }
                       return null;
