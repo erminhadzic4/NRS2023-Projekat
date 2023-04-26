@@ -115,7 +115,34 @@ class Transactions extends StatefulWidget {
 class InitalState extends State<Transactions> {
   var token;
   var transactions = <Transaction>[];
-  var showntransactions = <Transaction>[];
+  var showntransactions = <Transaction>[
+    //DUMMY TRANSACTION, NOT FOR RELEASE
+    Transaction(
+      1,
+      100,
+      "USD",
+      "type",
+      "purpose",
+      "category",
+      DateTime.now(),
+      "ID",
+      User(
+          userId: "user",
+          name: "NAME",
+          accountNumber: "123",
+          bankName: "RAI",
+          type: "TYPE",
+          phoneNumber: "061"),
+      "senderID",
+      User(
+          userId: "user",
+          name: "NAME",
+          accountNumber: "123",
+          bankName: "RAI",
+          type: "TYPE",
+          phoneNumber: "061"),
+    )
+  ];
   ScrollController _scrollController = ScrollController();
   int shownTransactionsLimit = 10;
   int _currentPage = 1;
