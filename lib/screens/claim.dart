@@ -3,16 +3,15 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
 
 class Claim {
-  String type;
+  String subject;
   String description;
   File file;
   DateTime dateTime;
 
   Claim(
-    this.type,
+    this.subject,
     this.description,
     this.file,
     this.dateTime,
@@ -70,7 +69,7 @@ class _ClaimPageState extends State<ClaimPage> {
             TextField(
               controller: _problemTypeController,
               decoration: InputDecoration(
-                labelText: 'Problem Type',
+                labelText: 'Subject',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -78,7 +77,7 @@ class _ClaimPageState extends State<ClaimPage> {
             TextField(
               controller: _problemDescriptionController,
               decoration: InputDecoration(
-                labelText: 'Problem Description',
+                labelText: 'Description',
                 border: OutlineInputBorder(),
               ),
               maxLines: 4,
