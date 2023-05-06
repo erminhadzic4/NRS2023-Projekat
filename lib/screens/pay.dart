@@ -408,15 +408,12 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       onPressed: _submitPaymentForm,
                       child: Text('Submit'),
-                    ),
-                    SizedBox(
-                      width: 50,
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -427,9 +424,6 @@ class _PaymentPageState extends State<PaymentPage> {
                         );
                       },
                       child: Text("Templates"),
-                    ),
-                    SizedBox(
-                      width: 50,
                     ),
                     ElevatedButton(
                       onPressed: () async {

@@ -9,12 +9,14 @@ class Claim {
   String description;
   File file;
   DateTime dateTime;
+  String status;
 
   Claim(
     this.subject,
     this.description,
     this.file,
     this.dateTime,
+    this.status,
   );
 
 //   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class ClaimPage extends StatefulWidget {
 }
 
 String path = "";
+String status = "Open";
 
 class _ClaimPageState extends State<ClaimPage> {
   TextEditingController _problemTypeController = TextEditingController();
@@ -61,42 +64,71 @@ class _ClaimPageState extends State<ClaimPage> {
       appBar: AppBar(
         title: Text('Claim'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _problemTypeController,
-              decoration: InputDecoration(
-                labelText: 'Subject',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Visibility(
+                visible: status == 'Open',
+                //visible: claim.status == 'open',
+                child: Container(
+                  width: 400,
+                  height: 40,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text(
+                    'Status: $status',
+                    //'Status: ${claim.status}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _problemDescriptionController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _problemTypeController,
+                decoration: InputDecoration(
+                  labelText: 'Subject',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              maxLines: 4,
-            ),
-            SizedBox(height: 16.0),
-            Center(child: AutoSizeText(path)),
-            Center(
-              child: ElevatedButton(
-                  onPressed: () {
-                    openFiles();
-                  },
-                  child: Text("Upload file")),
-            ),
-            SizedBox(
-              width: 12,
-            ),
-            Center(
-                child: ElevatedButton(onPressed: () {}, child: Text("Submit")))
-          ],
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _problemDescriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 4,
+              ),
+              SizedBox(height: 16.0),
+              Center(child: AutoSizeText(path)),
+              Center(
+                child: ElevatedButton(
+                    onPressed: () {
+                      openFiles();
+                    },
+                    child: Text("Upload file")),
+              ),
+              SizedBox(
+                width: 12,
+              ),
+              Center(
+                  child:
+                      ElevatedButton(onPressed: () {}, child: Text("Submit")))
+            ],
+          ),
         ),
       ),
     );
