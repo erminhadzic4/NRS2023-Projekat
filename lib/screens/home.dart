@@ -3,6 +3,8 @@ import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
+import 'package:nrs2023/screens/logIn.dart';
+
 
 class HomeScreen extends StatelessWidget {
   @override
