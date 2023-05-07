@@ -69,7 +69,7 @@ class _ClaimPageState extends State<ClaimPage> {
     print(response.body);
   }
 
-  late String? path;
+  late String? path = '';
   void openFiles() async {
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
     if (resultFile != null) {
