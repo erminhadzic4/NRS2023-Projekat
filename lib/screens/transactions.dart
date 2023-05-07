@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
+import 'package:nrs2023/screens/claims.dart';
 import 'package:nrs2023/screens/grouping.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
@@ -19,9 +20,7 @@ class Transaction {
   String transactionPurpose;
   String category;
   DateTime createdAt;
-  String recipientId;
   User recipient;
-  String senderId;
   User sender;
 
   Transaction(
@@ -32,9 +31,7 @@ class Transaction {
       this.transactionPurpose,
       this.category,
       this.createdAt,
-      this.recipientId,
       this.recipient,
-      this.senderId,
       this.sender);
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -46,9 +43,7 @@ class Transaction {
       json['transactionPurpose'],
       json['category'],
       DateTime.parse(json['createdAt']),
-      json['recipientId'],
       User.fromJson(json['recipient']),
-      json['senderId'],
       User.fromJson(json['sender']),
     );
   }
@@ -56,15 +51,13 @@ class Transaction {
 
 // Implementacija klase User
 class User {
-  String userId;
   String name;
   String accountNumber;
   String bankName;
-  String type;
   String phoneNumber;
+  String type;
 
   User({
-    required this.userId,
     required this.name,
     required this.accountNumber,
     required this.bankName,
@@ -74,7 +67,6 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userId: json['userId'],
       name: json['name'],
       accountNumber: json['accountNumber'],
       bankName: json['bankName'],
@@ -115,34 +107,7 @@ class Transactions extends StatefulWidget {
 class InitalState extends State<Transactions> {
   var token;
   var transactions = <Transaction>[];
-  var showntransactions = <Transaction>[
-    //DUMMY TRANSACTION, NOT FOR RELEASE
-    Transaction(
-      1,
-      100,
-      "USD",
-      "type",
-      "purpose",
-      "category",
-      DateTime.now(),
-      "ID",
-      User(
-          userId: "user",
-          name: "NAME",
-          accountNumber: "123",
-          bankName: "RAI",
-          type: "TYPE",
-          phoneNumber: "061"),
-      "senderID",
-      User(
-          userId: "user",
-          name: "NAME",
-          accountNumber: "123",
-          bankName: "RAI",
-          type: "TYPE",
-          phoneNumber: "061"),
-    )
-  ];
+  var showntransactions = <Transaction>[];
   ScrollController _scrollController = ScrollController();
   int shownTransactionsLimit = 10;
   int _currentPage = 1;
@@ -166,6 +131,7 @@ class InitalState extends State<Transactions> {
   void initState() {
     final _authProvider = Provider.of<AuthProvider>(context, listen: false);
     token = _authProvider.token;
+    print(token);
     _getMoreTransactions();
     super.initState();
     _scrollController.addListener(() {
@@ -401,6 +367,17 @@ class InitalState extends State<Transactions> {
               );
             },
           ),
+          IconButton(
+              icon: Icon(Icons.warning_sharp),
+              tooltip: 'My Claims',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ClaimsScreen(),
+                  ),
+                );
+              }),
         ],
       ),
       body: ListView.builder(
