@@ -152,7 +152,6 @@ class _PaymentPageState extends State<PaymentPage> {
       String firstName,
       String lastName) async {
     String? token = await storage.read(key: 'token');
-    print("TOKEN: $token");
 
     final uri = Uri.parse(
         "https://processingserver.herokuapp.com/Transaction/CreateTransaction?token=$token");

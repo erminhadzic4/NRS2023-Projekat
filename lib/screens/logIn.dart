@@ -83,10 +83,6 @@ class _logInState extends State<logIn> {
       userId = responseData['userId'];
       final storage = new FlutterSecureStorage();
       await storage.write(key: 'token', value: '$token');
-      await storage.write(key: 'userId', value: '$userId');
-
-      print("userIDlog : $userId");
-      print("tokenLog : $token");
 
       showDialog(
         context: context,
