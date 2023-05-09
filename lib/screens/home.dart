@@ -1,12 +1,108 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:nrs2023/screens/logIn.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../auth_provider.dart';
 
 
-class HomeScreen extends StatelessWidget {
+class Account {
+  final String accountNumber;
+  const Account({
+      required this.accountNumber,
+  });
+
+  factory Account.fromJson(Map<String, dynamic> json) {
+    return Account(
+        accountNumber: json['accountNumber'] as String,
+    );
+  }
+}
+List<Account> parseAccounts(String responseBody) {
+  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Account>((json) => Account.fromJson(json)).toList();
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+  @override
+  State<HomeScreen> createState() => _HomeScreen();
+}
+
+class _HomeScreen extends State<HomeScreen> {
+  var token;
+  late final LocalAuthentication auth;
+  bool _supportState = false;
+  String? dropdownValue;
+  late List<Account> Accounts = [];
+  List<String> accountNumbers = [];
+  late Future<List<Account>> futureAccounts;
+  final storage = new FlutterSecureStorage();
+
+  @override
+  void initState(){
+    auth = LocalAuthentication();
+    auth.isDeviceSupported().then((bool isSupported) => setState(() {
+      _supportState = isSupported;
+    }));
+    fetchAccounts().then((List<Account> Accounts){
+      setState(() {
+        for(var i = 0; i < this.Accounts.length; i++){
+          print(this.Accounts[i].accountNumber);
+        }
+        this.Accounts = Accounts;
+      });
+    });
+  }
+
+  Future<List<String>> fetchAccountNumbers() async {
+    final response = await http.get(
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+    final jsonData = json.decode(response.body);
+
+    final accountNumbers = <String>[];
+    for (var i = 0; i < jsonData.length; i++) {
+      final accountNumber = jsonData[i]['account_number'];
+      accountNumbers.add(accountNumber);
+    }
+
+    return accountNumbers;
+  }
+  Future<List<Account>> fetchAccounts() async {
+    String? token = await storage.read(key: 'token');
+    print(token);
+    final response = await http.get(
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+    if (response.statusCode == 200) {
+      // Ako server vrati status kod 200,
+      // parsiraj JSON.
+      //final List<Account> Accounts = parseAccounts(response.body);
+      return parseAccounts(response.body);
+    } else {
+      // Ako server ne vrati status kod 200,
+      // baci izuzetak.
+      throw Exception('Failed to load account');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,30 +110,31 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Home Screen'),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('LOGOUT'),
-                    content: Text('Are you sure you want to logout?'),
+                    title: const Text('LOGOUT'),
+                    content: const Text('Are you sure you want to logout?'),
                     actions: <Widget>[
                       TextButton(
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       TextButton(
-                        child: Text('Logout'),
+                        child: const Text('Logout'),
                         onPressed: () {
                           // kod za brisanje pohranjenih korisničkih podataka
 
                           // navigacija na stranicu prijave
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const logIn()),
+                            MaterialPageRoute(
+                                builder: (context) => const logIn()),
                           );
                         },
                       ),
@@ -51,17 +148,57 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Center(
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children:  [
-          Text(
-            'Welcome to the Home Screen!',
-            style: TextStyle(fontSize: 24.0),
-          ),
-
-       ],
-      ) ),
-
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children:  [
+              const Text(
+                'Welcome to the Home Screen!',
+                style: TextStyle(fontSize: 25.0),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              const Text(
+                textAlign: TextAlign.center,
+                'Please choose an account:',
+                style: const TextStyle(fontSize: 24.0),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              // Step 2.
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Colors.lightBlueAccent, //<-- SEE HERE
+            ),
+            child: DropdownButton( value: dropdownValue,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue!;
+                  });
+                },
+                items: Accounts.map((Account data) {
+                  return DropdownMenuItem<String>(
+                    value: data.accountNumber,
+                    child: Text(
+                      data.accountNumber,
+                      style: const TextStyle(fontSize: 18.5)
+                    ),
+                  );
+                }).toList(),
+              )
+            ),
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                textAlign: TextAlign.center,
+                'Selected Account:\n $dropdownValue',
+                style: const TextStyle(fontSize: 24.0),
+              )
+            ],
+          )),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -82,7 +219,7 @@ class HomeScreen extends StatelessWidget {
             case 0:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => accountCreation()),
+                MaterialPageRoute(builder: (context) => const accountCreation()),
               );
               break;
             case 1:
@@ -90,12 +227,12 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const PaymentPage(
-                          templateData: ["", "", "", ""],
-                          recipientName: '',
-                          recipientAccount: '',
-                          amount: '',
-                          currency: '',
-                        )),
+                      templateData: ["", "", "", ""],
+                      recipientName: '',
+                      recipientAccount: '',
+                      amount: '',
+                      currency: '',
+                    )),
               );
               break;
             case 2:
