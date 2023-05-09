@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/accountList.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
@@ -82,19 +83,18 @@ class HomeScreen extends StatelessWidget {
             case 0:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => accountCreation()),
+                MaterialPageRoute(builder: (context) => accountCreation(
+                  )),
               );
               break;
             case 1:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const PaymentPage(
-                          templateData: ["", "", "", ""],
-                          recipientName: '',
-                          recipientAccount: '',
-                          amount: '',
-                          currency: '',
+                    builder: (context) => AccountListPage(
+                      currency: ["", "", "", ""],
+                      bankName: '',
+                      description: '',
                         )),
               );
               break;

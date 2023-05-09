@@ -78,35 +78,35 @@ class _accountCreationState extends State<accountCreation> {
 
   void uploadFile() async {
     final permissionStatus = await Permission.storage.status;
-      await Permission.storage.request();
-      try{
-        setState(() {
-          isLoading = true;
-        });
-        _result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['pdf'],
-          allowMultiple: false,
+    await Permission.storage.request();
+    try{
+      setState(() {
+        isLoading = true;
+      });
+      _result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        allowMultiple: false,
 
-        );
+      );
 
-        if(_result!=null) {
-          _fileName = _result!.files.first.name;
-          pickedFile = _result!.files.first;
-          //return _result!.files.first.name;
-          print("SELECTED FILE: $_fileName");
-        }
-
-        setState(() {
-          isLoading = false;
-        });
+      if(_result!=null) {
+        _fileName = _result!.files.first.name;
+        pickedFile = _result!.files.first;
+        //return _result!.files.first.name;
+        print("SELECTED FILE: $_fileName");
       }
-      catch(e) {
-        print(e);
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+    catch(e) {
+      print(e);
     }
     //return "";
 
-  /*try{
+    /*try{
 
     _result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -280,9 +280,9 @@ class _accountCreationState extends State<accountCreation> {
                           size: 30.0,
                         )
                       ]
-                      )
+                  )
               ),
-                Padding(
+              Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
 
                   child: Column(children: [
@@ -297,7 +297,7 @@ class _accountCreationState extends State<accountCreation> {
                     },
                         child: Text("Remove file"))
                   ])
-                  ) ,
+              ) ,
 
 
 

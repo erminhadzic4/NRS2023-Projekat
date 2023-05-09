@@ -125,18 +125,6 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TransactionExchangePage()),
-                );
-              },
-              child: Text("Exchange Transaction"),
-            ),
-          ),
           Center(
             child: ElevatedButton(
               onPressed: () {
