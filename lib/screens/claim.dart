@@ -24,23 +24,6 @@ class Claim {
   );
 }
 
-Future<http.Response> createClaim(int transactionId, String subject,
-    String description, List<int> documentIds) {
-  return http.post(
-    Uri.parse("http://siprojekat.duckdns.org:5051/api/transactions/claim"),
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token'
-    },
-    body: jsonEncode({
-      'transactionId': transactionId,
-      'subject': subject,
-      'description': description,
-      'documentIds': documentIds
-    }),
-  );
-}
-
 class ClaimPage extends StatefulWidget {
   late int transactionId;
   ClaimPage({required this.transactionId});
@@ -66,15 +49,36 @@ class _ClaimPageState extends State<ClaimPage> {
         _problemTypeController.text,
         _problemDescriptionController.text,
         <int>[16]);
-    print(response.body);
+    if (response.statusCode == 200) {
+      print('Success');
+      print(response.body);
+    } else {
+      print('Error');
+    }
+    setState(() {});
+  }
+
+  Future<http.Response> createClaim(int transactionId, String subject,
+      String description, List<int> documentIds) {
+    return http.post(
+      Uri.parse("http://siprojekat.duckdns.org:5051/api/transactions/claim"),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode({
+        'transactionId': transactionId,
+        'subject': subject,
+        'description': description,
+        'documentIds': documentIds
+      }),
+    );
   }
 
   late String? path = '';
   void openFiles() async {
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
     if (resultFile != null) {
-      path = resultFile.files.single.path;
-      setState(() {});
       uploadFiles();
     }
   }
@@ -92,48 +96,24 @@ class _ClaimPageState extends State<ClaimPage> {
     if (response.statusCode == 200) {
       print('Success');
       print(responseData);
-    } else
+    } else {
       print('Error');
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Claim'),
+        title: Text('Create Claim'),
       ),
-      body: SingleChildScrollView(
+      body: Container(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Visibility(
-                visible: status == 'Open',
-                //visible: claim.status == 'open',
-                child: Container(
-                  width: 400,
-                  height: 40,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text(
-                    'Status: $status',
-                    //'Status: ${claim.status}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
               TextField(
                 controller: _problemTypeController,
                 decoration: InputDecoration(
@@ -141,26 +121,6 @@ class _ClaimPageState extends State<ClaimPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16.0),
-              Center(
-                child: ElevatedButton(
-                    onPressed: () {
-                      openFiles();
-                    },
-                    child: Text("Upload file")),
-              ),
-              SizedBox(
-                width: 12,
-              ),
-              Center(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        PostClaim();
-                        message = 'Claim created succesfully';
-                        setState(() {});
-                      },
-                      child: Text("Submit"))),
-              Center(child: AutoSizeText(message)),
               SizedBox(height: 16.0),
               TextField(
                 controller: _problemDescriptionController,
@@ -171,20 +131,22 @@ class _ClaimPageState extends State<ClaimPage> {
                 maxLines: 4,
               ),
               SizedBox(height: 16.0),
-              Center(child: AutoSizeText(path.toString())),
-              Center(
-                child: ElevatedButton(
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                ElevatedButton(
                     onPressed: () {
+                      message = 'File uploaded succesfully';
                       openFiles();
                     },
-                    child: Text("Upload file")),
-              ),
-              SizedBox(
-                width: 12,
-              ),
-              Center(
-                  child:
-                      ElevatedButton(onPressed: () {}, child: Text("Submit")))
+                    child: Text("Upload File")),
+                ElevatedButton(
+                    onPressed: () {
+                      message = 'Claim created succesfully';
+                      PostClaim();
+                    },
+                    child: Text("Submit Claim")),
+              ]),
+              SizedBox(height: 16.0),
+              Center(child: AutoSizeText(message)),
             ],
           ),
         ),
