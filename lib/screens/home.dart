@@ -7,6 +7,9 @@ import 'package:nrs2023/screens/logIn.dart';
 
 
 class HomeScreen extends StatelessWidget {
+
+  final logIn logInScreen = const logIn();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +36,7 @@ class HomeScreen extends StatelessWidget {
                         child: Text('Logout'),
                         onPressed: () {
                           // kod za brisanje pohranjenih korisničkih podataka
+                          logInScreen.logout(context);
 
                           // navigacija na stranicu prijave
                           Navigator.pushReplacement(
