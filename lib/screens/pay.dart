@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:nrs2023/screens/accountList.dart';
 import 'package:nrs2023/screens/templates.dart';
-import 'package:nrs2023/screens/accountList.dart';
+import 'package:nrs2023/screens/transactionExchange.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
