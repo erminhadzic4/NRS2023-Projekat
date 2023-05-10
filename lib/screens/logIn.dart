@@ -118,6 +118,7 @@ class _logInState extends State<logIn> {
       userId = responseData['userId'];
       final storage = new FlutterSecureStorage();
       await storage.write(key: 'token', value: '$token');
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -213,7 +214,7 @@ class _logInState extends State<logIn> {
 
   void bioLogInRequest() async {
     getBioStorage();
-    print(bioMail + bioPassword);
+    //print(bioMail + bioPassword);
     final res = await http.post(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
         headers: <String, String>{
