@@ -64,6 +64,7 @@ class _HomeScreen extends State<HomeScreen> {
           print(this.Accounts[i].accountNumber);
         }
         this.Accounts = Accounts;
+        dropdownValue = Accounts[0].accountNumber;
       });
     });
   }
