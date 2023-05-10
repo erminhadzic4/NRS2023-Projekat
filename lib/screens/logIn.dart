@@ -97,6 +97,23 @@ class _logInState extends State<logIn> {
       OSNotificationDisplayType.notification;
     });
   }
+  
+  void sendNotification() async {
+
+    await http.post(
+        Uri.parse("https://onesignal.com/api/v1/notifications"),
+        headers: <String, String>{
+          'Authorization': 'Basic OGJhZmVkMTMtMDc0Ni00ZjdlLTg3MDctMTFiMGU4NTExMTRh',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "app_id": "fea9b7bf-2d17-401e-8026-78e184289a62",
+          "included_segments": ["Subscribed Users"],
+          "data": {"foo": "bar"},
+          "contents": {"en": "Sample Notification"}
+        }));
+  }
+
   void logInRequest(String phoneEmail, String password) async {
     final res = await http.post(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
@@ -344,7 +361,10 @@ class _logInState extends State<logIn> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Login"),
+          title: GestureDetector(
+            onLongPress: sendNotification,
+            child: Text("Login"),
+          ),
           centerTitle: true,
           leading: BackButton(
             onPressed: () => Navigator.of(context).pop(),

@@ -1,8 +1,9 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:intl/intl.dart';
 import 'package:nrs2023/screens/claim.dart';
-import 'package:nrs2023/screens/transactionExchange.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final String transactionId;
@@ -125,18 +126,6 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
           ),
           Divider(height: 1.0, color: Colors.grey[400]),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TransactionExchangePage()),
-                );
-              },
-              child: Text("Exchange Transaction"),
-            ),
-          ),
           Center(
             child: ElevatedButton(
               onPressed: () {
