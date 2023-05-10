@@ -233,12 +233,10 @@ class _HomeScreen extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const PaymentPage(
-                        templateData: ["", "", "", ""],
-                        recipientName: '',
-                        recipientAccount: '',
-                        amount: '',
-                        currency: '',
+                      builder: (context) => AccountListPage(
+                        currency: ["", "", "", ""],
+                        bankName: '',
+                        description: '',
                       )),
                 );
               },
