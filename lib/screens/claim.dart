@@ -41,6 +41,7 @@ class _ClaimPageState extends State<ClaimPage> {
   void initState() {
     final _authProvider = Provider.of<AuthProvider>(context, listen: false);
     token = _authProvider.token;
+    message = "";
   }
 
   TextEditingController _problemTypeController = TextEditingController();
