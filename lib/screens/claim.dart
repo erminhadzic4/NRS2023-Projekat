@@ -13,14 +13,12 @@ class Claim {
   String description;
   File file;
   DateTime dateTime;
-  String status;
 
   Claim(
     this.subject,
     this.description,
     this.file,
     this.dateTime,
-    this.status,
   );
 }
 
@@ -48,9 +46,13 @@ class ClaimPage extends StatefulWidget {
   _ClaimPageState createState() => _ClaimPageState();
 }
 
+114-once-the-claim-is-created-its-status-is-open
+String path = "";
+
 String message = "";
 var token;
-String status = "Open";
+
+ master
 
 class _ClaimPageState extends State<ClaimPage> {
   void initState() {
@@ -102,38 +104,24 @@ class _ClaimPageState extends State<ClaimPage> {
       appBar: AppBar(
         title: Text('Claim'),
       ),
+ 114-once-the-claim-is-created-its-status-is-open
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _problemTypeController,
+              decoration: InputDecoration(
+                labelText: 'Subject',
+                border: OutlineInputBorder(),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Visibility(
-                visible: status == 'Open',
-                //visible: claim.status == 'open',
-                child: Container(
-                  width: 400,
-                  height: 40,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text(
-                    'Status: $status',
-                    //'Status: ${claim.status}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
               TextField(
                 controller: _problemTypeController,
                 decoration: InputDecoration(
@@ -178,6 +166,7 @@ class _ClaimPageState extends State<ClaimPage> {
                       openFiles();
                     },
                     child: Text("Upload file")),
+ master
               ),
               SizedBox(
                 width: 12,
