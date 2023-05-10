@@ -9,9 +9,12 @@ import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:nrs2023/screens/logIn.dart';
+import 'package:nrs2023/screens/home.dart';
+import 'package:nrs2023/screens/welcome.dart';
 import 'package:nrs2023/screens/voucher.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -51,6 +54,7 @@ class _HomeScreen extends State<HomeScreen> {
   List<String> accountNumbers = [];
   late Future<List<Account>> futureAccounts;
   final storage = new FlutterSecureStorage();
+  final logIn logInScreen = const logIn();
 
   @override
   void initState(){
@@ -106,6 +110,7 @@ class _HomeScreen extends State<HomeScreen> {
       throw Exception('Failed to load account');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,12 +137,13 @@ class _HomeScreen extends State<HomeScreen> {
                         child: const Text('Logout'),
                         onPressed: () {
                           // kod za brisanje pohranjenih korisničkih podataka
+                          logInScreen.logout(context);
 
                           // navigacija na stranicu prijave
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const logIn()),
+                                builder: (context) => const WelcomeScreen()),
                           );
                         },
                       ),
@@ -186,7 +192,7 @@ class _HomeScreen extends State<HomeScreen> {
                     value: data.accountNumber,
                     child: Text(
                       data.accountNumber,
-                      style: const TextStyle(fontSize: 18.5)
+                      style: const TextStyle(fontSize: 15.5)
                     ),
                   );
                 }).toList(),
@@ -271,3 +277,4 @@ class _HomeScreen extends State<HomeScreen> {
     );
   }
 }
+
