@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -13,12 +14,14 @@ class Claim {
   String description;
   File file;
   DateTime dateTime;
+  String status;
 
   Claim(
     this.subject,
     this.description,
     this.file,
     this.dateTime,
+    this.status,
   );
 }
 
@@ -28,6 +31,8 @@ class ClaimPage extends StatefulWidget {
   @override
   _ClaimPageState createState() => _ClaimPageState();
 }
+
+String path = "";
 
 String message = "";
 var token;
