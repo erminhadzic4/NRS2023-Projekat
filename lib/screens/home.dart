@@ -8,8 +8,9 @@ import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:nrs2023/screens/logIn.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:provider/provider.dart';
+
+import 'package:nrs2023/screens/home.dart';
+import 'package:nrs2023/screens/welcome.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -49,12 +50,8 @@ class _HomeScreen extends State<HomeScreen> {
   List<String> accountNumbers = [];
   late Future<List<Account>> futureAccounts;
   final storage = new FlutterSecureStorage();
-
-class HomeScreen extends StatelessWidget {
-
   final logIn logInScreen = const logIn();
 
-=======
   @override
   void initState(){
     auth = LocalAuthentication();
@@ -141,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const logIn()),
+                                builder: (context) => const WelcomeScreen()),
                           );
                         },
                       ),
@@ -190,7 +187,7 @@ class HomeScreen extends StatelessWidget {
                     value: data.accountNumber,
                     child: Text(
                       data.accountNumber,
-                      style: const TextStyle(fontSize: 18.5)
+                      style: const TextStyle(fontSize: 15.5)
                     ),
                   );
                 }).toList(),
@@ -266,3 +263,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
