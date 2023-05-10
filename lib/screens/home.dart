@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nrs2023/screens/accountList.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:nrs2023/screens/pay.dart';
@@ -16,93 +17,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../auth_provider.dart';
 
 
-class Account {
-  final String accountNumber;
-  const Account({
-      required this.accountNumber,
-  });
-
-  factory Account.fromJson(Map<String, dynamic> json) {
-    return Account(
-        accountNumber: json['accountNumber'] as String,
-    );
-  }
-}
-List<Account> parseAccounts(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
-  return parsed.map<Account>((json) => Account.fromJson(json)).toList();
-}
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-  @override
-  State<HomeScreen> createState() => _HomeScreen();
-}
-
-class _HomeScreen extends State<HomeScreen> {
-  var token;
-  late final LocalAuthentication auth;
-  bool _supportState = false;
-  String? dropdownValue;
-  late List<Account> Accounts = [];
-  List<String> accountNumbers = [];
-  late Future<List<Account>> futureAccounts;
-  final storage = new FlutterSecureStorage();
-
-  @override
-  void initState(){
-    auth = LocalAuthentication();
-    auth.isDeviceSupported().then((bool isSupported) => setState(() {
-      _supportState = isSupported;
-    }));
-    fetchAccounts().then((List<Account> Accounts){
-      setState(() {
-        for(var i = 0; i < this.Accounts.length; i++){
-          print(this.Accounts[i].accountNumber);
-        }
-        this.Accounts = Accounts;
-      });
-    });
-  }
-
-  Future<List<String>> fetchAccountNumbers() async {
-    final response = await http.get(
-        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
-    final jsonData = json.decode(response.body);
-
-    final accountNumbers = <String>[];
-    for (var i = 0; i < jsonData.length; i++) {
-      final accountNumber = jsonData[i]['account_number'];
-      accountNumbers.add(accountNumber);
-    }
-
-    return accountNumbers;
-  }
-  Future<List<Account>> fetchAccounts() async {
-    String? token = await storage.read(key: 'token');
-    print(token);
-    final response = await http.get(
-        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
-    if (response.statusCode == 200) {
-      // Ako server vrati status kod 200,
-      // parsiraj JSON.
-      //final List<Account> Accounts = parseAccounts(response.body);
-      return parseAccounts(response.body);
-    } else {
-      // Ako server ne vrati status kod 200,
-      // baci izuzetak.
-      throw Exception('Failed to load account');
-    }
-  }
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,31 +25,30 @@ class _HomeScreen extends State<HomeScreen> {
         title: const Text('Home Screen'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: Icon(Icons.logout),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('LOGOUT'),
-                    content: const Text('Are you sure you want to logout?'),
+                    title: Text('LOGOUT'),
+                    content: Text('Are you sure you want to logout?'),
                     actions: <Widget>[
                       TextButton(
-                        child: const Text('Cancel'),
+                        child: Text('Cancel'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       TextButton(
-                        child: const Text('Logout'),
+                        child: Text('Logout'),
                         onPressed: () {
                           // kod za brisanje pohranjenih korisničkih podataka
 
                           // navigacija na stranicu prijave
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => const logIn()),
+                            MaterialPageRoute(builder: (context) => const logIn()),
                           );
                         },
                       ),
@@ -148,57 +62,17 @@ class _HomeScreen extends State<HomeScreen> {
       ),
       body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children:  [
-              const Text(
-                'Welcome to the Home Screen!',
-                style: TextStyle(fontSize: 25.0),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              const Text(
-                textAlign: TextAlign.center,
-                'Please choose an account:',
-                style: const TextStyle(fontSize: 24.0),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              // Step 2.
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.lightBlueAccent, //<-- SEE HERE
-            ),
-            child: DropdownButton( value: dropdownValue,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: Accounts.map((Account data) {
-                  return DropdownMenuItem<String>(
-                    value: data.accountNumber,
-                    child: Text(
-                      data.accountNumber,
-                      style: const TextStyle(fontSize: 18.5)
-                    ),
-                  );
-                }).toList(),
-              )
-            ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                textAlign: TextAlign.center,
-                'Selected Account:\n $dropdownValue',
-                style: const TextStyle(fontSize: 24.0),
-              )
-            ],
-          )),
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children:  [
+          Text(
+            'Welcome to the Home Screen!',
+            style: TextStyle(fontSize: 24.0),
+          ),
+
+       ],
+      ) ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -219,20 +93,19 @@ class _HomeScreen extends State<HomeScreen> {
             case 0:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const accountCreation()),
+                MaterialPageRoute(builder: (context) => accountCreation(
+                  )),
               );
               break;
             case 1:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const PaymentPage(
-                      templateData: ["", "", "", ""],
-                      recipientName: '',
-                      recipientAccount: '',
-                      amount: '',
-                      currency: '',
-                    )),
+                    builder: (context) => AccountListPage(
+                      currency: ["", "", "", ""],
+                      bankName: '',
+                      description: '',
+                        )),
               );
               break;
             case 2:
