@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -31,9 +32,10 @@ class ClaimPage extends StatefulWidget {
   _ClaimPageState createState() => _ClaimPageState();
 }
 
+String path = "";
+
 String message = "";
 var token;
-String status = "Open";
 
 class _ClaimPageState extends State<ClaimPage> {
   void initState() {

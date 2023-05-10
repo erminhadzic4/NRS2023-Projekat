@@ -1,8 +1,10 @@
 
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -36,10 +38,7 @@ class accountCreation extends StatefulWidget {
 }
 
 class _accountCreationState extends State<accountCreation> {
-
-
-
-  final List<String> _currencies = [
+  final List<String> _currencies = [     //slanje na backend rade samo BAM, USD, EUR, CHF
     'USD',
     'AUD',
     'BRL',
@@ -69,11 +68,53 @@ class _accountCreationState extends State<accountCreation> {
 
   late FilePickerResult? _result;
   late String? _fileName = "";
+  late String? _filePath = "";
   late PlatformFile? pickedFile;
+  final storage = new FlutterSecureStorage();
+
+  String _selectedCurrency = "USD";
+
+  final _descController = TextEditingController();
 
 
-  Future<String> setFile() async {
-    return _fileName.toString();
+
+  Future getId() async {
+    String? token = await storage.read(key: 'token');
+    final res = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+    var responseData = jsonDecode(res.body);
+    var usrname = responseData['userName'].toString();
+    final res1 = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User/$usrname"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+    var responseData1 = jsonDecode(res1.body);
+    var userId = responseData1['id'].toString();
+
+    return userId;
+  }
+
+  Future getCurrencyId() async {
+    String? token = await storage.read(key: 'token');
+    final res = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/ExchangeRate/currency"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+    var responseData = jsonDecode(res.body);
+    for(var currency in responseData) {
+      if(currency['name'] == _selectedCurrency) {
+        return currency['id'].toString();
+      }
+    }
+
   }
 
   void uploadFile() async {
@@ -86,17 +127,16 @@ class _accountCreationState extends State<accountCreation> {
         _result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['pdf'],
-          allowMultiple: false,
-
+          allowMultiple: false
         );
 
         if(_result!=null) {
           _fileName = _result!.files.first.name;
           pickedFile = _result!.files.first;
+          _filePath = _result!.files.first.path;
           //return _result!.files.first.name;
-          print("SELECTED FILE: $_fileName");
+          print("SELECTED FILE: $_filePath");
         }
-
         setState(() {
           isLoading = false;
         });
@@ -104,61 +144,105 @@ class _accountCreationState extends State<accountCreation> {
       catch(e) {
         print(e);
     }
-    //return "";
-
-  /*try{
-
-    _result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      allowMultiple: false,
-    );
-
-    if(_result!=null) {
-      _fileName = _result!.files.first.name;
-      pickedFile = _result!.files.first;
-    }
-  }
-  catch(e) {
-    print(e);
-  }*/
   }
 
-  void accountCreationRequest() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Success'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                size: 64,
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Request successful',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
+  Future<void> accountCreationRequest() async {
+    var userId = await getId();
+    //print("USERID: $userId");      ////HVATA SE I PRINTA USERID OK!
+
+    var currencyId = await getCurrencyId();
+    //print("CURRENCYID: $currencyId");
+
+    String? token = await storage.read(key: 'token');
+
+
+    final res = await http.post(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/Account/user-account-create"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode(<String, String>{
+          "currencyId": "$currencyId",
+          "description": _descController.text,  //staviti controller
+          "requestDocumentPath": _filePath.toString(),  //
+          "userId": "$userId"
+        }));
+    var response = json.decode(res.body);
+    //print(response.toString());
+    print(res.statusCode);
+
+    if ((res.statusCode == 200) && context.mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Success'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Request successful!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                },
+                child: const Text('OK'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
-              child: const Text('OK'),
+          );
+        },
+      );
+    }
+    else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Failure'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.error,
+                  color: Colors.red,
+                  size: 64,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Request failed!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ],
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
 
@@ -194,11 +278,11 @@ class _accountCreationState extends State<accountCreation> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: DropdownButtonFormField<String>(
-                  //value: _selectedCurrency,
+                  value: _selectedCurrency,
                   onChanged: (String? value) {
-                    /*setState(() {
+                    setState(() {
                       _selectedCurrency = value!;
-                    });*/
+                    });
                   },
                   items: _currencies
                       .map((currency) => DropdownMenuItem(
@@ -253,13 +337,10 @@ class _accountCreationState extends State<accountCreation> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        //controller: _controllers[0],
-                        onFieldSubmitted: (String value) {
-                          //FocusScope.of(context).requestFocus(_focusInput[0]);
-                        },
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        controller: _descController,
+                        /*autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
-                        },
+                        },*/
                       ),
                     ),
                   ],
@@ -293,6 +374,8 @@ class _accountCreationState extends State<accountCreation> {
                     TextButton(onPressed: () {
                       setState(() {
                         _fileName = "";
+                        _filePath = null;
+                        print(_filePath);
                       });
                     },
                         child: Text("Remove file"))
