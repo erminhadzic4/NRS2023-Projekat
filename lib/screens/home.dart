@@ -9,8 +9,12 @@ import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:nrs2023/screens/logIn.dart';
+import 'package:nrs2023/screens/home.dart';
+import 'package:nrs2023/screens/welcome.dart';
+import 'package:nrs2023/screens/voucher.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -50,6 +54,7 @@ class _HomeScreen extends State<HomeScreen> {
   List<String> accountNumbers = [];
   late Future<List<Account>> futureAccounts;
   final storage = new FlutterSecureStorage();
+  final logIn logInScreen = const logIn();
 
   @override
   void initState(){
@@ -63,6 +68,7 @@ class _HomeScreen extends State<HomeScreen> {
           print(this.Accounts[i].accountNumber);
         }
         this.Accounts = Accounts;
+        dropdownValue = Accounts[0].accountNumber;
       });
     });
   }
@@ -104,6 +110,7 @@ class _HomeScreen extends State<HomeScreen> {
       throw Exception('Failed to load account');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,12 +137,13 @@ class _HomeScreen extends State<HomeScreen> {
                         child: const Text('Logout'),
                         onPressed: () {
                           // kod za brisanje pohranjenih korisničkih podataka
+                          logInScreen.logout(context);
 
                           // navigacija na stranicu prijave
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const logIn()),
+                                builder: (context) => const WelcomeScreen()),
                           );
                         },
                       ),
@@ -184,7 +192,7 @@ class _HomeScreen extends State<HomeScreen> {
                     value: data.accountNumber,
                     child: Text(
                       data.accountNumber,
-                      style: const TextStyle(fontSize: 18.5)
+                      style: const TextStyle(fontSize: 15.5)
                     ),
                   );
                 }).toList(),
@@ -200,61 +208,73 @@ class _HomeScreen extends State<HomeScreen> {
               )
             ],
           )),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_box),
-            label: 'Account',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: 'Pay',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Transactions',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const accountCreation()),
-              );
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AccountListPage(
-                      currency: ["", "", "", ""],
-                      bankName: '',
-                      description: '',
-                    )),
-              );
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Transactions(
-                        filterDateStart: DateTime.utc(1900, 1, 1),
-                        filterDateEnd: DateTime.now(),
-                        filterCurrency: 'All',
-                        filterTransactionType: 'All',
-                        filterPriceRangeStart: '0',
-                        filterPriceRangeEnd: '100000',
-                        filterRecipientName: '',
-                        filterRecipientAccount: '',
-                        filterSenderName: '',
-                        filterCategory: '',
-                        filterSortingOrder: 'createdAtAsc')),
-              );
-              break;
-          }
-        },
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.account_box),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const accountCreation()),
+                );
+              },
+              tooltip: 'Create Account',
+            ),
+            IconButton(
+              icon: const Icon(Icons.payment),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PaymentPage(
+                        templateData: ["", "", "", ""],
+                        recipientName: '',
+                        recipientAccount: '',
+                        amount: '',
+                        currency: '',
+                      )),
+                );
+              },
+              tooltip: 'Make Payment',
+            ),
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Transactions(
+                          filterDateStart: DateTime.utc(1900, 1, 1),
+                          filterDateEnd: DateTime.now(),
+                          filterCurrency: 'All',
+                          filterTransactionType: 'All',
+                          filterPriceRangeStart: '0',
+                          filterPriceRangeEnd: '100000',
+                          filterRecipientName: '',
+                          filterRecipientAccount: '',
+                          filterSenderName: '',
+                          filterCategory: '',
+                          filterSortingOrder: 'createdAtAsc')),
+                );
+              },
+              tooltip: 'Transaction History',
+            ),
+            IconButton(
+              icon: const Icon(Icons.card_giftcard),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VoucherScreen()),
+                );
+              },
+              tooltip: 'Vouchers',
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+

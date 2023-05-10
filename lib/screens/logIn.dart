@@ -6,6 +6,7 @@ import 'package:nrs2023/screens/logInPhone.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
+import 'package:nrs2023/screens/welcome.dart';
 import 'package:provider/provider.dart';
 import '../api/google_sign_in.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -21,6 +22,40 @@ class logIn extends StatefulWidget {
 
   @override
   State<logIn> createState() => _logInState();
+
+
+  Future<void> logout(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+    //final token = await storage.read(key: 'token');
+    String? token = await storage.read(key: 'token');
+    final url = Uri.parse("http://siprojekat.duckdns.org:5051/api/User/logout");
+
+    try {
+      final response = await http.patch(
+          url,
+
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          });
+
+      // headers: {'Authorization': 'Bearer $token'},
+      // );
+      if (response.statusCode == 200) {
+        await storage.delete(key: 'token');
+        Navigator.pushAndRemoveUntil<Widget>(
+          context,
+          MaterialPageRoute<Widget>(builder: (context) => WelcomeScreen()),
+              (route) => false,
+        );
+      } else {
+        throw Exception('Failed to log out');
+      }
+    } catch (e) {
+      print('Error occurred while logging out: $e');
+    }
+  }
+
 }
 bool _isLoggedIn = false;
 Map _userObj = {};
