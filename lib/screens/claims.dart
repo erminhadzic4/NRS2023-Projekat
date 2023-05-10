@@ -1,27 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
-import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../auth_provider.dart';
+import 'dart:convert';
 import 'package:nrs2023/screens/claimdetails.dart';
 
 // Klasa Claim
 class Claim {
+  String id;
+  String trancastionid;
   String subject;
   String description;
-  DateTime dateTime;
+  String status;
+  DateTime created;
 
   Claim(
+    this.id,
+    this.trancastionid,
     this.subject,
     this.description,
-    this.dateTime,
+    this.status,
+    this.created,
   );
 
-  /* TREBA IMPLEMENTATI
   factory Claim.fromJson(Map<String, dynamic> json) {
     return Claim(
-        json['subject'], json['description'], json['file'], json['dateTime']);
+        json['id'].toString(),
+        json['trancastionid'].toString(),
+        json['subject'],
+        json['description'],
+        json['status'],
+        DateTime.parse(json['created']));
   }
-  */
 }
 
 class ClaimsScreen extends StatefulWidget {
@@ -30,29 +42,31 @@ class ClaimsScreen extends StatefulWidget {
 }
 
 class InitalState extends State<ClaimsScreen> {
-  var Claims = <Claim>[
-    Claim("This is a claim", "This is the description of this claim",
-        DateTime.now()),
-    Claim("This is a claim #2", "This is the description of this claim #2",
-        DateTime.now())
-  ];
-  /* TREBA IMPLEMENTATI
+  var Claims = <Claim>[];
   Future<void> _getClaims() async {
-    final url = Uri.parse(widget.link);
-    final response = await http.get(url);
-    var counter = 0;
+    var link =
+        "http://siprojekat.duckdns.org:5051/api/transactions/user/claims";
+    final url = Uri.parse(link);
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+    );
     final responseData = json.decode(response.body);
-    responseData.forEach((groupData) {
-      counter++;
-      Groups.add(Group.fromJson(groupData));
+    responseData.forEach((claimData) {
+      Claims.add(Claim.fromJson(claimData));
     });
     setState(() {});
   }
-  */
 
+  var token;
   @override
   void initState() {
-    // _getClaims();
+    final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    token = _authProvider.token;
+    _getClaims();
     super.initState();
   }
 
@@ -66,17 +80,20 @@ class InitalState extends State<ClaimsScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(Claims[index].subject),
-            subtitle: Text("Description " + Claims[index].description),
-            trailing: Text("Date " +
-                intl.DateFormat.yMMMMd('en_US').format(Claims[index].dateTime)),
+            subtitle: Text("Status: " + Claims[index].status),
+            trailing:
+                Text(DateFormat.yMMMMd('en_US').format(Claims[index].created)),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ClaimDetailsScreen(
+                      id: Claims[index].id,
+                      transactionid: Claims[index].trancastionid,
                       subject: Claims[index].subject,
                       description: Claims[index].description,
-                      dateTime: Claims[index].dateTime),
+                      dateTime: Claims[index].created,
+                      status: Claims[index].status),
                 ),
               );
             },

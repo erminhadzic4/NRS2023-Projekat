@@ -14,29 +14,14 @@ class Claim {
   String description;
   File file;
   DateTime dateTime;
+  String status;
 
   Claim(
     this.subject,
     this.description,
     this.file,
     this.dateTime,
-  );
-}
-
-Future<http.Response> createClaim(int transactionId, String subject,
-    String description, List<int> documentIds) {
-  return http.post(
-    Uri.parse("http://siprojekat.duckdns.org:5051/api/transactions/claim"),
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token'
-    },
-    body: jsonEncode({
-      'transactionId': transactionId,
-      'subject': subject,
-      'description': description,
-      'documentIds': documentIds
-    }),
+    this.status,
   );
 }
 
@@ -46,6 +31,7 @@ class ClaimPage extends StatefulWidget {
   @override
   _ClaimPageState createState() => _ClaimPageState();
 }
+
 String path = "";
 
 String message = "";
@@ -65,15 +51,36 @@ class _ClaimPageState extends State<ClaimPage> {
         _problemTypeController.text,
         _problemDescriptionController.text,
         <int>[16]);
-    print(response.body);
+    if (response.statusCode == 200) {
+      print('Success');
+      print(response.body);
+    } else {
+      print('Error');
+    }
+    setState(() {});
+  }
+
+  Future<http.Response> createClaim(int transactionId, String subject,
+      String description, List<int> documentIds) {
+    return http.post(
+      Uri.parse("http://siprojekat.duckdns.org:5051/api/transactions/claim"),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode({
+        'transactionId': transactionId,
+        'subject': subject,
+        'description': description,
+        'documentIds': documentIds
+      }),
+    );
   }
 
   late String? path = '';
   void openFiles() async {
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
     if (resultFile != null) {
-      path = resultFile.files.single.path;
-      setState(() {});
       uploadFiles();
     }
   }
@@ -91,22 +98,24 @@ class _ClaimPageState extends State<ClaimPage> {
     if (response.statusCode == 200) {
       print('Success');
       print(responseData);
-    } else
+    } else {
       print('Error');
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Claim'),
+        title: Text('Create Claim'),
       ),
-      body: SingleChildScrollView(
+      body: Container(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
               TextField(
                 controller: _problemTypeController,
                 decoration: InputDecoration(
@@ -114,26 +123,6 @@ class _ClaimPageState extends State<ClaimPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16.0),
-              Center(
-                child: ElevatedButton(
-                    onPressed: () {
-                      openFiles();
-                    },
-                    child: Text("Upload file")),
-              ),
-              SizedBox(
-                width: 12,
-              ),
-              Center(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        PostClaim();
-                        message = 'Claim created succesfully';
-                        setState(() {});
-                      },
-                      child: Text("Submit"))),
-              Center(child: AutoSizeText(message)),
               SizedBox(height: 16.0),
               TextField(
                 controller: _problemDescriptionController,
@@ -144,20 +133,22 @@ class _ClaimPageState extends State<ClaimPage> {
                 maxLines: 4,
               ),
               SizedBox(height: 16.0),
-              Center(child: AutoSizeText(path.toString())),
-              Center(
-                child: ElevatedButton(
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                ElevatedButton(
                     onPressed: () {
+                      message = 'File uploaded succesfully';
                       openFiles();
                     },
-                    child: Text("Upload file")),
-              ),
-              SizedBox(
-                width: 12,
-              ),
-              Center(
-                  child:
-                      ElevatedButton(onPressed: () {}, child: Text("Submit")))
+                    child: Text("Upload File")),
+                ElevatedButton(
+                    onPressed: () {
+                      message = 'Claim created succesfully';
+                      PostClaim();
+                    },
+                    child: Text("Submit Claim")),
+              ]),
+              SizedBox(height: 16.0),
+              Center(child: AutoSizeText(message)),
             ],
           ),
         ),
