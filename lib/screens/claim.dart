@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -45,14 +46,10 @@ class ClaimPage extends StatefulWidget {
   @override
   _ClaimPageState createState() => _ClaimPageState();
 }
-
-114-once-the-claim-is-created-its-status-is-open
 String path = "";
 
 String message = "";
 var token;
-
- master
 
 class _ClaimPageState extends State<ClaimPage> {
   void initState() {
@@ -104,18 +101,6 @@ class _ClaimPageState extends State<ClaimPage> {
       appBar: AppBar(
         title: Text('Claim'),
       ),
- 114-once-the-claim-is-created-its-status-is-open
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _problemTypeController,
-              decoration: InputDecoration(
-                labelText: 'Subject',
-                border: OutlineInputBorder(),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -166,7 +151,6 @@ class _ClaimPageState extends State<ClaimPage> {
                       openFiles();
                     },
                     child: Text("Upload file")),
- master
               ),
               SizedBox(
                 width: 12,
