@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nrs2023/screens/loginAuth.dart';
-import 'package:nrs2023/screens/numberValidation.dart';
-import 'package:nrs2023/screens/home.dart';
 import 'package:nrs2023/screens/welcome.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:provider/provider.dart';
