@@ -81,6 +81,7 @@ class _ClaimPageState extends State<ClaimPage> {
   void openFiles() async {
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
     if (resultFile != null) {
+      path = resultFile.files.single.path;
       uploadFiles();
     }
   }
