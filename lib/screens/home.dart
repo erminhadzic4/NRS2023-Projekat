@@ -56,45 +56,43 @@ class _HomeScreen extends State<HomeScreen> {
   final storage = new FlutterSecureStorage();
   final logIn logInScreen = const logIn();
 
+  String getSelectedAccountText() {
+    if (dropdownValue == null) {
+      return 'Selected Account: ';
+    } else {
+      return 'Selected Account:\n $dropdownValue';
+    }
+  }
+
   @override
   void initState(){
     auth = LocalAuthentication();
     auth.isDeviceSupported().then((bool isSupported) => setState(() {
       _supportState = isSupported;
     }));
+    //Accounts.add(Account(accountNumber: "No account selected"));
+    //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
     fetchAccounts().then((List<Account> Accounts){
       setState(() {
         for(var i = 0; i < this.Accounts.length; i++){
           print(this.Accounts[i].accountNumber);
         }
+        //Accounts.add(Account(accountNumber: "No account selected"));
         this.Accounts = Accounts;
-        dropdownValue = Accounts[0].accountNumber;
+        //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
+        //this.Accounts.add(Account(accountNumber: "No account selected"));
+        //dropdownValue = Accounts[0].accountNumber;
+        //this.Accounts.add(Account(accountNumber: "No account selected"));
+        //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
       });
     });
   }
 
-  Future<List<String>> fetchAccountNumbers() async {
-    final response = await http.get(
-        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
-    final jsonData = json.decode(response.body);
-
-    final accountNumbers = <String>[];
-    for (var i = 0; i < jsonData.length; i++) {
-      final accountNumber = jsonData[i]['account_number'];
-      accountNumbers.add(accountNumber);
-    }
-
-    return accountNumbers;
-  }
   Future<List<Account>> fetchAccounts() async {
     String? token = await storage.read(key: 'token');
     print(token);
     final response = await http.get(
-        Uri.parse('http://siprojekat.duckdns.org:5051/api/Account/accounts'),
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token'
@@ -102,7 +100,8 @@ class _HomeScreen extends State<HomeScreen> {
     if (response.statusCode == 200) {
       // Ako server vrati status kod 200,
       // parsiraj JSON.
-      //final List<Account> Accounts = parseAccounts(response.body);
+      var res = parseAccounts(response.body);
+      print(res[0].accountNumber);
       return parseAccounts(response.body);
     } else {
       // Ako server ne vrati status kod 200,
@@ -181,10 +180,11 @@ class _HomeScreen extends State<HomeScreen> {
             decoration: const BoxDecoration(
               color: Colors.lightBlueAccent, //<-- SEE HERE
             ),
-            child: DropdownButton( value: dropdownValue,
+            child: DropdownButton(
+              value: dropdownValue,
                 onChanged: (String? newValue) {
                   setState(() {
-                    dropdownValue = newValue!;
+                    dropdownValue = newValue!;// ?? 'No account selected';
                   });
                 },
                 items: Accounts.map((Account data) {
@@ -201,10 +201,15 @@ class _HomeScreen extends State<HomeScreen> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                textAlign: TextAlign.center,
-                'Selected Account:\n $dropdownValue',
-                style: const TextStyle(fontSize: 24.0),
+              RichText(
+                text: TextSpan(
+                    style: const TextStyle(fontSize: 24.0),
+                    text: dropdownValue == null ? 'Selected Account: ' : 'Selected Account:\n$dropdownValue'
+                )
+               // textAlign: TextAlign.center,
+                //'Selected Account:\n$dropdownValue',
+               // style: const TextStyle(fontSize: 24.0),
+              //  data: dropdownValue == null ? 'Selected Account: ' : 'Selected Account:\n$dropdownValue',
               )
             ],
           )),
