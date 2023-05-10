@@ -32,10 +32,9 @@ final List<String> _currencies = [
 
 final List<String> _TransactionTypes = [
   'All',
-  'Withdrawal',
-  'Deposit',
-  'Send',
-  'Receive'
+  'c2c',
+  'c2b',
+  'b2b',
 ];
 
 class FiltersScreen extends StatefulWidget {
@@ -55,6 +54,7 @@ class FiltersScreen extends StatefulWidget {
       DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now());
   late String selectedCurrency = "All";
   late String selectedTransactionType = "All";
+  late String selectedFilterSortingOrder = "createdAtAsc";
 
   FiltersScreen(
       {required this.textEditingController1,
@@ -65,7 +65,8 @@ class FiltersScreen extends StatefulWidget {
       required this.textEditingController6,
       required this.selectedDates,
       required this.selectedCurrency,
-      required this.selectedTransactionType});
+      required this.selectedTransactionType,
+      required this.selectedFilterSortingOrder});
   @override
   MyStatefulWidgetState createState() => MyStatefulWidgetState();
 }
@@ -105,12 +106,10 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                       ),
                     ),
                     Center(
-                      child: Flexible(
-                        child: Text(
-                          ' - ',
-                          style: const TextStyle(
-                            fontSize: 18.0,
-                          ),
+                      child: Text(
+                        ' - ',
+                        style: const TextStyle(
+                          fontSize: 18.0,
                         ),
                       ),
                     ),
@@ -321,21 +320,19 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => Transactions(
-                          filterDateStart: widget.selectedDates.start,
-                          filterDateEnd: widget.selectedDates.end,
-                          filterCurrency: widget.selectedCurrency,
-                          filterPriceRangeStart:
-                              widget.textEditingController1.text,
-                          filterPriceRangeEnd:
-                              widget.textEditingController2.text,
-                          filterRecipientName:
-                              widget.textEditingController3.text,
-                          filterRecipientAccount:
-                              widget.textEditingController4.text,
-                          filterSenderName: widget.textEditingController5.text,
-                          filterCategory: widget.textEditingController6.text,
-                          filterTransactionType: widget.selectedTransactionType,
-                        )),
+                        filterDateStart: widget.selectedDates.start,
+                        filterDateEnd: widget.selectedDates.end,
+                        filterCurrency: widget.selectedCurrency,
+                        filterPriceRangeStart:
+                            widget.textEditingController1.text,
+                        filterPriceRangeEnd: widget.textEditingController2.text,
+                        filterRecipientName: widget.textEditingController3.text,
+                        filterRecipientAccount:
+                            widget.textEditingController4.text,
+                        filterSenderName: widget.textEditingController5.text,
+                        filterCategory: widget.textEditingController6.text,
+                        filterTransactionType: widget.selectedTransactionType,
+                        filterSortingOrder: widget.selectedFilterSortingOrder)),
               );
             },
           ),

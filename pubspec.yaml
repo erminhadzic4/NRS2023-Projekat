@@ -36,14 +36,20 @@ dependencies:
   intl_phone_number_input: ^0.7.2
   http: ^0.13.4
   easy_search_bar: ^2.4.2
+  local_auth: ^2.1.6
   provider: ^6.0.1
   onesignal_flutter: ^3.5.1
   flutter_secure_storage: ^5.0.0
-
+  google_sign_in: ^6.1.0
+  share: ^2.0.4
+  auto_size_text: ^3.0.0
+  file_picker: ^5.2.11
+  permission_handler: ^10.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  flutter_facebook_auth: ^4.4.1+1
 
 dev_dependencies:
   flutter_signin_button: ^2.0.0
@@ -71,7 +77,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - res/img/logo.png
+    - res/img/logo2.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
