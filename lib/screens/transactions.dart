@@ -4,7 +4,6 @@ import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
 import 'package:nrs2023/screens/claims.dart';
 import 'package:nrs2023/screens/grouping.dart';
-import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -214,20 +213,10 @@ class InitalState extends State<Transactions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: EasySearchBar(
+      appBar: AppBar(
         title: FittedBox(
-          child: Text("All Transactions"),
+          child: Text("Transactions"),
         ),
-        onSearch: (value) => setState(() {
-          //_filtering();
-          searchValue = value;
-          for (int i = 0; i < transactions.length; i++) {
-            if (transactions[i].transactionPurpose.contains(searchValue) ==
-                false) {
-              showntransactions.remove(transactions[i]);
-            }
-          }
-        }),
         actions: <Widget>[
           IconButton(
               icon: const Icon(Icons.filter_alt_outlined),
