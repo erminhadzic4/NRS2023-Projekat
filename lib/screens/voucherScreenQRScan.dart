@@ -36,9 +36,10 @@ class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
   }
 
   //potrebno uraditi get za voucher code koji se skenira da se moze dodati amount
+  // http://siprojekat.duckdns.org:5051/api/Voucher/get-voucher poslati qrText
 
-  Future<void> ExecuteVoucherRedemption(String amount,
-      String accountNumber) async {
+  Future<void> ExecuteVoucherRedemption(
+      String amount, String accountNumber) async {
     String? token = await storage.read(key: 'token');
 
     final uri = Uri.parse(
@@ -54,7 +55,7 @@ class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
     };
 
     final response =
-    await http.post(uri, headers: headers, body: json.encode(body));
+        await http.post(uri, headers: headers, body: json.encode(body));
 
     if (response.statusCode == 200) {
       print('Voucher redemption successful');
