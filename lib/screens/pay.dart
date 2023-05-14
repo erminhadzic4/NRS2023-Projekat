@@ -5,15 +5,17 @@ import 'package:nrs2023/screens/templates.dart';
 import 'package:nrs2023/screens/transactionExchange.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:nrs2023/screens/voucherScreenQRScan.dart';
 import 'package:share/share.dart';
 
 class PaymentPage extends StatefulWidget {
-  const PaymentPage({Key? key,
-    required this.templateData,
-    required String recipientName,
-    required String recipientAccount,
-    required String amount,
-    required String currency})
+  const PaymentPage(
+      {Key? key,
+      required this.templateData,
+      required String recipientName,
+      required String recipientAccount,
+      required String amount,
+      required String currency})
       : super(key: key);
   final List templateData;
 
@@ -83,8 +85,8 @@ class transactionValidation {
 
 class _AccountNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue,
-      TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String value = newValue.text.replaceAll('-', '');
     String formattedValue = '';
     for (int i = 0; i < value.length; i++) {
@@ -104,14 +106,14 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientAccountController =
-  TextEditingController();
+      TextEditingController();
 
   // final TextEditingController _recipientLastNameController =
   //    TextEditingController();
   final TextEditingController _recipientDescriptionController =
-  TextEditingController();
+      TextEditingController();
   String _selectedCurrency = "USD";
   final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
@@ -158,7 +160,8 @@ class _PaymentPageState extends State<PaymentPage> {
 
    */
 
-  Future<transactionValidation> validateTransaction(double? amount,
+  Future<transactionValidation> validateTransaction(
+      double? amount,
       String currency,
       String transactionType,
       String transactionPurpose,
@@ -194,7 +197,7 @@ class _PaymentPageState extends State<PaymentPage> {
     };
 
     final response =
-    await http.post(uri, headers: headers, body: json.encode(body));
+        await http.post(uri, headers: headers, body: json.encode(body));
 
     final jsonResponse = json.decode(response.body);
 
@@ -219,8 +222,7 @@ class _PaymentPageState extends State<PaymentPage> {
       if (!isValidRecipient.success) {
         showDialog(
             context: context,
-            builder: (context) =>
-                AlertDialog(
+            builder: (context) => AlertDialog(
                     content: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -242,8 +244,7 @@ class _PaymentPageState extends State<PaymentPage> {
       } else {
         showDialog(
             context: context,
-            builder: (context) =>
-                AlertDialog(
+            builder: (context) => AlertDialog(
                   title: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -263,14 +264,12 @@ class _PaymentPageState extends State<PaymentPage> {
                           height: 10,
                         ),
                         Text(
-                            "Amount: ${_amountController
-                                .text} $_selectedCurrency"),
+                            "Amount: ${_amountController.text} $_selectedCurrency"),
                         SizedBox(
                           height: 10,
                         ),
                         Text(
-                            "Recipient Account: ${_recipientAccountController
-                                .text}")
+                            "Recipient Account: ${_recipientAccountController.text}")
                       ],
                     ),
                   ),
@@ -323,11 +322,10 @@ class _PaymentPageState extends State<PaymentPage> {
                     });
                   },
                   items: _currencies
-                      .map((currency) =>
-                      DropdownMenuItem(
-                        value: currency,
-                        child: Text(currency),
-                      ))
+                      .map((currency) => DropdownMenuItem(
+                            value: currency,
+                            child: Text(currency),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -354,7 +352,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -387,9 +385,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Recipient account details are required';
-                    } else if (value
-                        .replaceAll('-', '')
-                        .length != 16) {
+                    } else if (value.replaceAll('-', '').length != 16) {
                       return 'Recipient account number must be 16 digits';
                     }
                     return null;
@@ -416,11 +412,10 @@ class _PaymentPageState extends State<PaymentPage> {
                     });
                   },
                   items: _categories
-                      .map((category) =>
-                      DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      ))
+                      .map((category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 16),
@@ -429,8 +424,17 @@ class _PaymentPageState extends State<PaymentPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => VoucherScreenQRScan()),
+                        );
+                      },
+                      child: Text('Voucher'),
+                      /*
                       onPressed: _submitPaymentForm,
-                      child: Text('Submit'),
+                      child: Text('Voucher'), */
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -449,15 +453,13 @@ class _PaymentPageState extends State<PaymentPage> {
                             amount: double.tryParse(_amountController.text),
                             currency: _selectedCurrency,
                             transactionType: "type",
-                            transactionPurpose: _recipientDescriptionController
-                                .text,
+                            transactionPurpose:
+                                _recipientDescriptionController.text,
                             category: _selectedCategory,
                             recipientAccountNumber:
-                            _recipientAccountController.text,
-                            recipientName:
-                            _recipientNameController.text,
+                                _recipientAccountController.text,
+                            recipientName: _recipientNameController.text,
                             senderAccountNumber: '',
-
                           );
 
                           String transactionJson = newTransaction.toJson();
@@ -468,7 +470,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content:
-                                Text('Transaction sent for execution')),
+                                    Text('Transaction sent for execution')),
                           );
                         }
                       },
