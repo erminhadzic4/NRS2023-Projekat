@@ -29,8 +29,8 @@ class TemplatesPage extends StatefulWidget {
 
 class _AccountNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue,
-      TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String value = newValue.text.replaceAll('-', '');
     String formattedValue = '';
     for (int i = 0; i < value.length; i++) {
@@ -82,42 +82,41 @@ class _TemplatesPageState extends State<TemplatesPage> {
   @override
   void initState() {
     super.initState();
-    getUserId();
   }
 
   // Fetch funkcije za back-end
 
   Future getUserId() async {
     String? token = await storage.read(key: 'token');
-    print(token);
 
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'authorization': '$token'
+      'authorization': 'Bearer $token'
     };
 
     final getUserName = await http.get(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User"),
         headers: headers);
 
-    var userName = json.decode(getUserName.body);
+    var userName = jsonDecode(getUserName.body)['userName'];
 
     final getUserId = await http.get(
         Uri.parse("http://siprojekat.duckdns.org:5051/api/User/$userName"),
         headers: headers);
 
-    return json.decode(getUserId.body);
+    return json.decode(getUserId.body)['id'];
   }
 
   Future getTemplates() async {
+    templates.clear();
     String? token = await storage.read(key: 'token');
 
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'authorization': '$token'
+      'authorization': 'Bearer $token'
     };
 
-    var userId = getUserId();
+    var userId = await getUserId();
 
     final getUserTemplates = await http.get(
         Uri.parse(
@@ -128,34 +127,34 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
     for (int i = 0; i < userTemplates.length; i++) {
       TextEditingController? Currency =
-      TextEditingController(text: userTemplates[i].currency);
+          TextEditingController(text: userTemplates[i]['currency']);
       TextEditingController? Amount =
-      TextEditingController(text: userTemplates[i].amount);
+          TextEditingController(text: userTemplates[i]['amount']);
       TextEditingController? RecipientName =
-      TextEditingController(text: userTemplates[i].recipientName);
-      TextEditingController? RecipientAccount =
-      TextEditingController(text: userTemplates[i].recipientAccountNumber);
+          TextEditingController(text: userTemplates[i]['recipientName']);
+      TextEditingController? RecipientAccount = TextEditingController(
+          text: userTemplates[i]['recipientAccountNumber']);
 
       var template = Payment(
           Currency: Currency,
           Amount: Amount,
           RecipientName: RecipientName,
           RecipientAccount: RecipientAccount,
-          templateId: userTemplates[i].userId);
+          templateId: userTemplates[i]['id']);
       templates.add(template);
     }
   }
 
-  Future sendTemplate(String? currency, String? amount, String? name,
-      String? account) async {
+  Future sendTemplate(
+      String? currency, String? amount, String? name, String? account) async {
     String? token = await storage.read(key: 'token');
 
     final headers = {
-      'Content-Type': 'application/json; charset=utf-8',
-      'authorization': '$token'
+      'Content-Type': 'application/json',
+      'authorization': 'Bearer $token'
     };
 
-    var userId = getUserId();
+    var userId = await getUserId();
 
     var body = {
       "userId": userId,
@@ -174,7 +173,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
     final sendUserTemplate = await http.post(
         Uri.parse('http://siprojekat.duckdns.org:5051/api/Template'),
         headers: headers,
-        body: body);
+        body: json.encode(body));
 
     return json.decode(sendUserTemplate.body);
   }
@@ -184,11 +183,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'authorization': '$token'
+      'authorization': 'Bearer $token'
     };
 
     final deleteTemplate = await http.delete(
-      Uri.parse('http://siprojekat.duckdns.org:5051/api/Document/$id'),
+      Uri.parse('http://siprojekat.duckdns.org:5051/api/Template/$id'),
       headers: headers,
     );
 
@@ -201,10 +200,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'authorization': '$token'
+      'authorization': 'Bearer $token'
     };
 
-    var userId = getUserId();
+    var userId = await getUserId();
+    print(currency);
 
     var body = {
       "userId": userId,
@@ -223,36 +223,43 @@ class _TemplatesPageState extends State<TemplatesPage> {
     final editUserTemplate = await http.put(
         Uri.parse('http://siprojekat.duckdns.org:5051/api/Template/$id'),
         headers: headers,
-        body: body);
+        body: json.encode(body));
 
     return json.decode(editUserTemplate.body);
   }
 
   void _sendTemplateData(index) {
-    var template = Payment(
+    if (index >= 0 && index < templates.length) {
+      var template = Payment(
         Currency: templates[index].Currency,
         Amount: templates[index].Amount,
         RecipientName: templates[index].RecipientName,
-        RecipientAccount: templates[index].RecipientAccount);
+        RecipientAccount: templates[index].RecipientAccount,
+      );
 
-    List<String?> data = [
-      template.Currency?.text.toString(),
-      template.Amount?.text.toString(),
-      template.RecipientName?.text.toString(),
-      template.RecipientAccount?.text.toString()
-    ];
+      List<String?> data = [
+        template.Currency?.text.toString(),
+        template.Amount?.text.toString(),
+        template.RecipientName?.text.toString(),
+        template.RecipientAccount?.text.toString(),
+      ];
 
-    Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                PaymentPage(
-                  recipientName: '',
-                  recipientAccount: '',
-                  amount: '',
-                  currency: '',
-                  templateData: [],
-                )));
+          builder: (context) => PaymentPage(
+            templateData: data,
+            recipientName: template.RecipientName?.text.toString() ?? '',
+            recipientAccount: template.RecipientAccount?.text.toString() ?? '',
+            amount: template.Amount?.text.toString() ?? '',
+            currency: template.Currency?.text.toString() ?? '',
+          ),
+        ),
+      );
+    } else {
+      // Handle the case when index is invalid
+      print('Invalid index: $index');
+    }
   }
 
   @override
@@ -261,17 +268,23 @@ class _TemplatesPageState extends State<TemplatesPage> {
       appBar: AppBar(
         title: Text('Payment Templates'),
       ),
-      body: ListView.builder(
-        itemCount: templates.length,
-        itemBuilder: (BuildContext context, int index) {
-          if (templates.length != 0) {
-            return ListTile(
-                title: Text(templates[index].RecipientName!.text.toString()),
-                subtitle:
-                Text(templates[index].Amount?.text.toString() ?? 'N/A'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
+      body: FutureBuilder(
+        future: getTemplates(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return ListView.builder(
+              itemCount: templates.length,
+              itemBuilder: (context, index) {
+                final template = templates[index];
+                return ListTile(
+                  title: Text(template.RecipientName!.text),
+                  subtitle: Text(template.RecipientAccount!.text),
+                  trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     IconButton(
                       icon: Icon(Icons.account_balance_wallet),
                       onPressed: () {
@@ -286,12 +299,17 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     ),
                     IconButton(
                       icon: Icon(Icons.delete),
-                      onPressed: () {
-                        deleteTemplate(index);
+                      onPressed: () async {
+                        await deleteTemplateBE(template.templateId!);
+                        setState(() {
+                          templates.removeAt(index);
+                        });
                       },
-                    )
-                  ],
-                ));
+                    ),
+                  ]),
+                );
+              },
+            );
           }
         },
       ),
@@ -302,14 +320,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
     );
   }
 
-  void deleteTemplate(int? index) {
-    setState(() {
-      deleteTemplate(templates
-          .elementAt(index!)
-          .templateId);
-      getTemplates();
-    });
-  }
+  // void deleteTemplate(int? index) {
+  //   setState(() {
+  //     deleteTemplate(templates.elementAt(index!).templateId);
+  //   });
+  // }
 
   void editTemplate(int index) {
     final _currencyController = templates[index].Currency;
@@ -327,10 +342,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField(
-                    value: _selectedCurrency,
+                    value: _currencyController?.text,
                     onChanged: (value) {
                       setState(() {
-                        _selectedCurrency = value;
+                        _currencyController?.text = value!;
                       });
                     },
                     items: _currencies.map((currency) {
@@ -347,7 +362,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   TextFormField(
                     controller: _amountController,
                     keyboardType:
-                    TextInputType.numberWithOptions(decimal: true),
+                        TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
@@ -367,6 +382,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                       return null;
                     },
                     decoration: InputDecoration(
+                      labelText: 'Amount',
                       hintText: '0.00',
                     ),
                   ),
@@ -393,9 +409,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Recipient account details are required';
-                      } else if (value
-                          .replaceAll('-', '')
-                          .length != 16) {
+                      } else if (value.replaceAll('-', '').length != 16) {
                         return 'Recipient account number must be 16 digits';
                       }
                       return null;
@@ -416,18 +430,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   if (_formKey.currentState!.validate()) {
                     setState(() {
                       editTemplateBE(
-                          templates
-                              .elementAt(index)
-                              .templateId,
-                          _currencyController?.text,
+                          templates.elementAt(index).templateId,
+                          _selectedCurrency!,
                           _amountController?.text,
                           _recipientNameController?.text,
                           _recipientAccountController?.text);
-                      /*  templates.elementAt(index).Currency = _currencyController;
-                      templates.elementAt(index).Amount = _amountController;
-                      templates[index].RecipientName = _recipientNameController;
-                      templates[index].RecipientAccount =
-                          _recipientAccountController; */
                     });
                     Navigator.pop(context);
                   }
@@ -476,7 +483,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   TextFormField(
                     controller: _amountController,
                     keyboardType:
-                    TextInputType.numberWithOptions(decimal: true),
+                        TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
@@ -522,9 +529,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Recipient account details are required';
-                      } else if (value
-                          .replaceAll('-', '')
-                          .length != 16) {
+                      } else if (value.replaceAll('-', '').length != 16) {
                         return 'Recipient account number must be 16 digits';
                       }
                       return null;
@@ -550,11 +555,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         RecipientAccount: _recipientAccountController); */
                     setState(() {
                       sendTemplate(
-                          _currencyController?.text,
+                          _selectedCurrency,
                           _amountController?.text,
                           _recipientNameController?.text,
                           _recipientAccountController?.text);
-                      getTemplates();
                       // templates.add(newPayment);
                     });
                     Navigator.pop(context);
