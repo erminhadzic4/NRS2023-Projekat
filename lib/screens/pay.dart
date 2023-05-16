@@ -14,9 +14,10 @@ class PaymentPage extends StatefulWidget {
       required String recipientName,
       required String recipientAccount,
       required String amount,
-      required String currency})
+      required this.currency})
       : super(key: key);
   final List templateData;
+  final String currency;
 
   get recipientAccount => null;
 
@@ -113,7 +114,7 @@ class _PaymentPageState extends State<PaymentPage> {
   //    TextEditingController();
   final TextEditingController _recipientDescriptionController =
       TextEditingController();
-  String _selectedCurrency = "USD";
+  String _selectedCurrency = "";
   final storage = new FlutterSecureStorage();
   final List<String> _currencies = [
     'USD',
@@ -287,6 +288,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
   @override
   void initState() {
+    _selectedCurrency = widget.currency;
     _amountController.text = widget.templateData[1];
     _recipientNameController.text = widget.templateData[2];
     _recipientAccountController.text = widget.templateData[3];
@@ -348,12 +350,6 @@ class _PaymentPageState extends State<PaymentPage> {
                     }
                     return null;
                   },
-                  decoration: InputDecoration(
-                    suffixText: _selectedCurrency,
-                    suffixStyle:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    hintText: '0.00',
-                  ),
                 ),
                 SizedBox(height: 16),
                 Text('Recipient Name'),
