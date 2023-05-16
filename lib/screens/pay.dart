@@ -295,6 +295,62 @@ class _PaymentPageState extends State<PaymentPage> {
     _recipientAccountController.text = widget.templateData[3];
   }
 
+  Future getUserId(String userName) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': 'Bearer $token'
+    };
+
+    final getUserId = await http.get(
+        Uri.parse("http://siprojekat.duckdns.org:5051/api/User/$userName"),
+        headers: headers);
+
+    if (getUserId.statusCode != 200) {
+      return false;
+    }
+
+    return json.decode(getUserId.body)['id'];
+  }
+
+  Future sendTemplate(
+      String? currency, String? amount, String? name, String? account) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'authorization': 'Bearer $token'
+    };
+
+    var userId = await getUserId(name!);
+
+    if (!userId) {
+      return null;
+    }
+
+    var body = {
+      "userId": userId,
+      "title": "string",
+      "amount": amount,
+      "paymentType": "string",
+      "description": "string",
+      "currency": currency,
+      "recipientName": name,
+      "recipientAccountNumber": account,
+      "phoneNumber": "string",
+      "category": "string",
+      "received": "true"
+    };
+
+    final sendUserTemplate = await http.post(
+        Uri.parse('http://siprojekat.duckdns.org:5051/api/Template'),
+        headers: headers,
+        body: json.encode(body));
+
+    return json.decode(sendUserTemplate.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -446,29 +502,57 @@ class _PaymentPageState extends State<PaymentPage> {
                     ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          Transaction newTransaction = Transaction(
-                            amount: double.tryParse(_amountController.text),
-                            currency: _selectedCurrency,
-                            transactionType: "type",
-                            transactionPurpose:
-                                _recipientDescriptionController.text,
-                            category: _selectedCategory,
-                            recipientAccountNumber:
-                                _recipientAccountController.text,
-                            recipientName: _recipientNameController.text,
-                            senderAccountNumber: '',
-                          );
-
-                          String transactionJson = newTransaction.toJson();
-
-                          Share.share(transactionJson,
-                              subject: 'New transaction for execution');
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Transaction sent for execution')),
-                          );
+                          var sent = await sendTemplate(
+                              _selectedCurrency,
+                              _amountController.text,
+                              _recipientNameController.text,
+                              _recipientAccountController.text);
+                          if (sent != null) {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                        content: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text('Template sent succesfully !'),
+                                            Icon(
+                                              Icons.check_box,
+                                              color: Colors.green,
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('OK'),
+                                          )
+                                        ]));
+                          } else {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                        content: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                                'No user with that username !'),
+                                            Icon(
+                                              Icons.clear,
+                                              color: Colors.red,
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('OK'),
+                                          )
+                                        ]));
+                          }
                         }
                       },
                       child: Text('Send'),
