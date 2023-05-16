@@ -167,7 +167,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
       "recipientAccountNumber": account,
       "phoneNumber": "string",
       "category": "string",
-      "received": "string"
+      "received": "false"
     };
 
     final sendUserTemplate = await http.post(
