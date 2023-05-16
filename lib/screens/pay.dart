@@ -395,6 +395,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     FilteringTextInputFormatter.allow(
                         RegExp(r'^\d+\.?\d{0,2}')),
                   ],
+                  decoration: InputDecoration(hintText: "0.00"),
                   validator: (value) {
                     if (_amountController.text.isNotEmpty &&
                         double.tryParse(_amountController.text) == 0.0) {
