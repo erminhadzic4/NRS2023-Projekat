@@ -133,7 +133,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
       TextEditingController? RecipientName =
           TextEditingController(text: userTemplates[i]['recipientName']);
       TextEditingController? RecipientAccount = TextEditingController(
-          text: userTemplates[i]['recipientAccuntNumber']);
+          text: userTemplates[i]['recipientAccountNumber']);
 
       var template = Payment(
           Currency: Currency,
@@ -228,29 +228,37 @@ class _TemplatesPageState extends State<TemplatesPage> {
   }
 
   void _sendTemplateData(index) {
-    var template = Payment(
+    if (index >= 0 && index < templates.length) {
+      var template = Payment(
         Currency: templates[index].Currency,
         Amount: templates[index].Amount,
         RecipientName: templates[index].RecipientName,
-        RecipientAccount: templates[index].RecipientAccount);
+        RecipientAccount: templates[index].RecipientAccount,
+      );
 
-    List<String?> data = [
-      template.Currency?.text.toString(),
-      template.Amount?.text.toString(),
-      template.RecipientName?.text.toString(),
-      template.RecipientAccount?.text.toString()
-    ];
+      List<String?> data = [
+        template.Currency?.text.toString(),
+        template.Amount?.text.toString(),
+        template.RecipientName?.text.toString(),
+        template.RecipientAccount?.text.toString(),
+      ];
 
-    Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => PaymentPage(
-                  recipientName: '',
-                  recipientAccount: '',
-                  amount: '',
-                  currency: '',
-                  templateData: [],
-                )));
+          builder: (context) => PaymentPage(
+            recipientName: template.RecipientName?.text.toString() ?? '',
+            recipientAccount: template.RecipientAccount?.text.toString() ?? '',
+            amount: template.Amount?.text.toString() ?? '',
+            currency: template.Currency?.text.toString() ?? '',
+            templateData: data,
+          ),
+        ),
+      );
+    } else {
+      // Handle the case when index is invalid
+      print('Invalid index: $index');
+    }
   }
 
   @override
