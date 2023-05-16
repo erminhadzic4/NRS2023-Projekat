@@ -407,8 +407,8 @@ class InitalState extends State<Transactions> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const DonationPage()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => DonationPage()));
         },
         label: const Text('Donate'),
         icon: const Icon(Icons.diversity_3_outlined),

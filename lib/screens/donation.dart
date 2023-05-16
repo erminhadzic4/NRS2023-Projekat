@@ -1,8 +1,15 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:nrs2023/screens/transactions.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import '../auth_provider.dart';
 
 class _AccountNumberFormatter extends TextInputFormatter {
   @override
@@ -23,14 +30,112 @@ class _AccountNumberFormatter extends TextInputFormatter {
   }
 }
 
-class DonationPage extends StatefulWidget {
-  const DonationPage({super.key});
+class Vendor {
+  String accountNumber;
+  DateTime created;
+  String currency;
+  String bankName;
+  String description;
+  Int credit;
+  Int debit;
+  Int total;
+  User owner;
+  User creator;
 
-  @override
-  State<DonationPage> createState() => _DonationPageState();
+  Vendor(
+      this.accountNumber,
+      this.created,
+      this.currency,
+      this.bankName,
+      this.description,
+      this.credit,
+      this.debit,
+      this.total,
+      this.owner,
+      this.creator);
+
+  factory Vendor.fromJson(Map<String, dynamic> json) {
+    return Vendor(
+        json['accountNumber'],
+        DateTime.parse(json['created']),
+        json['currency'],
+        json['bankName'],
+        json['description'],
+        json['credit'],
+        json['debit'],
+        json['total'],
+        User.fromJson(json['owner']),
+        User.fromJson(json['creator']));
+  }
 }
 
-class _DonationPageState extends State<DonationPage> {
+class User {
+  String name;
+  String accountNumber;
+  String bankName;
+  String phoneNumber;
+  String type;
+
+  User({
+    required this.name,
+    required this.accountNumber,
+    required this.bankName,
+    required this.type,
+    required this.phoneNumber,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      name: json['name'],
+      accountNumber: json['accountNumber'],
+      bankName: json['bankName'],
+      type: json['type'],
+      phoneNumber: json['phoneNumber'],
+    );
+  }
+}
+
+class DonationPage extends StatefulWidget {
+  @override
+  InitalState createState() => InitalState();
+}
+
+class InitalState extends State<DonationPage> {
+  List<Vendor> vendors = []; // Rename Vendors to vendors
+
+  String _selectedVendor = ""; // Initialize with an empty string
+
+  Future<void> _getVendors() async {
+    var link = "http://siprojekat.duckdns.org:5051/api/Vendor";
+    final url = Uri.parse(link);
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+    );
+    final responseData = json.decode(response.body);
+    responseData.forEach((vendorData) {
+      vendors.add(Vendor.fromJson(vendorData));
+    });
+
+    if (vendors.isNotEmpty) {
+      setState(() {
+        _selectedVendor = vendors[0].bankName;
+      });
+    }
+  }
+
+  var token;
+  @override
+  void initState() {
+    final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    token = _authProvider.token;
+    _getVendors();
+    super.initState();
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String _selectedCurrency = "USD";
@@ -110,19 +215,21 @@ class _DonationPageState extends State<DonationPage> {
               children: [
                 SizedBox(height: 8),
                 Text('Recipient Name'),
-                TextFormField(
-                  controller: _recipientNameController,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Recipient first name is required';
-                    } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
-                      return 'Recipient name can only contain letters and spaces';
-                    }
-                    return null;
+                DropdownButtonFormField<String>(
+                  value: _selectedVendor,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFrequency = value!;
+                    });
                   },
-                  decoration: InputDecoration(
-                    hintText: 'Enter recipient first name',
-                  ),
+                  items: vendors
+                      .map(
+                        (vendor) => DropdownMenuItem(
+                          value: vendor.bankName, // Use the bankName property
+                          child: Text(vendor.bankName),
+                        ),
+                      )
+                      .toList(),
                 ),
                 SizedBox(height: 8),
                 Text('Recipient Account'),
