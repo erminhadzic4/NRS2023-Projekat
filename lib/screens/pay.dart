@@ -5,6 +5,7 @@ import 'package:nrs2023/screens/templates.dart';
 import 'package:nrs2023/screens/transactionExchange.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:nrs2023/screens/voucherScreenQRScan.dart';
 import 'package:share/share.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -419,6 +420,10 @@ class _PaymentPageState extends State<PaymentPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      onPressed: _submitPaymentForm,
+                      child: Text('Submit'),
+                    ),
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -427,9 +432,6 @@ class _PaymentPageState extends State<PaymentPage> {
                         );
                       },
                       child: Text('Voucher'),
-                      /*
-                      onPressed: _submitPaymentForm,
-                      child: Text('Submit'),
                     ),
                     ElevatedButton(
                       onPressed: () {

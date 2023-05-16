@@ -8,7 +8,7 @@ class VoucherScreenQRScan extends StatefulWidget {
   @override
   _VoucherScreenQRScanState createState() => _VoucherScreenQRScanState();
 }
-
+ 
 class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final storage = new FlutterSecureStorage();
