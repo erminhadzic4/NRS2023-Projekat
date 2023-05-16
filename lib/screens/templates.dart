@@ -204,6 +204,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
     };
 
     var userId = await getUserId();
+    print(currency);
 
     var body = {
       "userId": userId,
@@ -247,11 +248,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
         context,
         MaterialPageRoute(
           builder: (context) => PaymentPage(
+            templateData: data,
             recipientName: template.RecipientName?.text.toString() ?? '',
             recipientAccount: template.RecipientAccount?.text.toString() ?? '',
             amount: template.Amount?.text.toString() ?? '',
             currency: template.Currency?.text.toString() ?? '',
-            templateData: data,
           ),
         ),
       );
@@ -341,10 +342,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField(
-                    value: _selectedCurrency,
+                    value: _currencyController?.text,
                     onChanged: (value) {
                       setState(() {
-                        _selectedCurrency = value;
+                        _currencyController?.text = value!;
                       });
                     },
                     items: _currencies.map((currency) {
@@ -430,7 +431,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                     setState(() {
                       editTemplateBE(
                           templates.elementAt(index).templateId,
-                          _currencyController?.text,
+                          _selectedCurrency!,
                           _amountController?.text,
                           _recipientNameController?.text,
                           _recipientAccountController?.text);
@@ -554,7 +555,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         RecipientAccount: _recipientAccountController); */
                     setState(() {
                       sendTemplate(
-                          _currencyController?.text,
+                          _selectedCurrency,
                           _amountController?.text,
                           _recipientNameController?.text,
                           _recipientAccountController?.text);
