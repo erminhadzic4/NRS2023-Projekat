@@ -40,14 +40,14 @@ class Vendor {
   List<User> assignedUsers;
 
   Vendor(
-      this.id,
-      this.name,
-      this.address,
-      this.companyDetails,
-      this.phone,
-      this.created,
-      this.assignedUsers,
-      );
+    this.id,
+    this.name,
+    this.address,
+    this.companyDetails,
+    this.phone,
+    this.created,
+    this.assignedUsers,
+  );
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     return Vendor(
@@ -104,7 +104,6 @@ class VendorAccount {
     );
   }
 }
-
 
 class User {
   String id;
@@ -177,7 +176,11 @@ class InitalState extends State<DonationPage> {
   }
 
   Future<void> _getVendorsAccounts(int vendorID) async {
-    var link = "https://processingserver.herokuapp.com/api/VendorBankAccount/GetBankAccountsForVendor?token="+token+"&vendorId="+vendorID.toString();
+    var link =
+        "https://processingserver.herokuapp.com/api/VendorBankAccount/GetBankAccountsForVendor?token=" +
+            token +
+            "&vendorId=" +
+            vendorID.toString();
     final url = Uri.parse(link);
     final response = await http.get(url);
     print(response.body);
@@ -233,11 +236,11 @@ class InitalState extends State<DonationPage> {
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientAccountController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _recipientDescriptionController =
-  TextEditingController();
+      TextEditingController();
 
   String _selectedType = "One-time donation";
   final List<String> _types = [
@@ -260,6 +263,25 @@ class InitalState extends State<DonationPage> {
   ];
 
   final TextEditingController _durationController = TextEditingController();
+
+  String? _validateDuration(String duration) {
+    if ((_selectedFrequency == "Every year" &&
+            ((duration == "Week" &&
+                    int.tryParse(_durationController.text)! < 52) ||
+                duration == "Month" &&
+                    int.tryParse(_durationController.text)! < 12)) ||
+        (_selectedFrequency == "Every month" &&
+                (duration == "Week" &&
+                    int.tryParse(_durationController.text)! < 4) ||
+            (duration == "Month" &&
+                int.tryParse(_durationController.text)! < 1)) ||
+        (_selectedFrequency == "Every week" &&
+            (duration == "Week" &&
+                int.tryParse(_durationController.text)! < 1)))
+      return 'Duration is invalid.';
+    else
+      return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -339,16 +361,16 @@ class InitalState extends State<DonationPage> {
                   children: _types
                       .map(
                         (donationType) => RadioListTile<String>(
-                      title: Text(donationType),
-                      value: donationType,
-                      groupValue: _selectedType,
-                      onChanged: (String? value) {
-                        setState(() {
-                          _selectedType = value!;
-                        });
-                      },
-                    ),
-                  )
+                          title: Text(donationType),
+                          value: donationType,
+                          groupValue: _selectedType,
+                          onChanged: (String? value) {
+                            setState(() {
+                              _selectedType = value!;
+                            });
+                          },
+                        ),
+                      )
                       .toList(),
                 ),
                 SizedBox(height: 8),
@@ -360,10 +382,11 @@ class InitalState extends State<DonationPage> {
                       _selectedCurrency = value!;
                     });
                   },
-                  items: _currencies.map((currency) => DropdownMenuItem(
-                    value: currency,
-                    child: Text(currency),
-                  ))
+                  items: _currencies
+                      .map((currency) => DropdownMenuItem(
+                            value: currency,
+                            child: Text(currency),
+                          ))
                       .toList(),
                 ),
                 SizedBox(height: 8),
@@ -390,7 +413,7 @@ class InitalState extends State<DonationPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -413,11 +436,12 @@ class InitalState extends State<DonationPage> {
                               });
                             },
                             items: _frequency
-                                .map((currency) => DropdownMenuItem(
-                              value: currency,
-                              child: Text(currency),
-                            ),
-                            )
+                                .map(
+                                  (currency) => DropdownMenuItem(
+                                    value: currency,
+                                    child: Text(currency),
+                                  ),
+                                )
                                 .toList(),
                           ),
                           SizedBox(height: 8),
@@ -429,26 +453,26 @@ class InitalState extends State<DonationPage> {
                                   child: TextFormField(
                                     controller: _durationController,
                                     keyboardType:
-                                    TextInputType.numberWithOptions(
-                                        decimal: false),
+                                        TextInputType.numberWithOptions(
+                                            decimal: false),
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
                                           RegExp(r'[\d]')),
                                     ],
                                     validator: (value) {
                                       if (_durationController.text.isNotEmpty &&
-                                          double.tryParse(
-                                              _durationController.text) ==
+                                          int.tryParse(
+                                                  _durationController.text) ==
                                               0) {
-                                        return 'Duration of the donation is required';
-                                      } else if (double.tryParse(
-                                          _durationController.text) ==
+                                        return 'This field is required.';
+                                      } else if (int.tryParse(
+                                              _durationController.text) ==
                                           null) {
-                                        return 'Duration of the donation should be a valid number.';
-                                      } else if (double.parse(
-                                          _durationController.text) >
+                                        return 'It should be a valid number.';
+                                      } else if (int.parse(
+                                              _durationController.text) >
                                           1000) {
-                                        return 'Duration of the donation cannot be greater than 1000';
+                                        return 'It cannot be greater than 1000.';
                                       }
                                       return null;
                                     },
@@ -460,6 +484,8 @@ class InitalState extends State<DonationPage> {
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
                                     value: _selectedDuration,
+                                    validator: (value) =>
+                                        _validateDuration(_selectedDuration),
                                     onChanged: (String? value) {
                                       setState(() {
                                         _selectedDuration = value!;
@@ -468,10 +494,10 @@ class InitalState extends State<DonationPage> {
                                     items: _duration
                                         .map(
                                           (duration) => DropdownMenuItem(
-                                        value: duration,
-                                        child: Text(duration),
-                                      ),
-                                    )
+                                            value: duration,
+                                            child: Text(duration),
+                                          ),
+                                        )
                                         .toList(),
                                   ),
                                 ),
