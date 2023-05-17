@@ -31,65 +31,70 @@ class _AccountNumberFormatter extends TextInputFormatter {
 }
 
 class Vendor {
-  String accountNumber;
+  int id;
+  String name;
+  String address;
+  String companyDetails;
+  String phone;
   DateTime created;
-  String currency;
-  String bankName;
-  String description;
-  Int credit;
-  Int debit;
-  Int total;
-  User owner;
-  User creator;
+  List<User> assignedUsers;
 
   Vendor(
-      this.accountNumber,
+      this.id,
+      this.name,
+      this.address,
+      this.companyDetails,
+      this.phone,
       this.created,
-      this.currency,
-      this.bankName,
-      this.description,
-      this.credit,
-      this.debit,
-      this.total,
-      this.owner,
-      this.creator);
+      this.assignedUsers,
+      );
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     return Vendor(
-        json['accountNumber'],
-        DateTime.parse(json['created']),
-        json['currency'],
-        json['bankName'],
-        json['description'],
-        json['credit'],
-        json['debit'],
-        json['total'],
-        User.fromJson(json['owner']),
-        User.fromJson(json['creator']));
+      json['id'],
+      json['name'],
+      json['address'],
+      json['companyDetails'],
+      json['phone'],
+      DateTime.parse(json['created']),
+      (json['assignedUsers'] as List<dynamic>)
+          .map((userData) => User.fromJson(userData))
+          .toList(),
+    );
   }
 }
 
+
 class User {
-  String name;
+  String id;
+  String firstName;
+  String lastName;
+  String address;
   String accountNumber;
-  String bankName;
-  String phoneNumber;
   String type;
+  String email;
+  String phoneNumber;
 
   User({
-    required this.name,
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.address,
     required this.accountNumber,
-    required this.bankName,
     required this.type,
+    required this.email,
     required this.phoneNumber,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      name: json['name'],
+      id: json['id'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      address: json['address'],
       accountNumber: json['accountNumber'],
-      bankName: json['bankName'],
       type: json['type'],
+      email: json['email'],
       phoneNumber: json['phoneNumber'],
     );
   }
@@ -115,6 +120,7 @@ class InitalState extends State<DonationPage> {
         'Authorization': 'Bearer $token'
       },
     );
+    //print(response.body);
     final responseData = json.decode(response.body);
     responseData.forEach((vendorData) {
       vendors.add(Vendor.fromJson(vendorData));
@@ -122,7 +128,7 @@ class InitalState extends State<DonationPage> {
 
     if (vendors.isNotEmpty) {
       setState(() {
-        _selectedVendor = vendors[0].bankName;
+        _selectedVendor = vendors[0].id.toString();
       });
     }
   }
@@ -167,11 +173,11 @@ class InitalState extends State<DonationPage> {
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientAccountController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _recipientDescriptionController =
-      TextEditingController();
+  TextEditingController();
 
   String _selectedType = "One-time donation";
   final List<String> _types = [
@@ -219,17 +225,15 @@ class InitalState extends State<DonationPage> {
                   value: _selectedVendor,
                   onChanged: (String? value) {
                     setState(() {
-                      _selectedFrequency = value!;
+                      _selectedVendor = value!;
                     });
                   },
-                  items: vendors
-                      .map(
-                        (vendor) => DropdownMenuItem(
-                          value: vendor.bankName, // Use the bankName property
-                          child: Text(vendor.bankName),
-                        ),
-                      )
-                      .toList(),
+                  items: vendors.map<DropdownMenuItem<String>>((Vendor vendor) {
+                    return DropdownMenuItem<String>(
+                      value: vendor.id.toString(),
+                      child: Text(vendor.name),
+                    );
+                  }).toList(),
                 ),
                 SizedBox(height: 8),
                 Text('Recipient Account'),
@@ -259,16 +263,16 @@ class InitalState extends State<DonationPage> {
                   children: _types
                       .map(
                         (donationType) => RadioListTile<String>(
-                          title: Text(donationType),
-                          value: donationType,
-                          groupValue: _selectedType,
-                          onChanged: (String? value) {
-                            setState(() {
-                              _selectedType = value!;
-                            });
-                          },
-                        ),
-                      )
+                      title: Text(donationType),
+                      value: donationType,
+                      groupValue: _selectedType,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedType = value!;
+                        });
+                      },
+                    ),
+                  )
                       .toList(),
                 ),
                 SizedBox(height: 8),
@@ -280,11 +284,10 @@ class InitalState extends State<DonationPage> {
                       _selectedCurrency = value!;
                     });
                   },
-                  items: _currencies
-                      .map((currency) => DropdownMenuItem(
-                            value: currency,
-                            child: Text(currency),
-                          ))
+                  items: _currencies.map((currency) => DropdownMenuItem(
+                    value: currency,
+                    child: Text(currency),
+                  ))
                       .toList(),
                 ),
                 SizedBox(height: 8),
@@ -311,7 +314,7 @@ class InitalState extends State<DonationPage> {
                   decoration: InputDecoration(
                     suffixText: _selectedCurrency,
                     suffixStyle:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     hintText: '0.00',
                   ),
                 ),
@@ -334,12 +337,11 @@ class InitalState extends State<DonationPage> {
                               });
                             },
                             items: _frequency
-                                .map(
-                                  (currency) => DropdownMenuItem(
-                                    value: currency,
-                                    child: Text(currency),
-                                  ),
-                                )
+                                .map((currency) => DropdownMenuItem(
+                              value: currency,
+                              child: Text(currency),
+                            ),
+                            )
                                 .toList(),
                           ),
                           SizedBox(height: 8),
@@ -351,8 +353,8 @@ class InitalState extends State<DonationPage> {
                                   child: TextFormField(
                                     controller: _durationController,
                                     keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: false),
+                                    TextInputType.numberWithOptions(
+                                        decimal: false),
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
                                           RegExp(r'[\d]')),
@@ -360,15 +362,15 @@ class InitalState extends State<DonationPage> {
                                     validator: (value) {
                                       if (_durationController.text.isNotEmpty &&
                                           double.tryParse(
-                                                  _durationController.text) ==
+                                              _durationController.text) ==
                                               0) {
                                         return 'Duration of the donation is required';
                                       } else if (double.tryParse(
-                                              _durationController.text) ==
+                                          _durationController.text) ==
                                           null) {
                                         return 'Duration of the donation should be a valid number.';
                                       } else if (double.parse(
-                                              _durationController.text) >
+                                          _durationController.text) >
                                           1000) {
                                         return 'Duration of the donation cannot be greater than 1000';
                                       }
@@ -390,10 +392,10 @@ class InitalState extends State<DonationPage> {
                                     items: _duration
                                         .map(
                                           (duration) => DropdownMenuItem(
-                                            value: duration,
-                                            child: Text(duration),
-                                          ),
-                                        )
+                                        value: duration,
+                                        child: Text(duration),
+                                      ),
+                                    )
                                         .toList(),
                                   ),
                                 ),
