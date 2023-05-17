@@ -62,7 +62,8 @@ class InitalState extends State<ClaimDetailsScreen> {
     final responseData = json.decode(response.body);
     Claim claim = Claim.fromJson(responseData);
     for (int i = 0; i < claim.messages.length; i++) {
-      if (claim.messages[i]['userName'] != 'ADMINUSR') {
+      if (claim.messages[i]['userName'] != 'ABRULIC1') {
+        // TREBALO BI BITI ADMIN USER ALI OVAJ ADMIN TOKEN STO IMAM JE OD ARBULIC1
         var newmessage = Message(claim.messages[i]['message'], 'sender');
         Messages.add(newmessage);
       } else {
