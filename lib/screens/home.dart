@@ -2,37 +2,39 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:nrs2023/screens/accountList.dart';
-import 'package:nrs2023/screens/pay.dart';
-import 'package:nrs2023/screens/register.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
-import 'package:nrs2023/screens/logIn.dart';
-import 'package:nrs2023/screens/home.dart';
 import 'package:nrs2023/screens/welcome.dart';
 import 'package:nrs2023/screens/voucher.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:provider/provider.dart';
-
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../auth_provider.dart';
-
 
 class Account {
   final String accountNumber;
+  final String currency;
+  final String bankName;
+  final int credit;
+  final int debit;
+  final int total;
+  final String owner;
   const Account({
-      required this.accountNumber,
+    required this.accountNumber,
+    required this.currency,
+    required this.bankName,
+    required this.credit,
+    required this.debit,
+    required this.total,
+    required this.owner
   });
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
-        accountNumber: json['accountNumber'] as String,
+      accountNumber: json['accountNumber'] as String, currency: json['currency'], bankName: json['bankName'],
+      credit: json['credit'], debit: json['debit'], total: json['total'], owner: json['owner']['name'],
     );
   }
 }
+
 List<Account> parseAccounts(String responseBody) {
   final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
 
@@ -41,73 +43,88 @@ List<Account> parseAccounts(String responseBody) {
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
   @override
-  State<HomeScreen> createState() => _HomeScreen();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreen extends State<HomeScreen> {
-  var token;
-  late final LocalAuthentication auth;
-  bool _supportState = false;
-  String? dropdownValue;
-  late List<Account> Accounts = [];
-  List<String> accountNumbers = [];
+class _HomeScreenState extends State<HomeScreen> {
+  late String dropdownValue;
+  late List<Account> accounts;
   late Future<List<Account>> futureAccounts;
-  final storage = new FlutterSecureStorage();
-  final logIn logInScreen = const logIn();
-
-  String getSelectedAccountText() {
-    if (dropdownValue == null) {
-      return 'Selected Account: ';
-    } else {
-      return 'Selected Account:\n $dropdownValue';
-    }
-  }
+  final storage = const FlutterSecureStorage();
+  Account? selectedAccount;
 
   @override
-  void initState(){
-    auth = LocalAuthentication();
-    auth.isDeviceSupported().then((bool isSupported) => setState(() {
-      _supportState = isSupported;
-    }));
-    //Accounts.add(Account(accountNumber: "No account selected"));
-    //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
-    fetchAccounts().then((List<Account> Accounts){
-      setState(() {
-        for(var i = 0; i < this.Accounts.length; i++){
-          print(this.Accounts[i].accountNumber);
-        }
-        //Accounts.add(Account(accountNumber: "No account selected"));
-        this.Accounts = Accounts;
-        //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
-        //this.Accounts.add(Account(accountNumber: "No account selected"));
-        //dropdownValue = Accounts[0].accountNumber;
-        //this.Accounts.add(Account(accountNumber: "No account selected"));
-        //dropdownValue = Accounts[this.Accounts.length - 1].accountNumber;
-      });
-    });
+  void initState() {
+    super.initState();
+    dropdownValue = '';
+    futureAccounts = fetchAccounts();
   }
 
   Future<List<Account>> fetchAccounts() async {
     String? token = await storage.read(key: 'token');
     print(token);
     final response = await http.get(
-        Uri.parse('http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
+      Uri.parse('http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
     if (response.statusCode == 200) {
-      // Ako server vrati status kod 200,
-      // parsiraj JSON.
       var res = parseAccounts(response.body);
-      print(res[0].accountNumber);
-      return parseAccounts(response.body);
+      print(response.body);
+
+      // Simulate a delayed response using Future.delayed
+      return Future.delayed(const Duration(seconds: 2), () {
+        return parseAccounts(response.body);
+      });
     } else {
-      // Ako server ne vrati status kod 200,
-      // baci izuzetak.
-      throw Exception('Failed to load account');
+      throw Exception('Failed to load accounts');
     }
+  }
+
+  void onAccountSelected(String accountNumber) {
+    print('Selected account: $accountNumber');
+    selectedAccount = accounts.firstWhere(
+            (account) => account.accountNumber == accountNumber);
+  }
+
+  void showDetails() {
+    if (selectedAccount != null) {
+      print('Show details Selected account: ${selectedAccount!.accountNumber}');
+    } else {
+      print('No account selected');
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Transactions(
+          filterDateStart: DateTime.utc(1900, 1, 1),
+          filterDateEnd: DateTime.now(),
+          filterCurrency: 'All',
+          filterTransactionType: 'All',
+          filterPriceRangeStart: '0',
+          filterPriceRangeEnd: '100000',
+          filterRecipientName: '',
+          filterRecipientAccount: '',
+          filterSenderName: '',
+          filterCategory: '',
+          filterSortingOrder: 'createdAtAsc',
+        ),
+      ),
+    );
+  }
+
+  void clearSelection() {
+    print('Clear clicked');
+    setState(() {
+      dropdownValue = '';
+    });
+    selectedAccount = const Account(accountNumber: 'Null', currency: 'Null', bankName: 'Null',
+        credit: 0, debit: 0, total: 0, owner: 'Null');
   }
 
   @override
@@ -135,14 +152,15 @@ class _HomeScreen extends State<HomeScreen> {
                       TextButton(
                         child: const Text('Logout'),
                         onPressed: () {
-                          // kod za brisanje pohranjenih korisničkih podataka
-                          logInScreen.logout(context);
+                          // code to clear stored user data
+                          // logInScreen.logout(context);
 
-                          // navigacija na stranicu prijave
+                          // navigate to the login page
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const WelcomeScreen()),
+                              builder: (context) => const WelcomeScreen(),
+                            ),
                           );
                         },
                       ),
@@ -155,64 +173,133 @@ class _HomeScreen extends State<HomeScreen> {
         ],
       ),
       body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children:  [
-              const Text(
-                'Welcome to the Home Screen!',
-                style: TextStyle(fontSize: 25.0),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              const Text(
-                textAlign: TextAlign.center,
-                'Please choose an account:',
-                style: const TextStyle(fontSize: 24.0),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              // Step 2.
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.lightBlueAccent, //<-- SEE HERE
-            ),
-            child: DropdownButton(
-              value: dropdownValue,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;// ?? 'No account selected';
-                  });
-                },
-                items: Accounts.map((Account data) {
-                  return DropdownMenuItem<String>(
-                    value: data.accountNumber,
-                    child: Text(
-                      data.accountNumber,
-                      style: const TextStyle(fontSize: 15.5)
+        child: FutureBuilder<List<Account>>(
+          future: futureAccounts,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Text('Failed to fetch accounts');
+            } else if (snapshot.hasData) {
+              accounts = snapshot.data!;
+              return Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Your Accounts',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  );
-                }).toList(),
-              )
-            ),
-              const SizedBox(
-                height: 20,
-              ),
-              RichText(
-                text: TextSpan(
-                    style: const TextStyle(fontSize: 24.0),
-                    text: dropdownValue == null ? 'Selected Account: ' : 'Selected Account:\n$dropdownValue'
-                )
-               // textAlign: TextAlign.center,
-                //'Selected Account:\n$dropdownValue',
-               // style: const TextStyle(fontSize: 24.0),
-              //  data: dropdownValue == null ? 'Selected Account: ' : 'Selected Account:\n$dropdownValue',
-              )
-            ],
-          )),
+                    const SizedBox(height: 8.0),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: accounts.length,
+                        itemBuilder: (context, index) {
+                          final account = accounts[index];
+                          return GestureDetector(
+                            onLongPress: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Account Details'),
+                                    content: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Account Number: ${account.accountNumber}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('Owner: ${account.owner}'),
+                                        Text('Debit: \$${account.debit}'),
+                                        Text('Bank Name: ${account.bankName}'),
+                                        Text('Credit: \$${account.credit}'),
+                                        Text('Total: \$${account.total}'),
+                                      ],
+                                    ),
+                                    actions: <Widget>[
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Close'),
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.blue, // Customize the button color
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Card(
+                              elevation: 2,
+                              child: ListTile(
+                                title: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      account.accountNumber,
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      account.currency,
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                tileColor: dropdownValue == account.accountNumber ? Colors.blue[100] : null,
+                                onTap: () {
+                                  setState(() {
+                                    dropdownValue = account.accountNumber;
+                                  });
+                                  onAccountSelected(account.accountNumber);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: showDetails,
+                          child: const Text('Show details'),
+                        ),
+                        const SizedBox(width: 16.0),
+                        ElevatedButton(
+                          onPressed: clearSelection,
+                          child: const Text('Clear'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return const Text('No accounts found');
+            }
+          },
+        ),
+      ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -233,11 +320,12 @@ class _HomeScreen extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AccountListPage(
-                        currency: ["", "", "", ""],
-                        bankName: '',
-                        description: '',
-                      )),
+                    builder: (context) => AccountListPage(
+                      currency: ["", "", "", ""],
+                      bankName: '',
+                      description: '',
+                    ),
+                  ),
                 );
               },
               tooltip: 'Make Payment',
@@ -248,18 +336,20 @@ class _HomeScreen extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => Transactions(
-                          filterDateStart: DateTime.utc(1900, 1, 1),
-                          filterDateEnd: DateTime.now(),
-                          filterCurrency: 'All',
-                          filterTransactionType: 'All',
-                          filterPriceRangeStart: '0',
-                          filterPriceRangeEnd: '100000',
-                          filterRecipientName: '',
-                          filterRecipientAccount: '',
-                          filterSenderName: '',
-                          filterCategory: '',
-                          filterSortingOrder: 'createdAtAsc')),
+                    builder: (context) => Transactions(
+                      filterDateStart: DateTime.utc(1900, 1, 1),
+                      filterDateEnd: DateTime.now(),
+                      filterCurrency: 'All',
+                      filterTransactionType: 'All',
+                      filterPriceRangeStart: '0',
+                      filterPriceRangeEnd: '100000',
+                      filterRecipientName: '',
+                      filterRecipientAccount: '',
+                      filterSenderName: '',
+                      filterCategory: '',
+                      filterSortingOrder: 'createdAtAsc',
+                    ),
+                  ),
                 );
               },
               tooltip: 'Transaction History',
@@ -280,4 +370,3 @@ class _HomeScreen extends State<HomeScreen> {
     );
   }
 }
-
