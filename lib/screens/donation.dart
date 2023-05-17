@@ -64,6 +64,47 @@ class Vendor {
   }
 }
 
+class VendorAccount {
+  String accountNumber;
+  DateTime createdAt;
+  String currency;
+  String bankName;
+  String description;
+  double credit;
+  double debit;
+  double total;
+  Vendor owner;
+  User creator;
+
+  VendorAccount({
+    required this.accountNumber,
+    required this.createdAt,
+    required this.currency,
+    required this.bankName,
+    required this.description,
+    required this.credit,
+    required this.debit,
+    required this.total,
+    required this.owner,
+    required this.creator,
+  });
+
+  factory VendorAccount.fromJson(Map<String, dynamic> json) {
+    return VendorAccount(
+      accountNumber: json['accountNumber'],
+      createdAt: DateTime.parse(json['createdAt']),
+      currency: json['currency'],
+      bankName: json['bankName'],
+      description: json['description'],
+      credit: json['credit'],
+      debit: json['debit'],
+      total: json['total'],
+      owner: Vendor.fromJson(json['owner']),
+      creator: User.fromJson(json['creator']),
+    );
+  }
+}
+
 
 class User {
   String id;
@@ -107,8 +148,10 @@ class DonationPage extends StatefulWidget {
 
 class InitalState extends State<DonationPage> {
   List<Vendor> vendors = []; // Rename Vendors to vendors
+  List<VendorAccount> vendorsAccounts = []; // Rename Vendors to vendors
 
   String _selectedVendor = ""; // Initialize with an empty string
+  String _selectedVendorAccount = "Izaberi account";
 
   Future<void> _getVendors() async {
     var link = "http://siprojekat.duckdns.org:5051/api/Vendor";
@@ -129,6 +172,23 @@ class InitalState extends State<DonationPage> {
     if (vendors.isNotEmpty) {
       setState(() {
         _selectedVendor = vendors[0].id.toString();
+      });
+    }
+  }
+
+  Future<void> _getVendorsAccounts(int vendorID) async {
+    var link = "https://processingserver.herokuapp.com/api/VendorBankAccount/GetBankAccountsForVendor?token="+token+"&vendorId="+vendorID.toString();
+    final url = Uri.parse(link);
+    final response = await http.get(url);
+    print(response.body);
+    final responseData = json.decode(response.body);
+    responseData.forEach((vendorBankData) {
+      vendorsAccounts.add(VendorAccount.fromJson(vendorBankData));
+    });
+
+    if (vendorsAccounts.isNotEmpty) {
+      setState(() {
+        _selectedVendorAccount = vendorsAccounts[0].accountNumber;
       });
     }
   }
@@ -220,12 +280,13 @@ class InitalState extends State<DonationPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                Text('Recipient Name'),
+                Text('Business Name'),
                 DropdownButtonFormField<String>(
                   value: _selectedVendor,
                   onChanged: (String? value) {
                     setState(() {
                       _selectedVendor = value!;
+                      _getVendorsAccounts(8);
                     });
                   },
                   items: vendors.map<DropdownMenuItem<String>>((Vendor vendor) {
@@ -235,21 +296,36 @@ class InitalState extends State<DonationPage> {
                     );
                   }).toList(),
                 ),
+                /*SizedBox(height: 8),
+                Text('Recipient Bank Account'),
+                DropdownButtonFormField<String>(
+                  value: _selectedVendorAccount,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedVendorAccount = newValue!;
+
+                    });
+                  },
+                  items: vendorsAccounts.map<DropdownMenuItem<String>>((VendorAccount vendorAccount) {
+                      return DropdownMenuItem<String>(
+                        value: vendorAccount.accountNumber.toString(),
+                        child: Text(vendorAccount.accountNumber),
+                      );
+                    }).toList(),
+                ),*/
                 SizedBox(height: 8),
-                Text('Recipient Account'),
+                Text('Vendors Account Number'),
                 TextFormField(
                   controller: _recipientAccountController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-                    _AccountNumberFormatter(),
-                    LengthLimitingTextInputFormatter(19),
+                    LengthLimitingTextInputFormatter(7),
                   ],
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Recipient account details are required';
-                    } else if (value.replaceAll('-', '').length != 16) {
-                      return 'Recipient account number must be 16 digits';
+                    } else if (value.replaceAll('-', '').length != 7) {
+                      return 'Recipient account number must be 7 characters';
                     }
                     return null;
                   },
@@ -406,11 +482,11 @@ class InitalState extends State<DonationPage> {
                   ],
                 ),
                 SizedBox(height: 8),
-                Text('Transaction Details'),
+                Text('Donation Details'),
                 TextFormField(
                   controller: _recipientDescriptionController,
                   decoration: InputDecoration(
-                    hintText: 'Enter transaction details',
+                    hintText: 'Enter donation details',
                   ),
                 ),
                 Center(
