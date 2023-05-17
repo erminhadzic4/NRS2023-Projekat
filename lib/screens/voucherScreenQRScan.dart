@@ -8,7 +8,7 @@ class VoucherScreenQRScan extends StatefulWidget {
   @override
   _VoucherScreenQRScanState createState() => _VoucherScreenQRScanState();
 }
- 
+
 class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final storage = new FlutterSecureStorage();
@@ -29,25 +29,45 @@ class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
               onQRViewCreated: _onQRViewCreated,
             ),
           ),
-          Text('Scanned QR Code: $qrText'),
+          Text('Scanned Voucher Code: $qrText'),
         ],
       ),
     );
   }
 
-  //potrebno uraditi get za voucher code koji se skenira da se moze dodati amount
-  // http://siprojekat.duckdns.org:5051/api/Voucher/get-voucher poslati qrText
+  Future<double?> getVoucherAmount(int voucherId) async {
+    String? token = await storage.read(key: 'token');
 
-  Future<void> ExecuteVoucherRedemption(
-      String amount, String accountNumber) async {
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'authorization': 'Bearer $token'
+    };
+
+    final response = await http.get(
+      Uri.parse(
+          'http://siprojekat.duckdns.org:5051/api/Voucher/get-voucher?voucherId=$voucherId'),
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    var responseData = json.decode(response.body);
+    return double.tryParse(responseData['amount'].toString());
+  }
+
+  Future<void> ExecuteVoucherRedemption(String qr_key_za_vocuherID) async {
     String? token = await storage.read(key: 'token');
 
     final uri = Uri.parse(
         "https://processingserver.herokuapp.com/api/Voucher/ExecuteVoucherRedemption?token=$token");
 
+    var amount = await getVoucherAmount(qr_key_za_vocuherID as int);
+
     final body = {
       "amount": amount,
-      "accountNumber": accountNumber,
+      "accountNumber": "",
     };
 
     final headers = {
@@ -72,10 +92,13 @@ class _VoucherScreenQRScanState extends State<VoucherScreenQRScan> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controllerZaQRCode = controller;
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       setState(() {
         qrText = scanData.code!;
       });
+      await ExecuteVoucherRedemption(qrText);
     });
   }
 }
+
+//1234-5678-9111-1111

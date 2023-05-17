@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/templates.dart';
-import 'package:nrs2023/screens/transactionExchange.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nrs2023/screens/voucherScreenQRScan.dart';
-import 'package:share/share.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage(
@@ -105,11 +103,13 @@ class _AccountNumberFormatter extends TextInputFormatter {
 
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
+  final _sendFormKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _recipientNameController =
       TextEditingController();
   final TextEditingController _recipientAccountController =
       TextEditingController();
+  final TextEditingController _recipientUsername = TextEditingController();
 
   // final TextEditingController _recipientLastNameController =
   //    TextEditingController();
@@ -146,21 +146,6 @@ class _PaymentPageState extends State<PaymentPage> {
   String _selectedCategory = "Pay";
   final List<String> _categories = ['Pay', 'Gift', 'Bill', 'Transfer'];
 
-  /*
-  void getAllAccounts() async {
-    final url = Uri.parse(
-        'http://siprojekat.duckdns.org:5051/api/Exchange/GetAllAccounts');
-    final response = await http.get(url);
-    final jsonResponse = json.decode(response.body);
-    if (response.statusCode == 200) {
-      print(jsonResponse);
-    } else {
-      print('Ne radi');
-    }
-  }
-
-   */
-
   Future<transactionValidation> validateTransaction(
       double? amount,
       String currency,
@@ -188,9 +173,6 @@ class _PaymentPageState extends State<PaymentPage> {
         "name": recipientName,
         "accountNumber": recipientAccountNumber
       }
-      // "sender": senderAccountNumber,
-      // "recipientName": recipientName,
-      // "recipientAccountNumber": recipientAccountNumber
     };
 
     final headers = {
@@ -308,14 +290,14 @@ class _PaymentPageState extends State<PaymentPage> {
         headers: headers);
 
     if (getUserId.statusCode != 200) {
-      return false;
+      return null;
     }
 
     return json.decode(getUserId.body)['id'];
   }
 
-  Future sendTemplate(
-      String? currency, String? amount, String? name, String? account) async {
+  Future sendTemplate(String? currency, String? amount, String? name,
+      String? account, String? username) async {
     String? token = await storage.read(key: 'token');
 
     final headers = {
@@ -323,9 +305,9 @@ class _PaymentPageState extends State<PaymentPage> {
       'authorization': 'Bearer $token'
     };
 
-    var userId = await getUserId(name!);
+    var userId = await getUserId(username!);
 
-    if (!userId) {
+    if (userId == null) {
       return null;
     }
 
@@ -416,8 +398,6 @@ class _PaymentPageState extends State<PaymentPage> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Recipient first name is required';
-                    } else if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
-                      return 'Recipient name can only contain letters and spaces';
                     }
                     return null;
                   },
@@ -501,59 +481,112 @@ class _PaymentPageState extends State<PaymentPage> {
                       child: Text("Templates"),
                     ),
                     ElevatedButton(
-                      onPressed: () async {
+                      onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          var sent = await sendTemplate(
-                              _selectedCurrency,
-                              _amountController.text,
-                              _recipientNameController.text,
-                              _recipientAccountController.text);
-                          if (sent != null) {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                        content: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text('Template sent succesfully !'),
-                                            Icon(
-                                              Icons.check_box,
-                                              color: Colors.green,
-                                            ),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('OK'),
-                                          )
-                                        ]));
-                          } else {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                        content: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                                'No user with that username !'),
-                                            Icon(
-                                              Icons.clear,
-                                              color: Colors.red,
-                                            ),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('OK'),
-                                          )
-                                        ]));
-                          }
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                    scrollable: true,
+                                    title: Text(
+                                        'Enter username to send template to'),
+                                    content: Form(
+                                      key: _sendFormKey,
+                                      child: TextFormField(
+                                        controller: _recipientUsername,
+                                        decoration: InputDecoration(
+                                            labelText: 'Recipient username'),
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return 'Recipient name is required';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          if (_sendFormKey.currentState!
+                                              .validate()) {
+                                            var sent = await sendTemplate(
+                                                _selectedCurrency,
+                                                _amountController.text,
+                                                _recipientNameController.text,
+                                                _recipientAccountController
+                                                    .text,
+                                                _recipientUsername.text);
+                                            if (sent != null) {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                          content: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                  'Template sent succesfully !'),
+                                                              Icon(
+                                                                Icons.check_box,
+                                                                color: Colors
+                                                                    .green,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: Text('OK'),
+                                                            )
+                                                          ]));
+                                            } else {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                          content: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                  'No user with that username !'),
+                                                              Icon(
+                                                                Icons.clear,
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: Text('OK'),
+                                                            )
+                                                          ]));
+                                            }
+                                          }
+                                        },
+                                        child: Text('Send'),
+                                      ),
+                                    ]);
+                              });
                         }
                       },
                       child: Text('Send'),
