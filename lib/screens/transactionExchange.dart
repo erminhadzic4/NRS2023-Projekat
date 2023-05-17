@@ -39,7 +39,8 @@ class _TransactionExchangeState extends State<TransactionExchangePage> {
     'SEK',
     'SGD',
     'THB',
-    'TWD'
+    'TWD',
+    'BAM'
   ];
 
   @override

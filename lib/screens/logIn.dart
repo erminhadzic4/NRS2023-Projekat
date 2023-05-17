@@ -133,6 +133,7 @@ class _logInState extends State<logIn> {
       _authProvider.setToken(responseData['token']);
       token = responseData['token'];
       userId = responseData['userId'];
+    //  print("token "+ token); //izbrisati
       final storage = new FlutterSecureStorage();
       await storage.write(key: 'token', value: '$token');
 

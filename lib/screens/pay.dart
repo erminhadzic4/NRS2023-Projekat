@@ -140,7 +140,8 @@ class _PaymentPageState extends State<PaymentPage> {
     'SEK',
     'SGD',
     'THB',
-    'TWD'
+    'TWD',
+    'BAM'
   ];
 
   String _selectedCategory = "Pay";

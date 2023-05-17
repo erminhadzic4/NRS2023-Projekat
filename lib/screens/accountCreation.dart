@@ -38,7 +38,7 @@ class accountCreation extends StatefulWidget {
 }
 
 class _accountCreationState extends State<accountCreation> {
-  final List<String> _currencies = [     //slanje na backend rade samo BAM, USD, EUR, CHF
+  late List<String> _currencies = [     //slanje na backend rade samo BAM, USD, EUR, CHF
     'USD',
     'AUD',
     'BRL',
@@ -77,6 +77,34 @@ class _accountCreationState extends State<accountCreation> {
   final _descController = TextEditingController();
 
 
+ @override
+  void initState() {
+    super.initState();
+    fetchCurrencies();
+  }
+
+  Future<void> fetchCurrencies() async {
+    String? token = await storage.read(key: 'token');
+    final res = await http.get(
+      Uri.parse("http://siprojekat.duckdns.org:5051/api/ExchangeRate/currency"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    var responseData = jsonDecode(res.body);
+    List<String> currencies = [];
+
+    for (var currency in responseData) {
+      currencies.add(currency['name']);
+    }
+
+    setState(() {
+      _currencies = currencies;
+      _selectedCurrency = _currencies.isNotEmpty ? _currencies[0] : "";
+    });
+  }
 
   Future getId() async {
     String? token = await storage.read(key: 'token');
@@ -277,7 +305,23 @@ class _accountCreationState extends State<accountCreation> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                child: DropdownButtonFormField<String>(
+                child:DropdownButtonFormField<String>(
+                  value: _selectedCurrency,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCurrency = value!;
+                    });
+                  },
+                  items: _currencies.map((currency) {
+                    return DropdownMenuItem(
+                      value: currency,
+                      child: Text(currency),
+                    );
+                  }).toList(),
+                )
+
+
+                /* DropdownButtonFormField<String>(
                   value: _selectedCurrency,
                   onChanged: (String? value) {
                     setState(() {
@@ -290,7 +334,7 @@ class _accountCreationState extends State<accountCreation> {
                     child: Text(currency),
                   ))
                       .toList(),
-                ),
+                ),*/
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 40),
