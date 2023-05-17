@@ -4,6 +4,7 @@ import 'package:nrs2023/screens/transactionDetails.dart';
 import 'package:nrs2023/screens/filters.dart';
 import 'package:nrs2023/screens/claims.dart';
 import 'package:nrs2023/screens/grouping.dart';
+import 'package:nrs2023/screens/donation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -403,6 +404,14 @@ class InitalState extends State<Transactions> {
           );
         },
         itemCount: showntransactions.length + cupertinoCounter,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => DonationPage()));
+        },
+        label: const Text('Donate'),
+        icon: const Icon(Icons.diversity_3_outlined),
       ),
     );
   }

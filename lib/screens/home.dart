@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nrs2023/screens/accountList.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/transactions.dart';
 import 'package:nrs2023/screens/welcome.dart';
+import 'package:nrs2023/screens/donations.dart';
 import 'package:nrs2023/screens/voucher.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,20 +19,24 @@ class Account {
   final int debit;
   final int total;
   final String owner;
-  const Account({
-    required this.accountNumber,
-    required this.currency,
-    required this.bankName,
-    required this.credit,
-    required this.debit,
-    required this.total,
-    required this.owner
-  });
+  const Account(
+      {required this.accountNumber,
+      required this.currency,
+      required this.bankName,
+      required this.credit,
+      required this.debit,
+      required this.total,
+      required this.owner});
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
-      accountNumber: json['accountNumber'] as String, currency: json['currency'], bankName: json['bankName'],
-      credit: json['credit'], debit: json['debit'], total: json['total'], owner: json['owner']['name'],
+      accountNumber: json['accountNumber'] as String,
+      currency: json['currency'],
+      bankName: json['bankName'],
+      credit: json['credit'],
+      debit: json['debit'],
+      total: json['total'],
+      owner: json['owner']['name'],
     );
   }
 }
@@ -66,7 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String? token = await storage.read(key: 'token');
     print(token);
     final response = await http.get(
-      Uri.parse('http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
+      Uri.parse(
+          'http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token'
@@ -88,8 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void onAccountSelected(String accountNumber) {
     print('Selected account: $accountNumber');
-    selectedAccount = accounts.firstWhere(
-            (account) => account.accountNumber == accountNumber);
+    selectedAccount = accounts
+        .firstWhere((account) => account.accountNumber == accountNumber);
   }
 
   void showDetails() {
@@ -123,8 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       dropdownValue = '';
     });
-    selectedAccount = const Account(accountNumber: 'Null', currency: 'Null', bankName: 'Null',
-        credit: 0, debit: 0, total: 0, owner: 'Null');
+    selectedAccount = const Account(
+        accountNumber: 'Null',
+        currency: 'Null',
+        bankName: 'Null',
+        credit: 0,
+        debit: 0,
+        total: 0,
+        owner: 'Null');
   }
 
   @override
@@ -196,86 +209,90 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8.0),
                     Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: accounts.length,
-                        itemBuilder: (context, index) {
-                          final account = accounts[index];
-                          return GestureDetector(
-                            onLongPress: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Account Details'),
-                                    content: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Account Number: ${account.accountNumber}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                        Text('Owner: ${account.owner}'),
-                                        Text('Debit: \$${account.debit}'),
-                                        Text('Bank Name: ${account.bankName}'),
-                                        Text('Credit: \$${account.credit}'),
-                                        Text('Total: \$${account.total}'),
-                                      ],
-                                    ),
-                                    actions: <Widget>[
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Close'),
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Colors.blue, // Customize the button color
+                        child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: accounts.length,
+                      itemBuilder: (context, index) {
+                        final account = accounts[index];
+                        return GestureDetector(
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Account Details'),
+                                  content: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Account Number: ${account.accountNumber}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      SizedBox(height: 10),
+                                      Text('Owner: ${account.owner}'),
+                                      Text('Debit: \$${account.debit}'),
+                                      Text('Bank Name: ${account.bankName}'),
+                                      Text('Credit: \$${account.credit}'),
+                                      Text('Total: \$${account.total}'),
                                     ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Card(
-                              elevation: 2,
-                              child: ListTile(
-                                title: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      account.accountNumber,
-                                      style: const TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      account.currency,
-                                      style: const TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
+                                  ),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Close'),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors
+                                            .blue, // Customize the button color
                                       ),
                                     ),
                                   ],
-                                ),
-                                tileColor: dropdownValue == account.accountNumber ? Colors.blue[100] : null,
-                                onTap: () {
-                                  setState(() {
-                                    dropdownValue = account.accountNumber;
-                                  });
-                                  onAccountSelected(account.accountNumber);
-                                },
+                                );
+                              },
+                            );
+                          },
+                          child: Card(
+                            elevation: 2,
+                            child: ListTile(
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    account.accountNumber,
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    account.currency,
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              tileColor: dropdownValue == account.accountNumber
+                                  ? Colors.blue[100]
+                                  : null,
+                              onTap: () {
+                                setState(() {
+                                  dropdownValue = account.accountNumber;
+                                });
+                                onAccountSelected(account.accountNumber);
+                              },
                             ),
-                          );
-                        },
-                      )
-                    ),
+                          ),
+                        );
+                      },
+                    )),
                     const SizedBox(height: 16.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -309,7 +326,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const accountCreation()),
+                  MaterialPageRoute(
+                      builder: (context) => const accountCreation()),
                 );
               },
               tooltip: 'Create Account',
@@ -353,6 +371,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
               tooltip: 'Transaction History',
+            ),
+            IconButton(
+              icon: const Icon(CupertinoIcons.gift),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DonationsScreen()),
+                );
+              },
+              tooltip: 'Vouchers',
             ),
             IconButton(
               icon: const Icon(Icons.card_giftcard),
