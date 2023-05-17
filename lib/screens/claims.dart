@@ -78,6 +78,8 @@ class InitalState extends State<ClaimsScreen> {
       body: ListView.builder(
         itemExtent: 85,
         itemBuilder: (context, index) {
+          if (Claims[index].status == "Under_Investigation")
+            Claims[index].status = "Open";
           return ListTile(
             title: Text(Claims[index].subject),
             subtitle: Text("Status: " + Claims[index].status),

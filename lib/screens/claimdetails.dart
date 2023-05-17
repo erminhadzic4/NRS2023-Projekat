@@ -153,8 +153,12 @@ class InitalState extends State<ClaimDetailsScreen> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Text("Status: " + widget.status.toUpperCase(),
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      if (widget.status == "Under_Investigation")
+                        Text("Status: " + "Open".toUpperCase(),
+                            style: TextStyle(fontWeight: FontWeight.bold))
+                      else
+                        Text("Status: " + widget.status.toUpperCase(),
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                       SizedBox(height: 16.0),
                       Text("Subject: " + widget.subject),
                       SizedBox(height: 16.0),
