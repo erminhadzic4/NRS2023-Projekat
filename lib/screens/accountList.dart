@@ -51,6 +51,7 @@ class _AccountListPageState extends State<AccountListPage> {
   Future getUserAccounts() async {
     _accounts.clear();
     String? token = await storage.read(key: 'token');
+    print(token);
     final headers = {
       'Content-Type': 'application/json; charset=utf-8',
       'authorization': 'Bearer $token'
@@ -58,15 +59,15 @@ class _AccountListPageState extends State<AccountListPage> {
 
     final getAccounts = await http.get(
         Uri.parse(
-            'http://siprojekat.duckdns.org:5051/api/Account/user-accounts'),
+            'http://siprojekat.duckdns.org:5051/api/Exchange/GetUserAccounts'),
         headers: headers);
 
     var accountsList = json.decode(getAccounts.body);
 
     for (int i = 0; i < accountsList.length; i++) {
-      String currency = accountsList[i]['currency']['name'];
-      String bankName = accountsList[i]['description'];
-      String accountNumber = "accountsList[i]['account']";
+      String currency = accountsList[i]['currency'];
+      String bankName = accountsList[i]['bankName'];
+      String accountNumber = accountsList[i]['accountNumber'];
 
       var account = Accounts(
           currency: currency, bankName: bankName, account: accountNumber);
