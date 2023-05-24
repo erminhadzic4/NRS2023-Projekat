@@ -143,6 +143,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
               Expanded(
                 child: TextFormField(
+                  key: const ValueKey('recipientsName'),
                   controller: widget.textEditingController3,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -161,9 +162,10 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
               Expanded(
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
+                  key: const ValueKey('recipientsAccount'),
+                  keyboardType: TextInputType.text,
                   controller: widget.textEditingController4,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -181,6 +183,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
               Expanded(
                 child: TextFormField(
+                  key: const ValueKey('sendersName'),
                   controller: widget.textEditingController5,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -198,6 +201,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
             ),
             Expanded(
               child: DropdownButtonFormField<String>(
+                key: const ValueKey('transactionTypeDropdown'),
                 isExpanded: true,
                 decoration: InputDecoration(
                   enabledBorder: InputBorder.none,
@@ -233,6 +237,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
             Expanded(
               child: Column(children: <Widget>[
                 ElevatedButton(
+                  key: const ValueKey('selectDateButton'),
                   child: const Text("Select Date Range"),
                   onPressed: () async {
                     final DateTimeRange? dateTimeRange =
@@ -271,6 +276,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
             ),
             Flexible(
               child: DropdownButtonFormField<String>(
+                key: const ValueKey('selectCurrencyDropdown'),
                 isExpanded: true,
                 decoration: InputDecoration(
                   enabledBorder: InputBorder.none,
@@ -307,6 +313,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
               ),
               Expanded(
                 child: TextFormField(
+                  key: const ValueKey('category'),
                   controller: widget.textEditingController6,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
