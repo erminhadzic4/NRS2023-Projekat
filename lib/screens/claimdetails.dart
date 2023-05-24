@@ -229,6 +229,7 @@ class InitalState extends State<ClaimDetailsScreen> {
                               ),
                               Expanded(
                                 child: TextField(
+                                  key: const ValueKey('messageField'),
                                   controller: messageController,
                                   decoration: InputDecoration(
                                       hintText: "Write message...",
@@ -241,6 +242,7 @@ class InitalState extends State<ClaimDetailsScreen> {
                                 width: 15,
                               ),
                               FloatingActionButton(
+                                key: const ValueKey('sendMessage'),
                                 onPressed: () {
                                   createMessage();
                                 },
