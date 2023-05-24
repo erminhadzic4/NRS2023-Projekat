@@ -94,6 +94,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                   children: <Widget>[
                     Expanded(
                       child: TextFormField(
+                        key: const ValueKey('priceRangeStart'),
                         keyboardType: TextInputType.number,
                         enableInteractiveSelection: false,
                         controller: widget.textEditingController1,
@@ -115,6 +116,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        key: const ValueKey('priceRangeEnd'),
                         keyboardType: TextInputType.number,
                         enableInteractiveSelection: false,
                         controller: widget.textEditingController2,
