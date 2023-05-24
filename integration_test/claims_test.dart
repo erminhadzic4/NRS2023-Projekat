@@ -10,7 +10,7 @@ import 'package:nrs2023/main.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Test', (WidgetTester tester) async {
+  testWidgets('Claims Test', (WidgetTester tester) async {
     // Start app
     app.main();
     await tester.pumpAndSettle();

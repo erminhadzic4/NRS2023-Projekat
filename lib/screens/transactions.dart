@@ -327,7 +327,7 @@ class InitalState extends State<Transactions> {
                         title: Text("Currency"),
                         onTap: () {
                           // Group by currency
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => GroupingScreen(
@@ -341,7 +341,7 @@ class InitalState extends State<Transactions> {
                         title: Text("Transaction Type"),
                         onTap: () {
                           // Group by type
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => GroupingScreen(
