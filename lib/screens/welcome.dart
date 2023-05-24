@@ -44,6 +44,7 @@ class WelcomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 50.0),
             ElevatedButton(
+              key: const ValueKey('logInButton'), // Add a key to the button
               onPressed: () {
                 Navigator.push(
                   context,

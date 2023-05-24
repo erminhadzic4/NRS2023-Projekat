@@ -16,13 +16,11 @@ import 'home.dart';
 import 'loginAuth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-
 class logIn extends StatefulWidget {
   const logIn({Key? key}) : super(key: key);
 
   @override
   State<logIn> createState() => _logInState();
-
 
   Future<void> logout(BuildContext context) async {
     final storage = FlutterSecureStorage();
@@ -31,13 +29,10 @@ class logIn extends StatefulWidget {
     final url = Uri.parse("http://siprojekat.duckdns.org:5051/api/User/logout");
 
     try {
-      final response = await http.patch(
-          url,
-
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          });
+      final response = await http.patch(url, headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      });
 
       // headers: {'Authorization': 'Bearer $token'},
       // );
@@ -46,7 +41,7 @@ class logIn extends StatefulWidget {
         Navigator.pushAndRemoveUntil<Widget>(
           context,
           MaterialPageRoute<Widget>(builder: (context) => WelcomeScreen()),
-              (route) => false,
+          (route) => false,
         );
       } else {
         throw Exception('Failed to log out');
@@ -55,20 +50,19 @@ class logIn extends StatefulWidget {
       print('Error occurred while logging out: $e');
     }
   }
-
 }
+
 bool _isLoggedIn = false;
 Map _userObj = {};
 
 class _logInState extends State<logIn> {
-
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late AuthProvider _authProvider;
 
   //Za dobivanje tokena na ostalim ekranima nakon uspješne prijave iskoristi ove dvije linije koda u initState svog ekrana:
-   // final _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  // final _authProvider = Provider.of<AuthProvider>(context, listen: false);
   //  token = _authProvider.token;
   var token;
   var userId;
@@ -97,13 +91,12 @@ class _logInState extends State<logIn> {
       OSNotificationDisplayType.notification;
     });
   }
-  
-  void sendNotification() async {
 
-    await http.post(
-        Uri.parse("https://onesignal.com/api/v1/notifications"),
+  void sendNotification() async {
+    await http.post(Uri.parse("https://onesignal.com/api/v1/notifications"),
         headers: <String, String>{
-          'Authorization': 'Basic OGJhZmVkMTMtMDc0Ni00ZjdlLTg3MDctMTFiMGU4NTExMTRh',
+          'Authorization':
+              'Basic OGJhZmVkMTMtMDc0Ni00ZjdlLTg3MDctMTFiMGU4NTExMTRh',
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
@@ -371,6 +364,7 @@ class _logInState extends State<logIn> {
           ),
         ),
         body: SingleChildScrollView(
+          key: const ValueKey('Container'),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -410,6 +404,7 @@ class _logInState extends State<logIn> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        key: const ValueKey('EmailField'),
                         //controller: _controllers[0],
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -455,6 +450,7 @@ class _logInState extends State<logIn> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key: const ValueKey('PasswordField'),
                           controller: _passwordController,
                           obscureText: true,
                           keyboardType: TextInputType.emailAddress,
@@ -498,6 +494,7 @@ class _logInState extends State<logIn> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 100),
                 child: MaterialButton(
+                  key: const ValueKey('loginbutton'),
                   elevation: 10,
                   height: 50,
                   minWidth: double.infinity,
@@ -544,9 +541,13 @@ class _logInState extends State<logIn> {
                             _userObj = {};
                           });
                         });
-                        await FacebookAuth.instance.login(
-                            permissions: ["public_profile", "email"]).then((value) {
-                          FacebookAuth.instance.getUserData().then((userData) async {
+                        await FacebookAuth.instance.login(permissions: [
+                          "public_profile",
+                          "email"
+                        ]).then((value) {
+                          FacebookAuth.instance
+                              .getUserData()
+                              .then((userData) async {
                             setState(() {
                               _isLoggedIn = true;
                               _userObj = userData;
@@ -554,10 +555,10 @@ class _logInState extends State<logIn> {
                           });
                         });
                         //if(_isLoggedIn){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomeScreen()),
-                          );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
                         //}
                       },
                     )
