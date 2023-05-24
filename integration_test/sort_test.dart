@@ -11,7 +11,7 @@ import 'package:nrs2023/main.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Donations Test', (WidgetTester tester) async {
+  testWidgets('Sort Test', (WidgetTester tester) async {
     // Start app
     app.main();
     await tester.pumpAndSettle();
@@ -55,66 +55,60 @@ void main() {
     await Future.delayed(const Duration(seconds: 2));
     expect(find.text('Transactions'), findsWidgets);
 
-    // Donate is pressed
-    var donationbutton = find.byIcon(Icons.diversity_3_outlined);
-    await tester.tap(donationbutton);
+    // Sort is pressed
+    var sortbutton = find.byIcon(Icons.sort);
+    await tester.tap(sortbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('Donation'), findsWidgets);
+    expect(find.text('Sort by'), findsWidgets);
 
-    // Back pressed
-    var backButton = find.byIcon(Icons.arrow_back);
-    await tester.tap(backButton);
+    // Ascending amount is pressed
+    final ascendingbutton = find.text('Amount (ascending)');
+    await tester.tap(ascendingbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
     expect(find.text('Transactions'), findsWidgets);
 
-    // Back pressed again
-    backButton = find.byIcon(Icons.arrow_back);
-    await tester.tap(backButton);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('Home Screen'), findsWidgets);
-
-    // Donations is selected
-    var donationsbutton = find.byIcon(CupertinoIcons.gift);
-    await tester.tap(donationsbutton);
+    // Sort is pressed
+    sortbutton = find.byIcon(Icons.sort);
+    await tester.tap(sortbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('My Donations'), findsWidgets);
+    expect(find.text('Sort by'), findsWidgets);
 
-    // First donation selected
-    final firstdonation = find.byType(ListTile).first;
-    await tester.tap(firstdonation);
+    // Descending amount is pressed
+    final descendingbutton = find.text('Amount (descending)');
+    await tester.tap(descendingbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('Donation Details'), findsWidgets);
+    expect(find.text('Transactions'), findsWidgets);
 
-    // Back pressed
-    backButton = find.byIcon(Icons.arrow_back);
-    await tester.tap(backButton);
+    // Sort is pressed
+    sortbutton = find.byIcon(Icons.sort);
+    await tester.tap(sortbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('My Donations'), findsWidgets);
+    expect(find.text('Sort by'), findsWidgets);
 
-    // Add donation is selected
-    var adddonationbutton = find.byIcon(Icons.add);
-    await tester.tap(adddonationbutton);
+    // Descending date is pressed
+    final descendingbuttondate = find.text('Date (descending)');
+    await tester.tap(descendingbuttondate);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('Donation'), findsWidgets);
+    expect(find.text('Transactions'), findsWidgets);
 
-    // Back pressed
-    backButton = find.byIcon(Icons.arrow_back);
-    await tester.tap(backButton);
+    // Sort is pressed
+    sortbutton = find.byIcon(Icons.sort);
+    await tester.tap(sortbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('My Donations'), findsWidgets);
+    expect(find.text('Sort by'), findsWidgets);
 
-    // Back pressed again
-    backButton = find.byIcon(Icons.arrow_back);
-    await tester.tap(backButton);
+    // Ascending date is pressed
+    final ascendingbuttondate = find.text('Date (ascending)');
+    await tester.tap(ascendingbuttondate);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('Home Screen'), findsWidgets);
+    expect(find.text('Transactions'), findsWidgets);
   });
 }
