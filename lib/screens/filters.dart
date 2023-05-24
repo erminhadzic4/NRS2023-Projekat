@@ -241,7 +241,7 @@ class MyStatefulWidgetState extends State<FiltersScreen> {
                   child: const Text("Select Date Range"),
                   onPressed: () async {
                     final DateTimeRange? dateTimeRange =
-                        await showDateRangePicker(
+                    await showDateRangePicker(
                       context: context,
                       firstDate: DateTime(2000),
                       lastDate: DateTime(3000),
