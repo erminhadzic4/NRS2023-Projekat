@@ -68,9 +68,10 @@ void main() {
     await tester.tap(selectDateButton);
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    final date = find.text("17").first;
-    await tester.tap(date);
-    await tester.tap(date);
+    final date1= find.text("16").first;
+    final date2 = find.text("18").first;
+    await tester.tap(date1);
+    await tester.tap(date2);
     await Future.delayed(const Duration(seconds: 1));
     final save = find.text("SAVE").first;
     await tester.tap(save);
@@ -101,11 +102,12 @@ void main() {
 
     await tester.pumpAndSettle(const Duration(seconds: 3));
     //apply filters
-    final applyButton = find.text('Apply Filters');
+    final applyButton = find.text('Apply Filters').first;
     await tester.tap(applyButton);
 
     //assert that no transaction with amount of 20 is found
-    await tester.pumpAndSettle(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 5));
     //expect(find.text('20'), findsNothing);
 
   });
