@@ -119,6 +119,7 @@ class _ClaimPageState extends State<ClaimPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               TextField(
+                key: const ValueKey('subjectField'),
                 controller: _problemTypeController,
                 decoration: InputDecoration(
                   labelText: 'Subject',
@@ -127,6 +128,7 @@ class _ClaimPageState extends State<ClaimPage> {
               ),
               SizedBox(height: 16.0),
               TextField(
+                key: const ValueKey('descriptionField'),
                 controller: _problemDescriptionController,
                 decoration: InputDecoration(
                   labelText: 'Description',

@@ -380,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => DonationsScreen()),
                 );
               },
-              tooltip: 'Vouchers',
+              tooltip: 'Donations',
             ),
             IconButton(
               icon: const Icon(Icons.card_giftcard),
