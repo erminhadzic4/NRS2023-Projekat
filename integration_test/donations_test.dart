@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:nrs2023/main.dart' as app;
 
@@ -75,7 +76,7 @@ void main() {
     expect(find.text('Home Screen'), findsWidgets);
 
     // Donations is selected
-    var donationsbutton = find.byIcon(Icons.card_giftcard);
+    var donationsbutton = find.byIcon(CupertinoIcons.gift);
     await tester.tap(donationsbutton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
@@ -93,7 +94,7 @@ void main() {
     await tester.tap(backButton);
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
-    expect(find.text('Transactions'), findsWidgets);
+    expect(find.text('My Donations'), findsWidgets);
 
     // Add donation is selected
     var adddonationbutton = find.byIcon(Icons.add);
@@ -101,5 +102,19 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await Future.delayed(const Duration(seconds: 2));
     expect(find.text('Donation'), findsWidgets);
+
+    // Back pressed
+    backButton = find.byIcon(Icons.arrow_back);
+    await tester.tap(backButton);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+    expect(find.text('My Donations'), findsWidgets);
+
+    // Back pressed again
+    backButton = find.byIcon(Icons.arrow_back);
+    await tester.tap(backButton);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+    expect(find.text('Home Screen'), findsWidgets);
   });
 }

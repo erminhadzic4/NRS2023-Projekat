@@ -37,7 +37,7 @@ class Vendor {
   String companyDetails;
   String phone;
   DateTime created;
-  List<User> assignedUsers;
+  List<User>? assignedUsers;
 
   Vendor(
     this.id,
@@ -51,30 +51,29 @@ class Vendor {
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     return Vendor(
-      json['id'],
-      json['name'],
-      json['address'],
-      json['companyDetails'],
-      json['phone'],
-      DateTime.parse(json['created']),
-      (json['assignedUsers'] as List<dynamic>)
-          .map((userData) => User.fromJson(userData))
-          .toList(),
-    );
+        json['id'],
+        json['name'],
+        json['address'],
+        json['companyDetails'],
+        json['phone'],
+        DateTime.parse(json['created']),
+        (json['assignedUsers'] as List<dynamic>)
+            .map((userData) => User.fromJson(userData))
+            .toList());
   }
 }
 
 class VendorAccount {
-  String accountNumber;
-  DateTime createdAt;
-  String currency;
-  String bankName;
-  String description;
-  double credit;
-  double debit;
-  double total;
-  Vendor owner;
-  User creator;
+  String? accountNumber;
+  DateTime? createdAt;
+  String? currency;
+  String? bankName;
+  String? description;
+  double? credit;
+  double? debit;
+  double? total;
+  Vendor? owner;
+  User? creator;
 
   VendorAccount({
     required this.accountNumber,
@@ -106,14 +105,14 @@ class VendorAccount {
 }
 
 class User {
-  String id;
-  String firstName;
-  String lastName;
-  String address;
-  String accountNumber;
-  String type;
-  String email;
-  String phoneNumber;
+  String? id;
+  String? firstName;
+  String? lastName;
+  String? address;
+  String? accountNumber;
+  String? type;
+  String? email;
+  String? phoneNumber;
 
   User({
     required this.id,
@@ -162,7 +161,7 @@ class InitalState extends State<DonationPage> {
         'Authorization': 'Bearer $token'
       },
     );
-    //print(response.body);
+    print(response.body);
     final responseData = json.decode(response.body);
     responseData.forEach((vendorData) {
       vendors.add(Vendor.fromJson(vendorData));
@@ -191,7 +190,7 @@ class InitalState extends State<DonationPage> {
 
     if (vendorsAccounts.isNotEmpty) {
       setState(() {
-        _selectedVendorAccount = vendorsAccounts[0].accountNumber;
+        _selectedVendorAccount = vendorsAccounts[0].accountNumber!;
       });
     }
   }
