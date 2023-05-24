@@ -99,7 +99,7 @@ void main() {
     await tester.tap(USD);
 
 
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
     //apply filters
     final applyButton = find.text('Apply Filters');
     await tester.tap(applyButton);
