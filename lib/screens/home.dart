@@ -390,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => VoucherScreen()),
                 );
               },
-              tooltip: 'Vouchers',
+              tooltip: 'Donations',
             ),
           ],
         ),
