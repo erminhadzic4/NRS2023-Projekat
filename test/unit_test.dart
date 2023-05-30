@@ -5,6 +5,7 @@ import 'package:nrs2023/auth_provider.dart';
 import 'package:nrs2023/screens/donationdetails.dart' as detailsDonation;
 import 'package:nrs2023/screens/donations.dart' as donations;
 import 'package:nrs2023/screens/donation.dart';
+import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:nrs2023/screens/loginAuth.dart';
 import 'package:provider/provider.dart';
 
@@ -453,6 +454,51 @@ void main() {
           // Provjera da li je listener bio obavešten o promjeni
           expect(listener.notified, true);
 
+        });
+
+        group('EmailValidation', () {
+          late EmailValidationState emailValidationState;
+
+          setUp(() {
+            emailValidationState = EmailValidationState();
+          });
+
+          test(
+              'EmailValidationState creates input decoration with correct properties', () {
+            final inputDecoration = emailValidationState
+                .registerInputDecoration(
+              'Label Text',
+              'Hint Text',
+            );
+
+            expect(inputDecoration.isDense, true);
+            expect(
+              inputDecoration.contentPadding,
+              const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10),
+            );
+            expect(inputDecoration.filled, true);
+            expect(inputDecoration.fillColor, Colors.white);
+            expect(inputDecoration.labelText, 'Label Text');
+            expect(inputDecoration.hintText, 'Hint Text');
+            expect(inputDecoration.border, const OutlineInputBorder());
+          });
+
+          testWidgets('Verify button calls confirmEmail', (WidgetTester tester) async {
+            final valuesInput = [
+              TextEditingController(), // Mail controller
+              TextEditingController(), // First name controller
+              TextEditingController(), // Last name controller
+              TextEditingController(), // Username controller
+            ];
+
+            await tester.pumpWidget(MaterialApp(
+              home: EmailValidation(valuesInput: valuesInput),
+            ));
+
+            // Tap the verify button
+            await tester.tap(find.text('Verify'));
+            await tester.pumpAndSettle();
+          });
         });
       });
     });
