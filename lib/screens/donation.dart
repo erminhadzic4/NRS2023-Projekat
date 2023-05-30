@@ -1,34 +1,11 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:nrs2023/screens/transactions.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import '../auth_provider.dart';
-
-class _AccountNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    String value = newValue.text.replaceAll('-', '');
-    String formattedValue = '';
-    for (int i = 0; i < value.length; i++) {
-      formattedValue += value[i];
-      if ((i + 1) % 4 == 0 && i != value.length - 1) {
-        formattedValue += '-';
-      }
-    }
-    return TextEditingValue(
-      text: formattedValue,
-      selection: TextSelection.collapsed(offset: formattedValue.length),
-    );
-  }
-}
 
 class Vendor {
   int id;
@@ -151,26 +128,40 @@ class InitalState extends State<DonationPage> {
   String _selectedVendor = ""; // Initialize with an empty string
   String _selectedVendorAccount = "Izaberi account";
 
-  Future<void> _getVendors() async {
+  Future<void> getVendors() async {
     var link = "http://siprojekat.duckdns.org:5051/api/Vendor";
     final url = Uri.parse(link);
     final response = await http.get(
       url,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    final responseData = json.decode(response.body);
-    responseData.forEach((vendorData) {
-      vendors.add(Vendor.fromJson(vendorData));
-    });
 
-    if (vendors.isNotEmpty) {
-      setState(() {
-        _selectedVendor = vendors[0].id.toString();
-      });
+    final responseBody = response.body;
+
+    if (responseBody.isNotEmpty) {
+      try {
+        final responseData = json.decode(responseBody);
+        responseData.forEach((vendorData) {
+          vendors.add(Vendor.fromJson(vendorData));
+        });
+
+        if (vendors.isNotEmpty) {
+          setState(() {
+            _selectedVendor = vendors[0].id.toString();
+          });
+        }
+      } catch (e) {
+        // Handle JSON decoding exception
+        print('Error decoding JSON: $e');
+        // Handle the error in an appropriate way (e.g., display an error message)
+      }
+    } else {
+      // Handle empty response body
+      print('Empty response received');
+      // Handle the empty response in an appropriate way
     }
   }
 
@@ -200,7 +191,7 @@ class InitalState extends State<DonationPage> {
   void initState() {
     final _authProvider = Provider.of<AuthProvider>(context, listen: false);
     token = _authProvider.token;
-    _getVendors();
+    getVendors();
     super.initState();
   }
 
@@ -246,6 +237,8 @@ class InitalState extends State<DonationPage> {
     "One-time donation",
     "Long-term donation",
   ];
+  String get selectedType => _selectedType;
+
   String _selectedFrequency = "Every day";
   final List<String> _frequency = [
     "Every day",
@@ -317,23 +310,6 @@ class InitalState extends State<DonationPage> {
                     );
                   }).toList(),
                 ),
-                /*SizedBox(height: 8),
-                Text('Recipient Bank Account'),
-                DropdownButtonFormField<String>(
-                  value: _selectedVendorAccount,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedVendorAccount = newValue!;
-
-                    });
-                  },
-                  items: vendorsAccounts.map<DropdownMenuItem<String>>((VendorAccount vendorAccount) {
-                      return DropdownMenuItem<String>(
-                        value: vendorAccount.accountNumber.toString(),
-                        child: Text(vendorAccount.accountNumber),
-                      );
-                    }).toList(),
-                ),*/
                 SizedBox(height: 8),
                 Text('Vendors Account Number'),
                 TextFormField(
@@ -357,20 +333,28 @@ class InitalState extends State<DonationPage> {
                 SizedBox(height: 8),
                 Text('Category'),
                 Column(
-                  children: _types
-                      .map(
-                        (donationType) => RadioListTile<String>(
-                          title: Text(donationType),
-                          value: donationType,
-                          groupValue: _selectedType,
-                          onChanged: (String? value) {
-                            setState(() {
-                              _selectedType = value!;
-                            });
-                          },
-                        ),
-                      )
-                      .toList(),
+                  children: [
+                    RadioListTile(
+                      title: Text('One-time donation'),
+                      value: 'One-time donation',
+                      groupValue: selectedType,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedType = value!;
+                        });
+                      },
+                    ),
+                    RadioListTile(
+                      title: Text('Long-term donation'),
+                      value: 'Long-term donation',
+                      groupValue: selectedType,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedType = value!;
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8),
                 Text('Currency'),
@@ -518,12 +502,11 @@ class InitalState extends State<DonationPage> {
                     child: ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'You have successfully donated!'), // Your message here
-                              ),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: const Text(
+                                'You have successfully donated!',
+                              ), // Your message here
+                            ));
                           }
                         },
                         child: const Text('Donate')))
