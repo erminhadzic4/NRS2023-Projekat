@@ -5,20 +5,24 @@ class LoginAuthScreen extends StatefulWidget {
   const LoginAuthScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginAuthScreenState createState() => _LoginAuthScreenState();
+  LoginAuthScreenState createState() => LoginAuthScreenState();
 }
 
-class _LoginAuthScreenState extends State<LoginAuthScreen> {
-  late String _emailCode;
-  late String _phoneCode;
+class LoginAuthScreenState extends State<LoginAuthScreen> {
+  late String emailCode;
+  late String phoneCode;
 
   @override
   void initState() {
     super.initState();
 
-    _emailCode = "123456";
-    _phoneCode = "654321";
+    emailCode = "123456";
+    phoneCode = "654321";
   }
+
+  getEmailCode() {return emailCode;}
+
+  getPhoneCode() {return phoneCode;}
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class _LoginAuthScreenState extends State<LoginAuthScreen> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _emailCode = value;
+                  emailCode = value;
                 });
               },
             ),
@@ -54,7 +58,7 @@ class _LoginAuthScreenState extends State<LoginAuthScreen> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _phoneCode = value;
+                  phoneCode = value;
                 });
               },
             ),
@@ -69,8 +73,8 @@ class _LoginAuthScreenState extends State<LoginAuthScreen> {
                   ),
                 );
                 // TODO: IMPLEMENTIRATI LOGIKU VALIDACIJE
-                print('Email code entered: $_emailCode');
-                print('Phone code entered: $_phoneCode');
+                print('Email code entered: $emailCode');
+                print('Phone code entered: $phoneCode');
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(120, 50),
@@ -87,4 +91,5 @@ class _LoginAuthScreenState extends State<LoginAuthScreen> {
       ),
     );
   }
+
 }
