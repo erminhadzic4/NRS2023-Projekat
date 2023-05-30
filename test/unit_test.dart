@@ -7,7 +7,10 @@ import 'package:nrs2023/screens/donations.dart' as donations;
 import 'package:nrs2023/screens/donation.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:nrs2023/screens/loginAuth.dart';
+import 'package:nrs2023/screens/numberValidation.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import 'package:nrs2023/screens/register.dart';
 
 
 void main() {
@@ -499,11 +502,169 @@ void main() {
             await tester.tap(find.text('Verify'));
             await tester.pumpAndSettle();
           });
+
+          group('NumberValidations', () {
+
+            testWidgets('Initial state', (WidgetTester tester) async {
+              await tester.pumpWidget(NumberValidation(username: 'test'));
+
+              final state = tester.state<NumberValidationState>(find.byType(NumberValidation));
+              expect(state.phoneController.text, '');
+              expect(state.confirmationCode, '');
+              expect(state.logged, false);
+              expect(state.codeSent, false);
+            });
+
+            testWidgets('onCodeChanged', (WidgetTester tester) async {
+              await tester.pumpWidget(NumberValidation(username: 'test'));
+
+              final state = tester.state<NumberValidationState>(find.byType(NumberValidation));
+              state.onCodeChanged('123456');
+
+              expect(state.confirmationCode, '123456');
+            });
+
+            testWidgets('onSendCodePressed', (WidgetTester tester) async {
+              await tester.pumpWidget(NumberValidation(username: 'test'));
+
+              final state = tester.state<NumberValidationState>(find.byType(NumberValidation));
+              state.onSendCodePressed();
+
+            });
+
+            testWidgets('onConfirmPressed', (WidgetTester tester) async {
+              await tester.pumpWidget(NumberValidation(username: 'test'));
+
+              final state = tester.state<NumberValidationState>(find.byType(NumberValidation));
+              state.onConfirmPressed();
+            });
+
+            testWidgets('build', (WidgetTester tester) async {
+              await tester.pumpWidget(NumberValidation(username: 'test'));
+
+              final state = tester.state<NumberValidationState>(find.byType(NumberValidation));
+              state.onCodeChanged('123456');
+
+            });
+
+            testWidgets('AlertDialog actions', (WidgetTester tester) async {
+              bool dialogClosed = false;
+
+              await tester.pumpWidget(
+                MaterialApp(
+                  home: Scaffold(
+                    body: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: tester.element(find.byType(ElevatedButton)),
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Test Dialog'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    dialogClosed = true;
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Open Dialog'),
+                    ),
+                  ),
+                ),
+              );
+
+              // Kliknite na gumb za otvaranje dijaloga
+              await tester.tap(find.text('Open Dialog'));
+              await tester.pumpAndSettle();
+
+              // Provjerite da se dijalog prikazuje
+              expect(find.text('Test Dialog'), findsOneWidget);
+
+              // Kliknite na gumb "OK" u dijalogu
+              await tester.tap(find.text('OK'));
+              await tester.pumpAndSettle();
+
+              // Provjerite da se dijalog zatvorio
+              expect(dialogClosed, isTrue);
+              expect(find.text('Test Dialog'), findsNothing);
+            });
+
+
+            group('prettyPrint', () {
+              test('should return pretty printed JSON string', () {
+                final json = {'name': 'John', 'age': 30};
+                final expectedPretty = '{\n  "name": "John",\n  "age": 30\n}';
+
+                final result = prettyPrint(json);
+
+                expect(result, expectedPretty);
+              });
+            });
+
+            group('AccountNumberFormatter', () {
+              final formatter = AccountNumberFormatter();
+
+              test('should format account number input with dashes', () {
+                const oldValue = TextEditingValue(text: '1234567890123456');
+                const newValue = TextEditingValue(text: '1234-5678-9012-3456');
+
+                final result = formatter.formatEditUpdate(oldValue, newValue);
+
+                expect(result.text, '1234-5678-9012-3456');
+                expect(result.selection.baseOffset, 19);
+                expect(result.selection.extentOffset, 19);
+              });
+
+              test('should format account number input with dashes when editing', () {
+                const oldValue = TextEditingValue(text: '1234-5678-9012-3456');
+                const newValue = TextEditingValue(text: '1234567890123456');
+
+                final result = formatter.formatEditUpdate(oldValue, newValue);
+
+                expect(result.text, '1234-5678-9012-3456');
+                expect(result.selection.baseOffset, 19);
+                expect(result.selection.extentOffset, 19);
+              });
+
+              group('RegisterState', () {
+                late RegisterState registerState;
+
+                setUp(() {
+                  registerState = RegisterState();
+                });
+
+                test('should return correct input decoration', () {
+                  const labelText = 'Label';
+                  const hintText = 'Hint';
+
+                  final inputDecoration = registerState.registerInputDecoration(labelText, hintText);
+
+                  expect(inputDecoration.isDense, true);
+                  expect(inputDecoration.contentPadding, const EdgeInsets.only(bottom: 15, top: 15, left: 10, right: 10));
+                  expect(inputDecoration.filled, true);
+                  expect(inputDecoration.fillColor, Colors.white);
+                  expect(inputDecoration.labelText, labelText);
+                  expect(inputDecoration.hintText, hintText);
+                  expect(inputDecoration.border, const OutlineInputBorder());
+                });
+
+              });
+            });
+          });
         });
       });
     });
   });
 }
+
+
+
 
 // Mock klasa za testiranje listenera
 class ListenerMock {

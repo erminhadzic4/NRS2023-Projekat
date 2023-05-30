@@ -640,7 +640,7 @@ packages:
     source: hosted
     version: "1.0.4"
   mockito:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: mockito
       sha256: b84dae984cd112de0dd0829f35ac9fe21137dac5ee69c6430ddc5ef77959214c
