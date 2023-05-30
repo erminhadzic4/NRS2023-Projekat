@@ -11,26 +11,26 @@ class NumberValidation extends StatefulWidget {
   final String username;
 
   @override
-  State<NumberValidation> createState() => _NumberValidationState();
+  State<NumberValidation> createState() => NumberValidationState();
 }
 
-class _NumberValidationState extends State<NumberValidation> {
-  final TextEditingController _phoneController = TextEditingController();
-  String _confirmationCode = '';
+class NumberValidationState extends State<NumberValidation> {
+  final TextEditingController phoneController = TextEditingController();
+  String confirmationCode = '';
   bool logged = false;
   bool codeSent = false;
 
-  void _onCodeChanged(String value) {
+  void onCodeChanged(String value) {
     setState(() {
-      _confirmationCode = value;
+      confirmationCode = value;
     });
   }
 
-  void _onSendCodePressed() {
+  void onSendCodePressed() {
     //sendCode(userName);
   }
 
-  void _onConfirmPressed() {
+  void onConfirmPressed() {
     String correctCode = '123456';
   }
 
@@ -112,7 +112,7 @@ class _NumberValidationState extends State<NumberValidation> {
   Widget build(BuildContext context) {
     String userName = widget.username;
     void Print() {
-      print(userName + _confirmationCode);
+      print(userName + confirmationCode);
     }
 
     Future<void> verifyNumber() async {
@@ -120,9 +120,9 @@ class _NumberValidationState extends State<NumberValidation> {
           'http://siprojekat.duckdns.org:5051/api/User/confirm/phone');
       final headers = {'Content-Type': 'application/json'};
       final body =
-          json.encode({'Username': userName, 'code': _confirmationCode});
+          json.encode({'Username': userName, 'code': confirmationCode});
 
-      print(userName + " " + _confirmationCode);
+      print(userName + " " + confirmationCode);
 
       final res = await http.post(url, headers: headers, body: body);
 
@@ -218,7 +218,7 @@ class _NumberValidationState extends State<NumberValidation> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           onChanged: (value) {
-                            _onCodeChanged(value);
+                            onCodeChanged(value);
                           },
                           keyboardType: TextInputType.emailAddress,
                           decoration:

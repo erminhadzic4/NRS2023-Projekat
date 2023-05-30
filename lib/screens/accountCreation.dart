@@ -11,7 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'home.dart';
 
 
-class _AccountNumberFormatter extends TextInputFormatter {
+class AccountNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
@@ -34,11 +34,11 @@ class accountCreation extends StatefulWidget {
   const accountCreation({Key? key}) : super(key: key);
 
   @override
-  State<accountCreation> createState() => _accountCreationState();
+  State<accountCreation> createState() => accountCreationState();
 }
 
-class _accountCreationState extends State<accountCreation> {
-  final List<String> _currencies = [     //slanje na backend rade samo BAM, USD, EUR, CHF
+class accountCreationState extends State<accountCreation> {
+  final List<String> currencies = [     //slanje na backend rade samo BAM, USD, EUR, CHF
     'USD',
     'AUD',
     'BRL',
@@ -66,15 +66,15 @@ class _accountCreationState extends State<accountCreation> {
 
   bool isLoading = false;
 
-  late FilePickerResult? _result;
-  late String? _fileName = "";
-  late String? _filePath = "";
+  late FilePickerResult? result;
+  late String? fileName = "";
+  late String? filePath = "";
   late PlatformFile? pickedFile;
   final storage = new FlutterSecureStorage();
 
-  String _selectedCurrency = "USD";
+  String selectedCurrency = "USD";
 
-  final _descController = TextEditingController();
+  final descController = TextEditingController();
 
 
 
@@ -110,7 +110,7 @@ class _accountCreationState extends State<accountCreation> {
         });
     var responseData = jsonDecode(res.body);
     for(var currency in responseData) {
-      if(currency['name'] == _selectedCurrency) {
+      if(currency['name'] == selectedCurrency) {
         return currency['id'].toString();
       }
     }
@@ -124,18 +124,18 @@ class _accountCreationState extends State<accountCreation> {
         setState(() {
           isLoading = true;
         });
-        _result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['pdf'],
           allowMultiple: false
         );
 
-        if(_result!=null) {
-          _fileName = _result!.files.first.name;
-          pickedFile = _result!.files.first;
-          _filePath = _result!.files.first.path;
+        if(result!=null) {
+          fileName = result!.files.first.name;
+          pickedFile = result!.files.first;
+          filePath = result!.files.first.path;
           //return _result!.files.first.name;
-          print("SELECTED FILE: $_filePath");
+          print("SELECTED FILE: $filePath");
         }
         setState(() {
           isLoading = false;
@@ -164,8 +164,8 @@ class _accountCreationState extends State<accountCreation> {
         },
         body: jsonEncode(<String, String>{
           "currencyId": "$currencyId",
-          "description": _descController.text,  //staviti controller
-          "requestDocumentPath": _filePath.toString(),  //
+          "description": descController.text,  //staviti controller
+          "requestDocumentPath": filePath.toString(),  //
           "userId": "$userId"
         }));
     var response = json.decode(res.body);
@@ -278,13 +278,13 @@ class _accountCreationState extends State<accountCreation> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedCurrency,
+                  value: selectedCurrency,
                   onChanged: (String? value) {
                     setState(() {
-                      _selectedCurrency = value!;
+                      selectedCurrency = value!;
                     });
                   },
-                  items: _currencies
+                  items: currencies
                       .map((currency) => DropdownMenuItem(
                     value: currency,
                     child: Text(currency),
@@ -308,7 +308,7 @@ class _accountCreationState extends State<accountCreation> {
                       child: TextFormField(
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-                          _AccountNumberFormatter(),
+                          AccountNumberFormatter(),
                           LengthLimitingTextInputFormatter(19),
                         ],
                         //controller: _controllers[0],
@@ -337,7 +337,7 @@ class _accountCreationState extends State<accountCreation> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
-                        controller: _descController,
+                        controller: descController,
                         /*autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
                         },*/
@@ -367,15 +367,15 @@ class _accountCreationState extends State<accountCreation> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
 
                   child: Column(children: [
-                    Text("$_fileName"),
+                    Text("$fileName"),
                     const SizedBox(
                       height: 10,
                     ),
                     TextButton(onPressed: () {
                       setState(() {
-                        _fileName = "";
-                        _filePath = null;
-                        print(_filePath);
+                        fileName = "";
+                        filePath = null;
+                        print(filePath);
                       });
                     },
                         child: Text("Remove file"))
