@@ -24,7 +24,7 @@ class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
   @override
-  State<Register> createState() => _RegisterState();
+  State<Register> createState() => RegisterState();
 }
 
 class _AccountNumberFormatter extends TextInputFormatter {
@@ -49,7 +49,7 @@ bool _isLoggedIn = false;
 Map _userObj = {};
 bool nextScreen = false;
 
-class _RegisterState extends State<Register> {
+class RegisterState extends State<Register> {
   //final GoogleSignIn _googleSignIn = GoogleSignIn();
   /*GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
