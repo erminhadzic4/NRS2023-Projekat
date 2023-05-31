@@ -771,32 +771,7 @@ void main() {
                   userId = responseData['userId'];
                 }
 
-/*
-                await tester.pumpWidget(
-                  MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider<AuthProvider>.value(
-                        value: AuthProvider(), // Provide an instance of AuthProvider
-                      ),
-                    ],
-                    child: MaterialApp(
-                      home: transactions.Transactions(
-                        filterDateStart: DateTime.now(),
-                        filterDateEnd: DateTime.now(),
-                        filterCurrency: '',
-                        filterTransactionType: '',
-                        filterPriceRangeStart: '',
-                        filterPriceRangeEnd: '',
-                        filterRecipientName: '',
-                        filterRecipientAccount: '',
-                        filterSenderName: '',
-                        filterCategory: '',
-                        filterSortingOrder: '',),
-                    ),
-                  ),
-                );
 
- */
               });
               testWidgets('FiltersScreen - Dropdown selection test', (WidgetTester tester) async {
                 // Build FiltersScreen widget
@@ -824,21 +799,7 @@ void main() {
                 // Verify that the selected transaction type is updated
                 expect(find.text("c2c"), findsOneWidget);
               });
-              testWidgets('Test grouping', (WidgetTester tester) async {
 
-                // Act
-
-                /*await tester.pumpWidget(
-                  MaterialApp(
-                    home: groupings.GroupingScreen(link: 'http//example.com',
-                    ),
-                  ),
-                );
-                await tester.pumpAndSettle();
-                */
-                // Assert
-                //expect(find.text('Grouping'), findsWidgets);
-              });
               testWidgets('Submitting claim should call createClaim API', (tester) async {
                 // Build the widget
                 await tester.pumpWidget(
@@ -911,9 +872,6 @@ void main() {
                     ),
                   ),
                 );
-
-                //await tester.pumpAndSettle();
-                //expect(find.text('Transactions'), findsWidgets);
               });
             });
           });
