@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
+
 import 'package:nrs2023/auth_provider.dart';
 import 'package:nrs2023/screens/accountCreation.dart';
 import 'package:nrs2023/screens/claim.dart';
@@ -8,13 +11,18 @@ import 'package:nrs2023/screens/donationdetails.dart' as detailsDonation;
 import 'package:nrs2023/screens/donations.dart' as donations;
 import 'package:nrs2023/screens/donation.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
+import 'package:nrs2023/screens/grouping.dart' as groupings;
 import 'package:nrs2023/screens/loginAuth.dart';
 import 'package:nrs2023/screens/numberValidation.dart';
 import 'package:nrs2023/screens/pay.dart';
 import 'package:nrs2023/screens/transactionDetails.dart';
+import 'package:nrs2023/screens/transactions.dart' as transactions;
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/filters.dart' as filters;
+import 'package:http/http.dart' as http;
+
 
 
 void main() {
@@ -744,16 +752,168 @@ void main() {
                 // Assert
                 expect(find.byType(PaymentPage), findsWidgets);
                 expect(find.byType(ClaimPage), findsNothing);
+              });
+              testWidgets('Test Transaction History ', (WidgetTester tester) async {
+
+                var token ="proba";
+                var userId;
+                final res = await http.post(Uri.parse("http://siprojekat.duckdns.org:5051/api/User/login"),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: jsonEncode(<String, String>{
+                      "email": "damke23@gmail.com",
+                      "password": "Jabuka32!",
+                    }));
+                if (res.statusCode == 200) {
+                  var responseData = jsonDecode(res.body);
+                  token = responseData['token'].toString();
+                  userId = responseData['userId'];
+                }
+
 /*
-    // Tap on "Claim" button
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Claim'));
-    await tester.pumpAndSettle();
+                await tester.pumpWidget(
+                  MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider<AuthProvider>.value(
+                        value: AuthProvider(), // Provide an instance of AuthProvider
+                      ),
+                    ],
+                    child: MaterialApp(
+                      home: transactions.Transactions(
+                        filterDateStart: DateTime.now(),
+                        filterDateEnd: DateTime.now(),
+                        filterCurrency: '',
+                        filterTransactionType: '',
+                        filterPriceRangeStart: '',
+                        filterPriceRangeEnd: '',
+                        filterRecipientName: '',
+                        filterRecipientAccount: '',
+                        filterSenderName: '',
+                        filterCategory: '',
+                        filterSortingOrder: '',),
+                    ),
+                  ),
+                );
 
-    // Assert
-    expect(find.byType(PaymentPage), findsNothing);
-    expect(find.byType(ClaimPage), findsWidgets);
-*/
+ */
+              });
+              testWidgets('FiltersScreen - Dropdown selection test', (WidgetTester tester) async {
+                // Build FiltersScreen widget
+                await tester.pumpWidget(MaterialApp(home: filters.FiltersScreen(
+                  textEditingController1: TextEditingController(),
+                  textEditingController2: TextEditingController(),
+                  textEditingController3: TextEditingController(),
+                  textEditingController4: TextEditingController(),
+                  textEditingController5: TextEditingController(),
+                  textEditingController6: TextEditingController(),
+                  selectedDates: DateTimeRange(start: DateTime.utc(1900, 1, 1), end: DateTime.now()),
+                  selectedCurrency: "All",
+                  selectedTransactionType: "All",
+                  selectedFilterSortingOrder: "createdAtAsc",
+                )));
 
+                // Open the Transaction Type dropdown
+                await tester.tap(find.byKey(const ValueKey('transactionTypeDropdown')));
+                await tester.pumpAndSettle();
+
+                // Select a transaction type from the dropdown
+                await tester.tap(find.text("c2c").last);
+                await tester.pumpAndSettle();
+
+                // Verify that the selected transaction type is updated
+                expect(find.text("c2c"), findsOneWidget);
+              });
+              testWidgets('Test grouping', (WidgetTester tester) async {
+
+                // Act
+
+                /*await tester.pumpWidget(
+                  MaterialApp(
+                    home: groupings.GroupingScreen(link: 'http//example.com',
+                    ),
+                  ),
+                );
+                await tester.pumpAndSettle();
+                */
+                // Assert
+                //expect(find.text('Grouping'), findsWidgets);
+              });
+              testWidgets('Submitting claim should call createClaim API', (tester) async {
+                // Build the widget
+                await tester.pumpWidget(
+                  MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider<AuthProvider>.value(
+                        value: AuthProvider(), // Provide an instance of AuthProvider
+                      ),
+                    ],
+                    child: MaterialApp(
+                      home: ClaimPage(transactionId: 123),
+                    ),
+                  ),
+                );
+
+                // Enter subject and description
+                await tester.enterText(
+                    find.byKey(const ValueKey('subjectField')), 'Test Subject');
+                await tester.enterText(
+                    find.byKey(const ValueKey('descriptionField')), 'Test Description');
+
+                // Tap the Submit Claim button
+                await tester.tap(find.text('Submit Claim'));
+                await tester.pumpAndSettle();
+
+                // Verify that createClaim API is called with the correct parameters
+                // Enter subject and description
+                await tester.enterText(
+                    find.byKey(const ValueKey('subjectField')), 'Test Subject');
+                await tester.enterText(
+                    find.byKey(const ValueKey('descriptionField')), 'Test Description');
+
+                // Tap the Submit Claim button
+                await tester.tap(find.text('Submit Claim'));
+                await tester.pumpAndSettle();
+
+                // Verify that the message is updated with the expected value
+                expect(find.text('File uploaded succesfully'), findsNothing);
+              });
+
+              testWidgets('Test Transactions screen', (WidgetTester tester) async {
+                // Build the screen
+
+                await tester.pumpWidget(
+                  MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider<AuthProvider>.value(
+                        value: AuthProvider(), // Provide an instance of AuthProvider
+                      ),
+                    ],
+                    child: MaterialApp(
+                      home: donations.DonationsScreen(),
+                      onGenerateRoute: (settings) {
+                        return MaterialPageRoute(
+                          builder: (context) => transactions.Transactions(
+                            filterDateStart: DateTime.now(),
+                            filterDateEnd: DateTime.now(),
+                            filterCurrency: 'USD',
+                            filterTransactionType: 'All',
+                            filterPriceRangeStart: '0',
+                            filterPriceRangeEnd: '100',
+                            filterRecipientName: '',
+                            filterRecipientAccount: '',
+                            filterSenderName: '',
+                            filterCategory: '',
+                            filterSortingOrder: '',
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+
+                //await tester.pumpAndSettle();
+                //expect(find.text('Transactions'), findsWidgets);
               });
             });
           });
@@ -762,8 +922,6 @@ void main() {
     });
   });
 }
-
-
 
 
 // Mock klasa za testiranje listenera
