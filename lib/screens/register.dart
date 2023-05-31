@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nrs2023/screens/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -23,10 +24,10 @@ class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
   @override
-  State<Register> createState() => RegisterState();
+  State<Register> createState() => _RegisterState();
 }
 
-class AccountNumberFormatter extends TextInputFormatter {
+class _AccountNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
@@ -44,11 +45,11 @@ class AccountNumberFormatter extends TextInputFormatter {
     );
   }
 }
-bool isLoggedIn = false;
-Map userObj = {};
+bool _isLoggedIn = false;
+Map _userObj = {};
 bool nextScreen = false;
 
-class RegisterState extends State<Register> {
+class _RegisterState extends State<Register> {
   //final GoogleSignIn _googleSignIn = GoogleSignIn();
   /*GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
@@ -59,7 +60,7 @@ class RegisterState extends State<Register> {
   @override
   void initState() {
     super.initState();
-   /* _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    /* _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       if (account != null) {
         // user signed in
         print('User signed in: ${account.email}');
@@ -90,10 +91,10 @@ class RegisterState extends State<Register> {
     }
   }*/
 
-  final List focusInput = List.generate(9, (index) => FocusNode());
-  final formkey = GlobalKey<FormState>();
+  final List _focusInput = List.generate(9, (index) => FocusNode());
+  final _formkey = GlobalKey<FormState>();
 
-  final List controllers =
+  final List _controllers =
   List.generate(9, (index) => TextEditingController());
   final myController = TextEditingController();
 
@@ -118,7 +119,7 @@ class RegisterState extends State<Register> {
           "password": password,
           "address": address,
           "phoneNumber": phoneNumber,
-          "accountNumber": accountNumber
+          "type":"Person"
         }));
     if (res.statusCode == 200 && context.mounted) {
       Navigator.push(
@@ -127,7 +128,7 @@ class RegisterState extends State<Register> {
         MaterialPageRoute(
             builder: (context) =>
                 EmailValidation(
-                  valuesInput: controllers,
+                  valuesInput: _controllers,
                 )),
       );
     } else {
@@ -226,18 +227,19 @@ class RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Form(
-                  key: formkey,
+                  key: _formkey,
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          controller: controllers[0],
+                          key:const ValueKey('Email'),
+                          controller: _controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                           registerInputDecoration("Email", "Enter Email"),
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[0]);
+                            FocusScope.of(context).requestFocus(_focusInput[0]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -256,14 +258,15 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[0],
-                          controller: controllers[1],
+                          key: const ValueKey('Name'),
+                          focusNode: _focusInput[0],
+                          controller: _controllers[1],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration:
                           registerInputDecoration("Name", "Enter Name"),
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[1]);
+                            FocusScope.of(context).requestFocus(_focusInput[1]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -283,15 +286,16 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[1],
-                          controller: controllers[2],
+                          key:const ValueKey('Last Name'),
+                          focusNode: _focusInput[1],
+                          controller: _controllers[2],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration: registerInputDecoration(
                               "Last Name", "Enter Last Name"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[2]);
+                            FocusScope.of(context).requestFocus(_focusInput[2]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -311,15 +315,16 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[2],
-                          controller: controllers[3],
+                          key:const ValueKey('Username'),
+                          focusNode: _focusInput[2],
+                          controller: _controllers[3],
                           textCapitalization: TextCapitalization.words,
                           keyboardType: TextInputType.name,
                           decoration: registerInputDecoration(
                               "Username", "Enter Username"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[3]);
+                            FocusScope.of(context).requestFocus(_focusInput[3]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -336,15 +341,16 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[3],
-                          controller: controllers[4],
+                          key:const ValueKey('Password'),
+                          focusNode: _focusInput[3],
+                          controller: _controllers[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Password", "Enter Password"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[4]);
+                            FocusScope.of(context).requestFocus(_focusInput[4]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -376,20 +382,21 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[4],
+                          key:const ValueKey('Re-enter Password'),
+                          focusNode: _focusInput[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Re-enter Password", "Enter your password again"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[5]);
+                            FocusScope.of(context).requestFocus(_focusInput[5]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null ||
                                 value.isEmpty ||
-                                value != controllers[4].text) {
+                                value != _controllers[4].text) {
                               return 'Passwords do not match';
                             }
                             return null;
@@ -402,14 +409,15 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          focusNode: focusInput[5],
-                          controller: controllers[5],
+                          key: const ValueKey('Address'),
+                          focusNode: _focusInput[5],
+                          controller: _controllers[5],
                           keyboardType: TextInputType.visiblePassword,
                           decoration: registerInputDecoration(
                               "Address", "Enter Address"),
                           onChanged: (String value) {},
                           onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[6]);
+                            FocusScope.of(context).requestFocus(_focusInput[6]);
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
@@ -421,36 +429,14 @@ class RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          focusNode: focusInput[6],
-                          controller: controllers[6],
-                          keyboardType: TextInputType.visiblePassword,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-                            AccountNumberFormatter(),
-                            LengthLimitingTextInputFormatter(19),
-                          ],
-                          decoration: registerInputDecoration(
-                              "Account Number",
-                              "Enter Your account information"),
-                          onChanged: (String value) {},
-                          onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(focusInput[7]);
-                          },
-                        ),
-                      ),
-                      const SizedBox(
                         height: 20,
                       ),
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: InternationalPhoneNumberInput(
-                            focusNode: focusInput[7],
-                            textFieldController: controllers[7],
+                            key: const ValueKey('Phone Number'),
+                            focusNode: _focusInput[7],
+                            textFieldController: _controllers[7],
                             countrySelectorScrollControlled: true,
                             onInputChanged: (PhoneNumber value) {},
                             autoValidateMode:
@@ -469,18 +455,19 @@ class RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
                         child: MaterialButton(
+                            key: const ValueKey("RegisterButton"),
                             elevation: 10,
                             height: 50,
                             minWidth: double.infinity,
                             color: Colors.blue,
-                            child: const Text("Register",
+                            child: const Text("REGISTER",
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 )),
                             onPressed: () {
-                              if (formkey.currentState!.validate()) {
+                              if (_formkey.currentState!.validate()) {
                                 /* print(
                                     _controllers[1].text+" "+
                                     _controllers[2].text+" "+
@@ -492,15 +479,15 @@ class RegisterState extends State<Register> {
                                     _controllers[6].text
                                 );*/
                                 registerNewUser(
-                                    controllers[1].text,
-                                    controllers[2].text,
-                                    controllers[0].text,
-                                    controllers[3].text,
+                                    _controllers[1].text,
+                                    _controllers[2].text,
+                                    _controllers[0].text,
+                                    _controllers[3].text,
                                     //username
-                                    controllers[4].text,
-                                    controllers[5].text,
-                                    "0${controllers[7].text}",
-                                    controllers[6].text
+                                    _controllers[4].text,
+                                    _controllers[5].text,
+                                    "0${_controllers[7].text}",
+                                    _controllers[6].text
                                 );
                               }
                             }),
@@ -529,30 +516,30 @@ class RegisterState extends State<Register> {
                               Buttons.Facebook,
                               text: "Register with Facebook",
                               onPressed: () async {
-                               /* await _handleSignOut();
+                                /* await _handleSignOut();
                                 await _handleSignIn;*/
                                 await FacebookAuth.instance.logOut().then((value) {
-                                    setState(() {
-                                      isLoggedIn = false;
-                                      userObj = {};
-                                    });
+                                  setState(() {
+                                    _isLoggedIn = false;
+                                    _userObj = {};
+                                  });
                                 });
                                 await FacebookAuth.instance.login(
-                                  permissions: ["public_profile", "email"]).then((value) {
-                                    FacebookAuth.instance.getUserData().then((userData) async {
-                                      setState(() {
-                                        isLoggedIn = true;
-                                        userObj = userData;
-                                      });
+                                    permissions: ["public_profile", "email"]).then((value) {
+                                  FacebookAuth.instance.getUserData().then((userData) async {
+                                    setState(() {
+                                      _isLoggedIn = true;
+                                      _userObj = userData;
                                     });
+                                  });
                                 });
                                 //if(_isLoggedIn){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                                  );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                                );
                                 //}
-                                },
+                              },
                             )
                           ],
                         ),
@@ -570,7 +557,7 @@ class RegisterState extends State<Register> {
 }
 
 
-  /*Future signIn() async {
+/*Future signIn() async {
     await GoogleSignInApi.login();
   }
 }
