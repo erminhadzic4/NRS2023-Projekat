@@ -14,13 +14,13 @@ class logInPhone extends StatefulWidget {
   const logInPhone({Key? key}) : super(key: key);
 
   @override
-  State<logInPhone> createState() => _logInPhoneState();
+  State<logInPhone> createState() => logInPhoneState();
 }
 
-class _logInPhoneState extends State<logInPhone>{
-  final _formkey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
+class logInPhoneState extends State<logInPhone>{
+  final formkey = GlobalKey<FormState>();
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
   var token;
   var userId;
 
@@ -31,8 +31,8 @@ class _logInPhoneState extends State<logInPhone>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          "phone": _phoneController.text,
-          "password": _passwordController.text,
+          "phone": phoneController.text,
+          "password": passwordController.text,
         }));
     if ( (res.statusCode == 200) && context.mounted) {
       var responseData = jsonDecode(res.body);
@@ -179,7 +179,7 @@ class _logInPhoneState extends State<logInPhone>{
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
                           //controller: _controllers[0],
-                          controller: _phoneController,
+                          controller: phoneController,
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                           registerInputDecoration("Phone number", "Enter phone number"),
@@ -210,13 +210,13 @@ class _logInPhoneState extends State<logInPhone>{
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Form(
-                  key:_formkey,
+                  key:formkey,
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          controller: _passwordController,
+                          controller: passwordController,
                           obscureText: true,
                           keyboardType: TextInputType.emailAddress,
                           decoration:
@@ -258,7 +258,7 @@ class _logInPhoneState extends State<logInPhone>{
                   height: 50,
                   minWidth: double.infinity,
                   onPressed: () {
-                    logInRequest(_phoneController.text, _passwordController.text);
+                    logInRequest(phoneController.text, passwordController.text);
                   },
                   color: Colors.blue,
                   child: const Text("LOGIN",

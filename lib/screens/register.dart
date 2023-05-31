@@ -60,7 +60,7 @@ class _RegisterState extends State<Register> {
   @override
   void initState() {
     super.initState();
-   /* _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    /* _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       if (account != null) {
         // user signed in
         print('User signed in: ${account.email}');
@@ -119,7 +119,7 @@ class _RegisterState extends State<Register> {
           "password": password,
           "address": address,
           "phoneNumber": phoneNumber,
-          "accountNumber": accountNumber
+          "type":"Person"
         }));
     if (res.statusCode == 200 && context.mounted) {
       Navigator.push(
@@ -233,6 +233,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key:const ValueKey('Email'),
                           controller: _controllers[0],
                           keyboardType: TextInputType.emailAddress,
                           decoration:
@@ -257,6 +258,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key: const ValueKey('Name'),
                           focusNode: _focusInput[0],
                           controller: _controllers[1],
                           textCapitalization: TextCapitalization.words,
@@ -284,6 +286,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key:const ValueKey('Last Name'),
                           focusNode: _focusInput[1],
                           controller: _controllers[2],
                           textCapitalization: TextCapitalization.words,
@@ -312,6 +315,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key:const ValueKey('Username'),
                           focusNode: _focusInput[2],
                           controller: _controllers[3],
                           textCapitalization: TextCapitalization.words,
@@ -337,6 +341,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key:const ValueKey('Password'),
                           focusNode: _focusInput[3],
                           controller: _controllers[4],
                           obscureText: true,
@@ -377,6 +382,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key:const ValueKey('Re-enter Password'),
                           focusNode: _focusInput[4],
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
@@ -403,6 +409,7 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          key: const ValueKey('Address'),
                           focusNode: _focusInput[5],
                           controller: _controllers[5],
                           keyboardType: TextInputType.visiblePassword,
@@ -422,34 +429,12 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          focusNode: _focusInput[6],
-                          controller: _controllers[6],
-                          keyboardType: TextInputType.visiblePassword,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-                            _AccountNumberFormatter(),
-                            LengthLimitingTextInputFormatter(19),
-                          ],
-                          decoration: registerInputDecoration(
-                              "Account Number",
-                              "Enter Your account information"),
-                          onChanged: (String value) {},
-                          onFieldSubmitted: (String value) {
-                            FocusScope.of(context).requestFocus(_focusInput[7]);
-                          },
-                        ),
-                      ),
-                      const SizedBox(
                         height: 20,
                       ),
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: InternationalPhoneNumberInput(
+                            key: const ValueKey('Phone Number'),
                             focusNode: _focusInput[7],
                             textFieldController: _controllers[7],
                             countrySelectorScrollControlled: true,
@@ -470,11 +455,12 @@ class _RegisterState extends State<Register> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 100),
                         child: MaterialButton(
+                            key: const ValueKey("RegisterButton"),
                             elevation: 10,
                             height: 50,
                             minWidth: double.infinity,
                             color: Colors.blue,
-                            child: const Text("Register",
+                            child: const Text("REGISTER",
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -530,30 +516,30 @@ class _RegisterState extends State<Register> {
                               Buttons.Facebook,
                               text: "Register with Facebook",
                               onPressed: () async {
-                               /* await _handleSignOut();
+                                /* await _handleSignOut();
                                 await _handleSignIn;*/
                                 await FacebookAuth.instance.logOut().then((value) {
-                                    setState(() {
-                                      _isLoggedIn = false;
-                                      _userObj = {};
-                                    });
+                                  setState(() {
+                                    _isLoggedIn = false;
+                                    _userObj = {};
+                                  });
                                 });
                                 await FacebookAuth.instance.login(
-                                  permissions: ["public_profile", "email"]).then((value) {
-                                    FacebookAuth.instance.getUserData().then((userData) async {
-                                      setState(() {
-                                        _isLoggedIn = true;
-                                        _userObj = userData;
-                                      });
+                                    permissions: ["public_profile", "email"]).then((value) {
+                                  FacebookAuth.instance.getUserData().then((userData) async {
+                                    setState(() {
+                                      _isLoggedIn = true;
+                                      _userObj = userData;
                                     });
+                                  });
                                 });
                                 //if(_isLoggedIn){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                                  );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                                );
                                 //}
-                                },
+                              },
                             )
                           ],
                         ),
@@ -571,7 +557,7 @@ class _RegisterState extends State<Register> {
 }
 
 
-  /*Future signIn() async {
+/*Future signIn() async {
     await GoogleSignInApi.login();
   }
 }

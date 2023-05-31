@@ -15,13 +15,13 @@ class EmailValidation extends StatefulWidget {
   final List valuesInput;
 
   @override
-  State<EmailValidation> createState() => _EmailValidationState();
+  State<EmailValidation> createState() => EmailValidationState();
 }
 
-class _EmailValidationState extends State<EmailValidation> {
-  final _formkey = GlobalKey<FormState>();
+class EmailValidationState extends State<EmailValidation> {
+  final formkey = GlobalKey<FormState>();
 
-  final _codeController = TextEditingController();
+  final codeController = TextEditingController();
 
   InputDecoration registerInputDecoration(String labelText, String hintText) {
     return InputDecoration(
@@ -190,13 +190,13 @@ class _EmailValidationState extends State<EmailValidation> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Form(
-                  key: _formkey,
+                  key: formkey,
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
-                          controller: _codeController,
+                          controller: codeController,
                           keyboardType: TextInputType.emailAddress,
                           decoration:
                               registerInputDecoration("Pin", "Enter Pin"),
@@ -247,7 +247,7 @@ class _EmailValidationState extends State<EmailValidation> {
                           height: 50,
                           minWidth: double.infinity,
                           onPressed: () {
-                            confirmEmail(username, _codeController.text);
+                            confirmEmail(username, codeController.text);
                           },
                           color: Colors.blue,
                           child: const Text("Verify",

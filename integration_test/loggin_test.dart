@@ -227,12 +227,9 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('description')), 'Description');*/
   });
 
-}
 
 
-
-/*
- testWidgets('Register New User Test', (WidgetTester tester) async {
+  testWidgets('Register New User Test', (WidgetTester tester) async {
     // Start app
     app.main();
     await tester.pumpAndSettle();
@@ -244,13 +241,13 @@ void main() {
 
     // Enter email and password
     await tester.enterText(
-        find.byKey(const ValueKey('Email')), 'afrljak1@etf.unsa.ba');
+        find.byKey(const ValueKey('Email')), 'afrljak1@gmail.com');
     await tester.enterText(
         find.byKey(const ValueKey('Name')), 'Amina');
     await tester.enterText(
         find.byKey(const ValueKey('Last Name')), 'Frljak');
     await tester.enterText(
-        find.byKey(const ValueKey('Usernam')), 'Amina1');
+        find.byKey(const ValueKey('Username')), 'Amina1');
     await tester.enterText(
         find.byKey(const ValueKey('Password')), 'AminaAmina1!');
     await tester.enterText(
@@ -258,30 +255,28 @@ void main() {
     await tester.enterText(
         find.byKey(const ValueKey('Address')),'Adresa');
     await tester.enterText(
-        find.byKey(const ValueKey('Account Number')), '1');
+        find.byKey(const ValueKey('Phone Number')), '063 123 456');
 
     await tester.pumpAndSettle();
 
-    // Scroll until LOGIN is visible
+    // Scroll until REGISTER is visible
     await tester.dragUntilVisible(
-      find.text('LOGIN'),
-      find.byKey(const ValueKey('Container')),
+      find.text('REGISTER'),
+      find.byKey(const ValueKey('RegisterButton')),
       const Offset(-250, 0),
     );
 
-    // Tap Login button
-    await tester.tap(find.byKey(const ValueKey('loginbutton')));
+    // Tap REGISTER button
+    await tester.tap(find.byKey(const ValueKey('RegisterButton')));
 
-    // Wait for the dialog box to appear
     await tester.pumpAndSettle(const Duration(seconds: 10));
     await Future.delayed(const Duration(seconds: 10));
-
-    // Find and tap the 'OK' button on the dialog
-    final okButton = find.text('OK');
-    await tester.tap(okButton);
-    await tester.pumpAndSettle(const Duration(seconds: 10));
-    await Future.delayed(const Duration(seconds: 10));
+    expect(find.text('Confirm email'), findsWidgets);
   });
+}
 
 
- */
+
+
+
+
