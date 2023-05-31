@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  firebase_core: ^2.13.1
   qr_code_scanner: ^1.0.1
   qr_flutter: ^4.0.0
   flutter_signin_button: ^2.0.0
