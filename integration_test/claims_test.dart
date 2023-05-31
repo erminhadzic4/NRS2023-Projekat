@@ -11,7 +11,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Claims Test', (WidgetTester tester) async {
-    // Start app .
+    // Start app ..
     app.main();
     await tester.pumpAndSettle();
 
