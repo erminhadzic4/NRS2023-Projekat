@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "423419785037",
+    "project_id": "nrs-projekat-307ce",
+    "storage_bucket": "nrs-projekat-307ce.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423419785037:android:7ef505cfd2ccab3fe29104",
+        "android_client_info": {
+          "package_name": "com.example.nrs2023"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDArB0zRVi8ZgV4o3mHsTzS6OLiu5TMvk4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
