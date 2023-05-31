@@ -9,9 +9,11 @@ import 'package:nrs2023/screens/donation.dart';
 import 'package:nrs2023/screens/emailVaildation.dart';
 import 'package:nrs2023/screens/loginAuth.dart';
 import 'package:nrs2023/screens/numberValidation.dart';
+import 'package:nrs2023/screens/pay.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:nrs2023/screens/register.dart';
+import 'package:nrs2023/screens/home.dart';
 
 
 void main() {
@@ -661,8 +663,147 @@ void main() {
         });
       });
     });
+
+
   });
-}
+
+    group('Widget Functionality Tests', () {
+      testWidgets('Can access payment from home screen', (WidgetTester tester) async {
+        await tester.pumpWidget(MyApp());
+
+        final homeScreen = find.byType(HomeScreen);
+        expect(homeScreen, findsOneWidget);
+
+        // Simulirajte odabir opcije za plaćanje sa početnog ekrana
+        await tester.tap(find.text('Payment'));
+        await tester.pumpAndSettle();
+
+        final paymentScreen = find.byType(PaymentPage);
+        expect(paymentScreen, findsOneWidget);
+      });
+
+      testWidgets('Functionalities are clearly visible', (WidgetTester tester) async {
+        await tester.pumpWidget(MyApp());
+
+        final homeScreen = find.byType(HomeScreen);
+        expect(homeScreen, findsOneWidget);
+
+        // Simulirajte odabir opcije za plaćanje sa početnog ekrana
+        await tester.tap(find.text('Payment'));
+        await tester.pumpAndSettle();
+
+        // Provjerite da li su sve funkcionalnosti vidljive na ekranu plaćanja
+        expect(find.text('Currency'), findsOneWidget);
+        expect(find.text('Amount'), findsOneWidget);
+        expect(find.text('Username'), findsOneWidget);
+        expect(find.text('Card Number'), findsOneWidget);
+        expect(find.text('Submit'), findsOneWidget);
+      });
+
+      testWidgets('Can enter payment details', (WidgetTester tester) async {
+        await tester.pumpWidget(MyApp());
+
+        final homeScreen = find.byType(HomeScreen);
+        expect(homeScreen, findsOneWidget);
+
+        // Simulirajte odabir opcije za plaćanje sa početnog ekrana
+        await tester.tap(find.text('Payment'));
+        await tester.pumpAndSettle();
+
+        // Simulirajte unos podataka o plaćanju
+        await tester.enterText(find.byKey(Key('currencyField')), 'USD');
+        await tester.enterText(find.byKey(Key('amountField')), '100.00');
+        await tester.enterText(find.byKey(Key('usernameField')), 'John Doe');
+        await tester.enterText(find.byKey(Key('cardNumberField')), '1234567890');
+        await tester.tap(find.byKey(Key('submitButton')));
+        await tester.pumpAndSettle();
+
+        // Provjerite da li su svi podaci ispravno uneseni
+        expect(find.text('USD'), findsOneWidget);
+        expect(find.text('100.00'), findsOneWidget);
+        expect(find.text('John Doe'), findsOneWidget);
+        expect(find.text('1234567890'), findsOneWidget);
+      });
+
+      testWidgets('Fields have valid validation', (WidgetTester tester) async {
+        await tester.pumpWidget(MyApp());
+
+        final homeScreen = find.byType(HomeScreen);
+        expect(homeScreen, findsOneWidget);
+
+        // Simulirajte odabir opcije za plaćanje sa početnog ekrana
+        await tester.tap(find.text('Payment'));
+        await tester.pumpAndSettle();
+
+        // Provjerite da li su sva polja ispravno označena i posjeduju validaciju
+        expect(find.byKey(Key('currencyField')), findsOneWidget);
+        expect(find.byKey(Key('amountField')), findsOneWidget);
+        expect(find.byKey(Key('usernameField')), findsOneWidget);
+        expect(find.byKey(Key('cardNumberField')), findsOneWidget);
+
+        // Provjerite da li su polja ispravno označena kao obavezna
+        expect(find.text('*'), findsNWidgets(4)); // Pretpostavljamo da sva polja označena kao obavezna imaju oznaku *
+
+        // Provjerite da li se prikazuju poruke o greškama za neispravno popunjena polja
+        expect(find.text('Please enter a valid currency'), findsNothing);
+        expect(find.text('Please enter a valid amount'), findsNothing);
+        expect(find.text('Please enter a valid username'), findsNothing);
+        expect(find.text('Please enter a valid card number'), findsNothing);
+      });
+
+      testWidgets('User receives notification for invalid fields', (WidgetTester tester) async {
+        // Build our app and trigger a frame.
+        await tester.pumpWidget(MaterialApp(home: PaymentPage(templateData: [], recipientName: "Emina", recipientAccount: "4545-5454-5454-5445", amount: "200", currency: "USD")));
+
+        // Find the submit button and simulate tapping it without filling the form.
+        final submitButton = find.text('Submit');
+        await tester.tap(submitButton);
+
+        // Trigger a frame.
+        await tester.pump();
+
+        // Expect that the validation error messages appear on the screen.
+        expect(find.text('Please select a currency'), findsOneWidget);
+        expect(find.text('Amount is required'), findsOneWidget);
+        expect(find.text('Recipient first name is required'), findsOneWidget);
+        expect(find.text('Recipient account details are required'), findsOneWidget);
+      });
+
+
+
+      testWidgets('User receives notification for successful transaction', (WidgetTester tester) async {
+        await tester.pumpWidget(MyApp());
+
+        final homeScreen = find.byType(HomeScreen);
+        expect(homeScreen, findsOneWidget);
+
+        // Simulirajte odabir opcije za plaćanje sa početnog ekrana
+        await tester.tap(find.text('Payment'));
+        await tester.pumpAndSettle();
+
+        // Simulirajte unos ispravnih podataka o plaćanju
+        await tester.enterText(find.byKey(Key('currencyField')), 'USD');
+        await tester.enterText(find.byKey(Key('amountField')), '100.00');
+        await tester.enterText(find.byKey(Key('usernameField')), 'John Doe');
+        await tester.enterText(find.byKey(Key('cardNumberField')), '1234567890');
+        await tester.tap(find.byKey(Key('submitButton')));
+        await tester.pumpAndSettle();
+
+        // Provjerite da li korisnik dobija obavijest o uspješno obavljenoj transakciji
+        expect(find.text('Transaction successful'), findsOneWidget);
+      });
+    });
+  }
+
+  class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+  return MaterialApp(
+  home: HomeScreen(),
+  );
+  }
+  }
+
 
 
 
