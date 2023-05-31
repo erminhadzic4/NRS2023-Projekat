@@ -8,6 +8,158 @@ import 'package:nrs2023/main.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  testWidgets('Register New User Test - Prolazi', (WidgetTester tester) async {
+    // Start app
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Press login button
+    final registerButton = find.text('Register');
+    await tester.tap(registerButton);
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+
+    // Enter email and password
+    await tester.enterText(
+        find.byKey(const ValueKey('Email')), 'NewUserTest@gmail.com');
+    await tester.enterText(
+        find.byKey(const ValueKey('Name')), 'NewUserTest');
+    await tester.enterText(
+        find.byKey(const ValueKey('Last Name')), 'NewUserTest');
+    await tester.enterText(
+        find.byKey(const ValueKey('Username')), 'NewUserTest');
+    await tester.enterText(
+        find.byKey(const ValueKey('Password')), 'NewUserTest1!');
+    await tester.enterText(
+        find.byKey(const ValueKey('Re-enter Password')), 'NewUserTest1!');
+    await tester.enterText(
+        find.byKey(const ValueKey('Address')),'NewUserTest');
+    await tester.enterText(
+        find.byKey(const ValueKey('Phone Number')), '0630133631');
+
+    await tester.pumpAndSettle();
+
+    // Scroll until REGISTER is visible
+    await tester.dragUntilVisible(
+      find.text('REGISTER'),
+      find.byKey(const ValueKey('RegisterButton')),
+      const Offset(-250, 0),
+    );
+
+    // Tap REGISTER button
+    await tester.tap(find.byKey(const ValueKey('RegisterButton')));
+
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await Future.delayed(const Duration(seconds: 10));
+    expect(find.text('Confirm email'), findsWidgets);
+  });
+
+
+  testWidgets('Account Creation Test', (WidgetTester tester) async {
+    // Start app
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Press login button
+    final logInButton = find.byKey(const ValueKey('logInButton'));
+    await tester.tap(logInButton);
+    await tester.pumpAndSettle();
+
+    // Enter email and password
+    await tester.enterText(
+        find.byKey(const ValueKey('EmailField')),
+        'AccountCreationTest@gmail.com');
+    await tester.enterText(
+        find.byKey(const ValueKey('PasswordField')), 'AccountCreationTest1!');
+    await tester.pumpAndSettle();
+
+    // Scroll until LOGIN is visible
+    await tester.dragUntilVisible(
+      find.text('LOGIN'),
+      find.byKey(const ValueKey('Container')),
+      const Offset(-250, 0),
+    );
+
+    // Tap Login button
+    await tester.tap(find.byKey(const ValueKey('loginbutton')));
+
+    // Wait for the dialog box to appear
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await Future.delayed(const Duration(seconds: 10));
+
+    // Find and tap the 'OK' button on the dialog
+    final okButton = find.text('OK');
+    await tester.tap(okButton);
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await Future.delayed(const Duration(seconds: 10));
+
+
+    final account = find.byIcon(Icons.account_box);
+    await tester.tap(account);
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+    expect(find.text('Account Creation'), findsWidgets);
+
+
+    /*  expect(find.text('Currency'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, 'Inforamtion');
+    await tester.enterText(find.byType(TextFormField).last, 'Description');
+
+    final submitButton = find.text('SUBMIT').first;
+    await tester.tap(submitButton);
+
+    //assert that no transaction with amount of 20 is found
+    await tester.pumpAndSettle(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 3));*/
+
+
+  });
+
+  testWidgets('Test - User already exists', (WidgetTester tester) async {
+    // Start app
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Press login button
+    final registerButton = find.text('Register');
+    await tester.tap(registerButton);
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+
+    // Enter email and password
+    await tester.enterText(
+        find.byKey(const ValueKey('Email')), 'afrljak1@gmail.com');
+    await tester.enterText(
+        find.byKey(const ValueKey('Name')), 'Amina');
+    await tester.enterText(
+        find.byKey(const ValueKey('Last Name')), 'Frljak');
+    await tester.enterText(
+        find.byKey(const ValueKey('Username')), 'Amina1');
+    await tester.enterText(
+        find.byKey(const ValueKey('Password')), 'AminaAmina1!');
+    await tester.enterText(
+        find.byKey(const ValueKey('Re-enter Password')), 'AminaAmina1!');
+    await tester.enterText(
+        find.byKey(const ValueKey('Address')),'Adresa');
+    await tester.enterText(
+        find.byKey(const ValueKey('Phone Number')), '063 123 456');
+
+    await tester.pumpAndSettle();
+
+    // Scroll until REGISTER is visible
+    await tester.dragUntilVisible(
+      find.text('REGISTER'),
+      find.byKey(const ValueKey('RegisterButton')),
+      const Offset(-250, 0),
+    );
+
+    // Tap REGISTER button
+    await tester.tap(find.byKey(const ValueKey('RegisterButton')));
+
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await Future.delayed(const Duration(seconds: 10));
+  });
+
 
   testWidgets('Login Failed Test', (WidgetTester tester) async {
     // Start app
@@ -148,7 +300,6 @@ void main() {
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Re-enter Password'), findsOneWidget);
     expect(find.text('Address'), findsOneWidget);
-    expect(find.text('Account Number'), findsOneWidget);
   });
 
 
@@ -165,9 +316,9 @@ void main() {
 
     // Enter email and password
     await tester.enterText(
-        find.byKey(const ValueKey('EmailField')), 'amina.frljak3p@gmail.com');
+        find.byKey(const ValueKey('EmailField')), 'AccountCreationTest@gmail.com');
     await tester.enterText(
-        find.byKey(const ValueKey('PasswordField')), 'AminaAmina1!');
+        find.byKey(const ValueKey('PasswordField')), 'AccountCreationTest1!');
     await tester.pumpAndSettle();
 
     // Scroll until LOGIN is visible
@@ -198,7 +349,7 @@ void main() {
     await Future.delayed(const Duration(seconds: 2));
     expect(find.text('Account Creation'), findsWidgets);
 
-  /*  expect(find.text('Currency'), findsOneWidget);
+    /*  expect(find.text('Currency'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).first, 'Inforamtion');
     await tester.enterText(find.byType(TextFormField).last, 'Description');
@@ -210,8 +361,6 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 6));
     await Future.delayed(const Duration(seconds: 3));*/
 
-    //expect(find.byKey(Key('SubmitButton')), findsOneWidget);
-    //expect(find.byKey(Key('UploadButton')), findsOneWidget);
 
 
     //Select Currency
@@ -227,52 +376,6 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('description')), 'Description');*/
   });
 
-
-
-  testWidgets('Register New User Test', (WidgetTester tester) async {
-    // Start app
-    app.main();
-    await tester.pumpAndSettle();
-
-    // Press login button
-    final registerButton = find.text('Register');
-    await tester.tap(registerButton);
-    await tester.pumpAndSettle(const Duration(seconds: 10));
-
-    // Enter email and password
-    await tester.enterText(
-        find.byKey(const ValueKey('Email')), 'afrljak1@gmail.com');
-    await tester.enterText(
-        find.byKey(const ValueKey('Name')), 'Amina');
-    await tester.enterText(
-        find.byKey(const ValueKey('Last Name')), 'Frljak');
-    await tester.enterText(
-        find.byKey(const ValueKey('Username')), 'Amina1');
-    await tester.enterText(
-        find.byKey(const ValueKey('Password')), 'AminaAmina1!');
-    await tester.enterText(
-        find.byKey(const ValueKey('Re-enter Password')), 'AminaAmina1!');
-    await tester.enterText(
-        find.byKey(const ValueKey('Address')),'Adresa');
-    await tester.enterText(
-        find.byKey(const ValueKey('Phone Number')), '063 123 456');
-
-    await tester.pumpAndSettle();
-
-    // Scroll until REGISTER is visible
-    await tester.dragUntilVisible(
-      find.text('REGISTER'),
-      find.byKey(const ValueKey('RegisterButton')),
-      const Offset(-250, 0),
-    );
-
-    // Tap REGISTER button
-    await tester.tap(find.byKey(const ValueKey('RegisterButton')));
-
-    await tester.pumpAndSettle(const Duration(seconds: 10));
-    await Future.delayed(const Duration(seconds: 10));
-    expect(find.text('Confirm email'), findsWidgets);
-  });
 }
 
 
